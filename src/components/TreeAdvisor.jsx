@@ -2,31 +2,7 @@ import { useState, useRef } from 'react'
 import { streamChat } from '../lib/stream'
 import MarkdownContent from './MarkdownContent'
 
-const PROMPT = `You are an expert Christmas tree decorator. Analyze this photo and give a concise, complete decoration plan. Use bullet points throughout. Keep every section to 3–5 bullets maximum. Every sentence must be complete — never trail off or end mid-thought.
-
-## 🌲 Tree Assessment
-Size, shape, fullness, current decor level, and style potential — 2–3 bullets.
-
-## 🎨 Color Scheme
-3–5 specific colors that suit this tree, one bullet each with a brief reason.
-
-## 🎄 Ornament Plan
-Each ornament type on its own bullet: name · material · size · quantity.
-
-## 🕐 Placement Guide
-Clock positions (12 = top, 3 = right, 6 = bottom, 9 = left) — 3–4 bullets specifying which ornaments go where and why.
-- Size and weight considerations
-- How to achieve visual balance
-- Where to place focal/statement pieces
-
-## 💡 Lighting
-Light type, estimated count, and layering technique — 1–2 bullets.
-
-## ⭐ Topper
-One bullet: recommended topper style and one-sentence reason.
-
-## ✨ Pro Tips
-3 specific tips for this exact tree — one bullet each, complete sentences.`
+const PROMPT = `You are a personal holiday stylist sending a quick text to a friend about their Christmas tree. Look at this photo and give exactly 5 bullet points — no more, no less. Each bullet is 1–2 complete sentences, casual and direct, like you're texting. No headers, no sections, no formal report language. Every sentence must be fully complete. Lead with the most important styling move first.`
 
 export default function TreeAdvisor() {
   const [image, setImage] = useState(null)
@@ -71,6 +47,7 @@ export default function TreeAdvisor() {
             { type: 'text', text: PROMPT },
           ],
         }],
+        maxTokens: 1000,
         onText: (text) => setResult(prev => prev + text),
       })
     } catch (err) {
