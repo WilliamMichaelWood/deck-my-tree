@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background (fills full square — safe for maskable icons) -->
+  <rect width="512" height="512" fill="#0e1e10"/>
+
+  <!-- Bottom tree layer (widest) -->
+  <polygon points="256,345 68,472 444,472" fill="#1a5c2a"/>
+  <polygon points="256,345 68,472 256,472" fill="#225e30" opacity="0.5"/>
+
+  <!-- Middle tree layer -->
+  <polygon points="256,222 118,368 394,368" fill="#2d7a4f"/>
+  <polygon points="256,222 118,368 256,368" fill="#369060" opacity="0.4"/>
+
+  <!-- Top tree layer (narrowest) -->
+  <polygon points="256,102 162,260 350,260" fill="#3a9460"/>
+  <polygon points="256,102 162,260 256,260" fill="#45aa6e" opacity="0.3"/>
+
+  <!-- Trunk -->
+  <rect x="222" y="468" width="68" height="32" rx="5" fill="#8b5e3c"/>
+
+  <!-- Gold star topper -->
+  <polygon points="256,52 264,77 290,77 269,92 277,117 256,102 235,117 243,92 222,77 248,77" fill="#d4a843"/>
+  <polygon points="256,65 261,77 274,77 265,84 268,96 256,89 244,96 247,84 238,77 251,77" fill="#f0cc6b"/>
+
+  <!-- Ornaments — red + gold alternating -->
+  <circle cx="214" cy="292" r="16" fill="#c0392b"/>
+  <circle cx="298" cy="292" r="16" fill="#d4a843"/>
+  <circle cx="174" cy="392" r="17" fill="#d4a843"/>
+  <circle cx="256" cy="374" r="15" fill="#c0392b"/>
+  <circle cx="338" cy="392" r="17" fill="#c0392b"/>
+  <circle cx="214" cy="396" r="13" fill="#d4a843"/>
+  <circle cx="298" cy="396" r="13" fill="#d4a843"/>
+
+  <!-- Twinkling lights -->
+  <circle cx="256" cy="184" r="6" fill="#f0cc6b"/>
+  <circle cx="235" cy="210" r="5" fill="#f0cc6b"/>
+  <circle cx="277" cy="210" r="5" fill="#f0cc6b"/>
+  <circle cx="220" cy="238" r="4" fill="#e8c547"/>
+  <circle cx="292" cy="238" r="4" fill="#e8c547"/>
+</svg>
