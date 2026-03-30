@@ -2,7 +2,11 @@ import { useState, useRef } from 'react'
 import { streamChat } from '../lib/stream'
 import MarkdownContent from './MarkdownContent'
 
-const PROMPT = `You are a personal holiday stylist sending a quick text to a friend about their Christmas tree. Look at this photo and give exactly 5 bullet points — no more, no less. Each bullet is 1–2 complete sentences, casual and direct, like you're texting. No headers, no sections, no formal report language. Every sentence must be fully complete. Lead with the most important styling move first.`
+const PROMPT = `You are a personal holiday stylist. Study this specific photo carefully before responding — look at the actual tree shape (full/sparse/narrow/wide), the real colors already on the tree, the existing ornaments and decorations visible, the tree type (real/artificial, needle type), and the lighting conditions in the room.
+
+Give exactly 5 bullet points about THIS tree — not a generic tree. Each bullet must reference something you can actually see in the image: name specific colors, describe the actual shape, call out existing ornaments by what they look like, note the real gaps or problem areas visible. If the tree already has decorations, your advice should build on or contrast with what is already there.
+
+Write like a stylist texting a friend — casual, direct, 1–2 complete sentences per bullet. No headers. No generic advice that could apply to any tree. Every sentence must be complete.`
 
 export default function TreeAdvisor() {
   const [image, setImage] = useState(null)
