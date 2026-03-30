@@ -676,7 +676,7 @@ a { text-decoration: none; color: inherit; }
 /* ─── Product Cards ──────────────────────────────────────────── */
 .product-cards-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   background: var(--border-soft);
   gap: 1px;
 }
@@ -738,7 +738,7 @@ a { text-decoration: none; color: inherit; }
   .palette-grid { grid-template-columns: repeat(2, 1fr); }
   .form-row-2   { grid-template-columns: 1fr; }
   .ornament-grid { grid-template-columns: 1fr 1fr; }
-  .product-cards-grid { grid-template-columns: 1fr; }
+  .product-image-placeholder { max-height: 120px; }
   .rec-card-header { padding: 16px 16px 14px; gap: 12px; }
   .rec-number { font-size: 1.6rem; min-width: 38px; }
   .rec-why { padding: 10px 16px; }

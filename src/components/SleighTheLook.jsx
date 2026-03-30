@@ -27,9 +27,8 @@ const BUDGETS = ['Under $50', '$50–$150', '$150–$300', '$300–$500', '$500+
 const SIZES   = ['Tabletop (under 3ft)', 'Small (3–5ft)', 'Medium (6–7ft)', 'Large (8–9ft)', 'XL (10ft+)']
 
 const RETAILERS = [
-  { key: 'walmart',     label: 'Walmart',      color: '#0071ce' },
-  { key: 'amazon',      label: 'Amazon',       color: '#ff9900' },
-  { key: 'potterybarn', label: 'Pottery Barn', color: '#c8854a' },
+  { key: 'walmart', label: 'Walmart', color: '#0071ce' },
+  { key: 'amazon',  label: 'Amazon',  color: '#ff9900' },
 ]
 
 const buildPrompt = ({ style, palette, budget, size, extraContext }) =>
@@ -44,24 +43,22 @@ Each item must use exactly this structure:
   "type": "ball | drop | figure | garland | clip-on | etc",
   "quantity": "X pieces",
   "whyPerfect": "One sentence why this suits their palette and style",
-  "walmart":     { "price": "$X–$XX" },
-  "amazon":      { "price": "$X–$XX" },
-  "potterybarn": { "price": "$XX–$XXX" }
+  "walmart": { "price": "$X–$XX" },
+  "amazon":  { "price": "$X–$XX" }
 }
 
-Tree Style:   ${style}
+Tree Style:    ${style}
 Color Palette: ${palette}
-Budget:       ${budget}
-Tree Size:    ${size}
+Budget:        ${budget}
+Tree Size:     ${size}
 ${extraContext ? `Notes: ${extraContext}` : ''}
 
-Return exactly 8 items. Pottery Barn prices should be 2–3× Walmart. Output only the JSON array.`
+Return exactly 8 items. Output only the JSON array.`
 
 function getSearchUrl(retailer, name) {
   const q = encodeURIComponent(name + ' christmas ornament')
-  if (retailer === 'walmart')     return `https://www.walmart.com/search?q=${q}`
-  if (retailer === 'amazon')      return `https://www.amazon.com/s?k=${q}`
-  return `https://www.potterybarn.com/search/results.html?words=${encodeURIComponent(name + ' ornament')}`
+  if (retailer === 'walmart') return `https://www.walmart.com/search?q=${q}`
+  if (retailer === 'amazon')  return `https://www.amazon.com/s?k=${q}`
 }
 
 function OrnamentPlaceholder({ color }) {
@@ -182,7 +179,7 @@ export default function SleighTheLook() {
       <div className="section-header">
         <div className="section-divider" />
         <h2>Sleigh the Look</h2>
-        <p>Tell your stylist about your tree and they'll curate a personalized ornament shopping list — with picks across three price points.</p>
+        <p>Tell your stylist about your tree and they'll curate a personalized ornament shopping list — shoppable on Walmart and Amazon.</p>
       </div>
 
       <div className="shop-form">
@@ -287,7 +284,7 @@ export default function SleighTheLook() {
           <span className="spin">✦</span>
           <div>
             <p className="loading-title">Your stylist is curating…</p>
-            <p className="loading-sub">Sourcing ornaments across Walmart, Amazon &amp; Pottery Barn</p>
+            <p className="loading-sub">Sourcing ornaments across Walmart &amp; Amazon</p>
           </div>
         </div>
       )}
