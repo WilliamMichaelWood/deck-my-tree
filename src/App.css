@@ -253,7 +253,7 @@ a { text-decoration: none; color: inherit; }
   transform: translateY(-1px);
 }
 .btn-primary:active:not(:disabled) { transform: translateY(0); }
-.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-primary:disabled { opacity: 0.72; cursor: not-allowed; transform: none; }
 .btn-primary.btn-full { width: 100%; }
 .btn-primary.btn-lg { padding: 15px 30px; font-size: 0.96rem; }
 
@@ -421,7 +421,7 @@ a { text-decoration: none; color: inherit; }
   box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1);
 }
 .form-select { appearance: none; cursor: pointer; }
-.form-textarea { resize: vertical; min-height: 84px; }
+.form-textarea { resize: vertical; min-height: 84px; background: var(--navy-lift); }
 
 /* ─── Ornament Collection ────────────────────────────────────── */
 .collection-section { display: flex; flex-direction: column; gap: 16px; }
@@ -501,7 +501,7 @@ a { text-decoration: none; color: inherit; }
 .form-section-title {
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--text-soft);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
