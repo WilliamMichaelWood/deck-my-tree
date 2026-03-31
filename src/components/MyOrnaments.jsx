@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { streamChat } from '../lib/stream'
 import MarkdownContent from './MarkdownContent'
 
@@ -31,11 +31,17 @@ How should I arrange these ornaments on the tree for maximum impact? Use clock p
 3 expert tips to elevate this collection and make the tree look professionally decorated.`
 
 export default function MyOrnaments() {
-  const [ornaments, setOrnaments] = useState([])
+  const [ornaments, setOrnaments] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('deck-my-tree-ornaments')) || [] } catch { return [] }
+  })
   const [form, setForm] = useState({ name: '', color: '', style: 'Classic', material: 'Glass', notes: '' })
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState('')
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    localStorage.setItem('deck-my-tree-ornaments', JSON.stringify(ornaments))
+  }, [ornaments])
 
   const addOrnament = () => {
     if (!form.name.trim() || !form.color.trim()) return
