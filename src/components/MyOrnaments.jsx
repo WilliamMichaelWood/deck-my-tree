@@ -70,7 +70,7 @@ export default function MyOrnaments() {
   return (
     <div className="tab-content">
       <div className="section-header">
-        <h2><svg width="18" height="22" viewBox="0 0 18 22" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '6px', marginBottom: '2px' }}><rect x="7.5" y="0" width="3" height="5.5" rx="1.2" fill="#9a7830"/><circle cx="9" cy="13.5" r="8.5" fill="#c0392b"/><ellipse cx="6.5" cy="10.5" rx="2" ry="1.4" fill="rgba(255,255,255,0.28)" transform="rotate(-20 6.5 10.5)"/></svg>My Ornaments</h2>
+        <h2><svg width="18" height="22" viewBox="0 0 18 22" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '8px', marginBottom: '2px' }}><rect x="7.5" y="0" width="3" height="5.5" rx="1.2" fill="#8a6520"/><circle cx="9" cy="13.5" r="8.5" fill="#c9a84c"/><ellipse cx="6.5" cy="10.5" rx="2" ry="1.4" fill="rgba(255,255,255,0.32)" transform="rotate(-20 6.5 10.5)"/></svg>My Ornaments</h2>
         <p>Tell us about the ornaments you already own, and your stylist will check compatibility, identify your design themes, and suggest what's missing.</p>
       </div>
 

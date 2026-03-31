@@ -178,7 +178,7 @@ export default function SleighTheLook() {
     <div className="tab-content">
       <div className="section-header">
         <div className="section-divider" />
-        <h2>Sleigh the Look</h2>
+        <h2><svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '8px', marginBottom: '3px' }}><path d="M11,0.5 L12.8,9.2 L21.5,11 L12.8,12.8 L11,21.5 L9.2,12.8 L0.5,11 L9.2,9.2 Z" fill="#c9a84c"/><circle cx="17.5" cy="4.5" r="1" fill="#c9a84c" opacity="0.5"/><circle cx="4.5" cy="17.5" r="1" fill="#c9a84c" opacity="0.5"/><circle cx="17.5" cy="17.5" r="1" fill="#c9a84c" opacity="0.38"/><circle cx="4.5" cy="4.5" r="1" fill="#c9a84c" opacity="0.38"/></svg>Sleigh the Look</h2>
         <p>Tell your stylist about your tree and they'll curate a personalized ornament shopping list — shoppable on Walmart and Amazon.</p>
       </div>
 
