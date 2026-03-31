@@ -3,10 +3,10 @@ import { streamChat } from '../lib/stream'
 
 const TREE_STYLES = [
   { id: 'classic',      label: 'Classic',      icon: '🎄' },
-  { id: 'modern',       label: 'Modern',       icon: <svg width="20" height="20" viewBox="0 0 20 20" style={{display:'block'}}><polygon points="10,2 17.3,6 17.3,14 10,18 2.7,14 2.7,6" fill="none" stroke="#c9a84c" strokeWidth="1.8"/></svg> },
+  { id: 'modern',       label: 'Modern',       icon: <svg width="20" height="20" viewBox="0 0 20 20" style={{display:'block'}}><polygon points="10,2 17.3,6 17.3,14 10,18 2.7,14 2.7,6" fill="none" stroke="#5c606e" strokeWidth="1.8"/></svg> },
   { id: 'rustic',       label: 'Rustic',       icon: '🪵' },
   { id: 'whimsical',    label: 'Whimsical',    icon: '🦄' },
-  { id: 'elegant',      label: 'Elegant',      icon: <svg width="20" height="20" viewBox="0 0 20 20" style={{display:'block'}}><path d="M2,14.5 L2,9 L6.5,13 L10,2.5 L13.5,13 L18,9 L18,14.5 Z" fill="#c9a84c"/><rect x="2" y="15.2" width="16" height="2.3" rx="0.9" fill="#c9a84c"/></svg> },
+  { id: 'elegant',      label: 'Elegant',      icon: <svg width="20" height="20" viewBox="0 0 20 20" style={{display:'block'}}><path d="M2,14.5 L2,9 L6.5,13 L10,2.5 L13.5,13 L18,9 L18,14.5 Z" fill="#9b59b6"/><rect x="2" y="15.2" width="16" height="2.3" rx="0.9" fill="#9b59b6"/></svg> },
   { id: 'scandinavian', label: 'Scandinavian', icon: '❄️' },
   { id: 'coastal',      label: 'Coastal',      icon: '🐚' },
   { id: 'maximalist',   label: 'Maximalist',   icon: '🌟' },

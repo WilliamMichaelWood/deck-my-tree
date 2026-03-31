@@ -542,10 +542,6 @@ a { text-decoration: none; color: inherit; }
   box-shadow: var(--shadow-gold);
 }
 .style-icon { font-size: 1.35rem; }
-.style-btn[data-style="modern"]  { background: #1a1c22; border-color: rgba(255,255,255,0.07); }
-.style-btn[data-style="elegant"] { background: #1e1228; border-color: rgba(180,120,220,0.18); }
-.style-btn[data-style="modern"]:hover  { background: #252830; }
-.style-btn[data-style="elegant"]:hover { background: #271535; }
 
 .palette-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .palette-btn {
