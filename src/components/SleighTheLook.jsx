@@ -188,6 +188,7 @@ export default function SleighTheLook() {
             {TREE_STYLES.map(s => (
               <button
                 key={s.id}
+                data-style={s.id}
                 className={`style-btn${style === s.label ? ' selected' : ''}`}
                 onClick={() => { setStyle(s.label); reset() }}
               >
