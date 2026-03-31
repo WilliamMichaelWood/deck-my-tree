@@ -67,7 +67,11 @@ export default function MyOrnaments() {
         onText: (text) => setResult(prev => prev + text),
       })
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again in a moment.')
+      const msg = err.message || ''
+      const isNetworkError = /load failed|failed to fetch|network/i.test(msg)
+      setError(isNetworkError
+        ? 'Connection error. Please check your internet and try again.'
+        : 'Something went wrong. Please try again in a moment.')
     } finally {
       setLoading(false)
     }

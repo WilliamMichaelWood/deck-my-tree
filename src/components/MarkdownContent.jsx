@@ -7,6 +7,14 @@ function renderInline(text) {
   })
 }
 
+function parseTableRow(line) {
+  return line.replace(/^\||\|$/g, '').split('|').map(cell => cell.trim())
+}
+
+function isTableSeparator(line) {
+  return /^\|?[\s\-|:]+\|?$/.test(line) && line.includes('-')
+}
+
 export default function MarkdownContent({ text }) {
   if (!text) return null
 
@@ -18,6 +26,43 @@ export default function MarkdownContent({ text }) {
     const line = lines[i]
 
     if (!line.trim()) { i++; continue }
+
+    // Table: look for a pipe-delimited block (header | separator | rows)
+    if (line.trim().startsWith('|')) {
+      const tableLines = []
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        tableLines.push(lines[i])
+        i++
+      }
+      // Find separator row
+      const sepIdx = tableLines.findIndex(isTableSeparator)
+      if (sepIdx > 0) {
+        const headers = parseTableRow(tableLines[0])
+        const bodyRows = tableLines.slice(sepIdx + 1).filter(l => !isTableSeparator(l))
+        elements.push(
+          <div key={`tbl-${i}`} className="md-table-wrap">
+            <table className="md-table">
+              <thead>
+                <tr>{headers.map((h, hi) => <th key={hi}>{renderInline(h)}</th>)}</tr>
+              </thead>
+              <tbody>
+                {bodyRows.map((row, ri) => (
+                  <tr key={ri}>
+                    {parseTableRow(row).map((cell, ci) => <td key={ci}>{renderInline(cell)}</td>)}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      } else {
+        // Malformed table — render each line as a paragraph
+        tableLines.forEach((tl, ti) => {
+          elements.push(<p key={`tp-${i}-${ti}`} className="md-p">{renderInline(tl)}</p>)
+        })
+      }
+      continue
+    }
 
     if (line.startsWith('### ')) {
       elements.push(<h4 key={i} className="md-h4">{line.slice(4)}</h4>)
