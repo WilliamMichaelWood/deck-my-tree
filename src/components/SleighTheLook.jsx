@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react'
 import { streamChat } from '../lib/stream'
 
 const TREE_STYLES = [
-  { id: 'classic',       label: 'Classic',       icon: '🎄' },
-  { id: 'modern',        label: 'Modern',         icon: '◆'  },
-  { id: 'rustic',        label: 'Rustic',         icon: '🪵' },
-  { id: 'whimsical',     label: 'Whimsical',      icon: '🦄' },
-  { id: 'elegant',       label: 'Elegant',        icon: '✦'  },
-  { id: 'scandinavian',  label: 'Scandinavian',   icon: '❄️' },
-  { id: 'coastal',       label: 'Coastal',        icon: '🐚' },
-  { id: 'maximalist',    label: 'Maximalist',     icon: '🌟' },
+  { id: 'classic',      label: 'Classic',      icon: '🎄' },
+  { id: 'modern',       label: 'Modern',       icon: <svg width="20" height="20" viewBox="0 0 20 20" style={{display:'block'}}><polygon points="10,2 18,10 10,18 2,10" fill="none" stroke="currentColor" strokeWidth="1.5"/><polygon points="10,7 13,10 10,13 7,10" fill="currentColor"/></svg> },
+  { id: 'rustic',       label: 'Rustic',       icon: '🪵' },
+  { id: 'whimsical',    label: 'Whimsical',    icon: '🦄' },
+  { id: 'elegant',      label: 'Elegant',      icon: <svg width="20" height="20" viewBox="0 0 20 20" style={{display:'block'}}><path d="M2,15 L2,9.5 L6.5,13.5 L10,3 L13.5,13.5 L18,9.5 L18,15 Z" fill="currentColor"/><rect x="2" y="15.5" width="16" height="2" rx="0.8" fill="currentColor"/></svg> },
+  { id: 'scandinavian', label: 'Scandinavian', icon: '❄️' },
+  { id: 'coastal',      label: 'Coastal',      icon: '🐚' },
+  { id: 'maximalist',   label: 'Maximalist',   icon: '🌟' },
 ]
 
 const PALETTES = [

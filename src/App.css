@@ -154,9 +154,9 @@ a { text-decoration: none; color: inherit; }
 /* ─── Section Header ─────────────────────────────────────────── */
 .section-header { display: flex; flex-direction: column; gap: 6px; }
 .section-divider {
-  width: 40px;
-  height: 2px;
-  background: linear-gradient(90deg, var(--gold), transparent);
+  width: 32px;
+  height: 1px;
+  background: rgba(201, 168, 76, 0.22);
   margin-bottom: 4px;
 }
 .section-header h2 {
@@ -526,8 +526,8 @@ a { text-decoration: none; color: inherit; }
   align-items: center;
   gap: 6px;
   padding: 14px 8px;
-  background: var(--navy-card);
-  border: 1px solid var(--border-soft);
+  background: #223350;
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: var(--radius);
   color: var(--text-muted);
   font-size: 0.78rem;
