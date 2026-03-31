@@ -1,10 +1,10 @@
 /* ─── Design Tokens ─────────────────────────────────────────── */
 :root {
   /* Core palette */
-  --navy:           #0c1824;
-  --navy-mid:       #112233;
-  --navy-card:      #172a40;
-  --navy-lift:      #1e3652;
+  --navy:           #0f1f35;
+  --navy-mid:       #162840;
+  --navy-card:      #1c3350;
+  --navy-lift:      #243d5e;
   --forest:         #1d5c3a;
   --cranberry:      #9b1c2c;
   --gold:           #c9a84c;
@@ -15,12 +15,12 @@
 
   /* Text */
   --text:           #ede8d8;
-  --text-soft:      #a0b4c8;
-  --text-muted:     #5a7a92;
+  --text-soft:      #b8ccde;
+  --text-muted:     #7090a8;
 
   /* Borders & shadows */
   --border:         rgba(201, 168, 76, 0.18);
-  --border-soft:    rgba(255, 255, 255, 0.06);
+  --border-soft:    rgba(255, 255, 255, 0.09);
   --shadow-sm:      0 2px 8px rgba(0, 0, 0, 0.4);
   --shadow-md:      0 4px 24px rgba(0, 0, 0, 0.5);
   --shadow-lg:      0 8px 48px rgba(0, 0, 0, 0.65);
@@ -67,7 +67,7 @@ a { text-decoration: none; color: inherit; }
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(10, 18, 30, 0.96);
+  background: rgba(13, 24, 40, 0.96);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -107,7 +107,7 @@ a { text-decoration: none; color: inherit; }
   left: 0;
   right: 0;
   display: flex;
-  background: rgba(8, 14, 24, 0.98);
+  background: rgba(12, 20, 34, 0.98);
   border-top: 1px solid rgba(201, 168, 76, 0.16);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -526,7 +526,7 @@ a { text-decoration: none; color: inherit; }
   align-items: center;
   gap: 6px;
   padding: 14px 8px;
-  background: #223350;
+  background: #26415a;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: var(--radius);
   color: var(--text-soft);
