@@ -153,12 +153,6 @@ a { text-decoration: none; color: inherit; }
 
 /* ─── Section Header ─────────────────────────────────────────── */
 .section-header { display: flex; flex-direction: column; gap: 6px; }
-.section-divider {
-  width: 32px;
-  height: 1px;
-  background: rgba(201, 168, 76, 0.22);
-  margin-bottom: 4px;
-}
 .section-header h2 {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 1.75rem;
@@ -529,7 +523,7 @@ a { text-decoration: none; color: inherit; }
   background: #223350;
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: var(--radius);
-  color: var(--text-muted);
+  color: var(--text-soft);
   font-size: 0.78rem;
   font-weight: 500;
   box-shadow: var(--shadow-sm);

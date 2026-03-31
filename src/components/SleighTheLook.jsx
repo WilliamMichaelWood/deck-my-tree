@@ -3,10 +3,10 @@ import { streamChat } from '../lib/stream'
 
 const TREE_STYLES = [
   { id: 'classic',      label: 'Classic',      icon: '🎄' },
-  { id: 'modern',       label: 'Modern',       icon: <svg width="20" height="20" viewBox="0 0 20 20" style={{display:'block'}}><polygon points="10,2 18,10 10,18 2,10" fill="none" stroke="currentColor" strokeWidth="1.5"/><polygon points="10,7 13,10 10,13 7,10" fill="currentColor"/></svg> },
+  { id: 'modern',       label: 'Modern',       icon: <svg width="20" height="20" viewBox="0 0 20 20" style={{display:'block'}}><polygon points="10,2 17.3,6 17.3,14 10,18 2.7,14 2.7,6" fill="none" stroke="currentColor" strokeWidth="1.6"/></svg> },
   { id: 'rustic',       label: 'Rustic',       icon: '🪵' },
   { id: 'whimsical',    label: 'Whimsical',    icon: '🦄' },
-  { id: 'elegant',      label: 'Elegant',      icon: <svg width="20" height="20" viewBox="0 0 20 20" style={{display:'block'}}><path d="M2,15 L2,9.5 L6.5,13.5 L10,3 L13.5,13.5 L18,9.5 L18,15 Z" fill="currentColor"/><rect x="2" y="15.5" width="16" height="2" rx="0.8" fill="currentColor"/></svg> },
+  { id: 'elegant',      label: 'Elegant',      icon: <svg width="20" height="20" viewBox="0 0 20 20" style={{display:'block'}}><path d="M2,14.5 L2,9 L6.5,13 L10,2.5 L13.5,13 L18,9 L18,14.5 Z" fill="currentColor"/><rect x="2" y="15.2" width="16" height="2.3" rx="0.9" fill="currentColor"/></svg> },
   { id: 'scandinavian', label: 'Scandinavian', icon: '❄️' },
   { id: 'coastal',      label: 'Coastal',      icon: '🐚' },
   { id: 'maximalist',   label: 'Maximalist',   icon: '🌟' },
@@ -177,7 +177,6 @@ export default function SleighTheLook() {
   return (
     <div className="tab-content">
       <div className="section-header">
-        <div className="section-divider" />
         <h2><svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '8px', marginBottom: '3px' }}><path d="M11,0.5 L12.8,9.2 L21.5,11 L12.8,12.8 L11,21.5 L9.2,12.8 L0.5,11 L9.2,9.2 Z" fill="#c9a84c"/><circle cx="17.5" cy="4.5" r="1" fill="#c9a84c" opacity="0.5"/><circle cx="4.5" cy="17.5" r="1" fill="#c9a84c" opacity="0.5"/><circle cx="17.5" cy="17.5" r="1" fill="#c9a84c" opacity="0.38"/><circle cx="4.5" cy="4.5" r="1" fill="#c9a84c" opacity="0.38"/></svg>Sleigh the Look</h2>
         <p>Tell your stylist about your tree and they'll curate a personalized ornament shopping list — shoppable on Walmart and Amazon.</p>
       </div>
