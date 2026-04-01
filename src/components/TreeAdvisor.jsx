@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { streamChat } from '../lib/stream'
 import MarkdownContent from './MarkdownContent'
 
@@ -117,6 +117,39 @@ function PineconeOrnament({ color }) {
       <path d="M20,22 Q30,15 40,22" stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none"/>
       <ellipse cx="21" cy="36" rx="5" ry="4" fill="rgba(255,255,255,0.12)" transform="rotate(-10 21 36)"/>
     </svg>
+  )
+}
+
+const LOADER_STEPS = [
+  '✨ Your stylist is studying your tree…',
+  '🎄 Selecting the perfect ornaments…',
+  '✦ Placing them just for you…',
+]
+
+function MagicLoader() {
+  const [step,   setStep]   = useState(0)
+  const [fading, setFading] = useState(false)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setFading(true)
+      setTimeout(() => {
+        setStep(s => (s + 1) % LOADER_STEPS.length)
+        setFading(false)
+      }, 380)
+    }, 2200)
+    return () => clearInterval(timer)
+  }, [])
+
+  const progress = Math.round(((step + 1) / LOADER_STEPS.length) * 100)
+
+  return (
+    <div className="magic-loader">
+      <p className={`magic-message${fading ? ' fading' : ''}`}>{LOADER_STEPS[step]}</p>
+      <div className="magic-progress-track">
+        <div className="magic-progress-fill" style={{ width: `${progress}%` }} />
+      </div>
+    </div>
   )
 }
 
@@ -322,15 +355,7 @@ export default function TreeAdvisor() {
       )}
 
       {/* Overlay loading state */}
-      {overlayLoading && (
-        <div className="overlay-generating">
-          <span className="spin">✦</span>
-          <div>
-            <p className="loading-title">Decorating your tree…</p>
-            <p className="loading-sub">Placing ornaments on your branches</p>
-          </div>
-        </div>
-      )}
+      {overlayLoading && <MagicLoader />}
 
       {overlayError && <div className="error-card">⚠️ {overlayError}</div>}
 
