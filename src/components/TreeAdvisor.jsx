@@ -8,17 +8,49 @@ Give exactly 5 bullet points about THIS tree — not a generic tree. Each bullet
 
 Write like a stylist texting a friend — casual, direct, 1–2 complete sentences per bullet. No headers. No generic advice that could apply to any tree. Every sentence must be complete.`
 
-const OVERLAY_PROMPT = `Study this Christmas tree photo carefully. You will suggest exactly 7 ornaments to add to this specific tree.
+const DETECT_PROMPT = `Analyze this image and return ONLY a JSON object with the Christmas tree bounding box coordinates as percentages of the image dimensions: {"treeTop": number, "treeBottom": number, "treeLeft": number, "treeRight": number, "treeCenterX": number}. No other text, just the JSON.`
+
+function buildOverlayPrompt(b) {
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
+  const top = clamp(b.treeTop,     0,  60)
+  const bot = clamp(b.treeBottom,  40, 100)
+  const lft = clamp(b.treeLeft,    0,  48)
+  const rgt = clamp(b.treeRight,   52, 100)
+  const cx  = clamp(b.treeCenterX, 10, 90)
+
+  const h  = bot - top        // tree height in image %
+  const hw = (rgt - lft) / 2  // half-width at base in image %
+
+  // Zone y bounds
+  const u1 = Math.round(top + h * 0.10)
+  const u2 = Math.round(top + h * 0.33)
+  const m2 = Math.round(top + h * 0.63)
+  const l2 = Math.round(top + h * 0.87)
+
+  // x bounds at mid-point of each zone (triangular taper, 0.80 pad keeps off edge)
+  const xb = (frac, pad = 0.80) => {
+    const spread = Math.round(hw * frac * pad)
+    return { xl: Math.round(cx - spread), xr: Math.round(cx + spread) }
+  }
+  const { xl: uxl, xr: uxr } = xb(0.22)
+  const { xl: mxl, xr: mxr } = xb(0.50)
+  const { xl: lxl, xr: lxr } = xb(0.78)
+
+  // r scales with tree size (hw gives a sense of how large the tree is in-frame)
+  const rBase = Math.max(1.4, Math.min(2.8, hw * 0.13))
+  const rU = rBase * 0.78, rM = rBase, rL = rBase * 1.28
+
+  return `Study this Christmas tree photo. Suggest exactly 13 ornaments to add.
 
 Output ONLY a valid JSON array — no markdown, no explanation, no code fences. Start with [ and end with ].
 
-CRITICAL — placement rules (a violation will break the UI):
-Christmas trees are triangular — they get narrower toward the top. Only place ornaments inside the visible green tree silhouette.
-- Upper zone (y=12–33%): x within 40–60%. r = 1.6–2.1. Must have at least 4 ornaments here. Spread left and right of center.
-- Middle zone (y=33–62%): x within 26–74%. r = 2.1–2.8. Must have at least 5 ornaments here. Spread across the full width.
-- Lower zone (y=62–85%): x within 18–82%. r = 2.6–3.4. Must have at least 4 ornaments here. Spread across the full width.
-- NEVER place x,y in the background sky, floor, pot/stand, or outside the tree outline.
-- Spread ornaments naturally — avoid clustering. No two ornaments should have nearly identical x,y values.
+DETECTED TREE BOUNDS — these coordinates come from automated analysis of THIS exact photo. Every ornament x,y must stay inside these zones:
+- Upper zone  y=${u1}–${u2}%  |  x=${uxl}–${uxr}%  |  r=${rU.toFixed(1)}–${(rU*1.4).toFixed(1)}  |  place exactly 4 ornaments
+- Middle zone y=${u2}–${m2}%  |  x=${mxl}–${mxr}%  |  r=${rM.toFixed(1)}–${(rM*1.4).toFixed(1)}  |  place exactly 5 ornaments
+- Lower zone  y=${m2}–${l2}%  |  x=${lxl}–${lxr}%  |  r=${rL.toFixed(1)}–${(rL*1.4).toFixed(1)}  |  place exactly 4 ornaments
+
+CRITICAL: an ornament placed outside its zone's x or y range will render off the tree. Treat these bounds as hard walls.
+Spread ornaments naturally across each zone — no two should share nearly identical x,y values.
 
 Each item must use exactly this structure:
 {
@@ -26,19 +58,17 @@ Each item must use exactly this structure:
   "label": "Short display label (e.g. 'Red Ball')",
   "color": "#hexcolor",
   "shape": "ball",
-  "x": 42,
-  "y": 55,
-  "r": 2.0,
+  "x": ${Math.round(cx)},
+  "y": ${Math.round(top + h * 0.5)},
+  "r": ${rM.toFixed(1)},
   "walmart":     { "price": "$X–$XX" },
   "amazon":      { "price": "$X–$XX" },
   "potterybarn": { "price": "$X–$XX" }
 }
 
-Shape must be one of: "ball" (round glass ball), "drop" (elongated teardrop), "star" (5-pointed star), "snowflake" (6-armed snowflake), "pinecone" (oval pinecone).
-Choose the shape that matches what you're recommending. Default to "ball" when in doubt.
-Choose colors that complement this tree's existing palette. Name must be specific enough for good search results.
-
-Return exactly 13 items.`
+shape must be one of: "ball" "drop" "star" "snowflake" "pinecone" — choose what matches the ornament.
+Choose colors that complement this tree's existing palette. Return exactly 13 items.`
+}
 
 const RETAILERS = [
   { key: 'walmart',     label: 'Walmart',      color: '#0071ce' },
@@ -209,10 +239,10 @@ export default function TreeAdvisor() {
     }
   }, [rawOverlay, overlayLoading])
 
-  // Auto-trigger overlay after analysis text is ready
+  // Auto-trigger tree detection + ornament placement after analysis text is ready
   useEffect(() => {
     if (!loading && result && image && !ornaments.length && !overlayLoading && !rawOverlay) {
-      handleOverlay()
+      handleDetectAndDecorate()
     }
   }, [loading, result])
 
@@ -283,18 +313,41 @@ export default function TreeAdvisor() {
     }
   }
 
-  const handleOverlay = async () => {
+  const handleDetectAndDecorate = async () => {
     if (!image) return
     setOverlayLoading(true)
     setRawOverlay('')
     setOverlayError('')
+
     try {
+      // Step 1 — detect tree bounding box
+      let detectRaw = ''
       await streamChat({
         messages: [{
           role: 'user',
           content: [
             { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
-            { type: 'text', text: OVERLAY_PROMPT },
+            { type: 'text', text: DETECT_PROMPT },
+          ],
+        }],
+        maxTokens: 200,
+        onText: (t) => { detectRaw += t },
+      })
+
+      // Parse bounds — fall back to full-image safe defaults on failure
+      let bounds = { treeTop: 5, treeBottom: 90, treeLeft: 10, treeRight: 90, treeCenterX: 50 }
+      try {
+        const s = detectRaw.indexOf('{'), e = detectRaw.lastIndexOf('}')
+        if (s !== -1 && e !== -1) bounds = { ...bounds, ...JSON.parse(detectRaw.slice(s, e + 1)) }
+      } catch { /* use defaults */ }
+
+      // Step 2 — place ornaments using detected bounds
+      await streamChat({
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+            { type: 'text', text: buildOverlayPrompt(bounds) },
           ],
         }],
         maxTokens: 3500,
