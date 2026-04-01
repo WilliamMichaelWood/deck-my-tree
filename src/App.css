@@ -779,10 +779,9 @@ a { text-decoration: none; color: inherit; }
   height: 0;
   transform: translate(-50%, -50%);
   box-shadow:
-    inset -2px -3px 7px rgba(0,0,0,0.38),
+    inset -2px -3px 7px rgba(0,0,0,0.35),
     inset 1px 1px 4px rgba(255,255,255,0.18),
-    0 3px 14px rgba(0,0,0,0.55),
-    0 0 0 1.5px rgba(255,255,255,0.22);
+    0 0 0 1px rgba(255,255,255,0.18);
   pointer-events: none;
 }
 

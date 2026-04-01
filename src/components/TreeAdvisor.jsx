@@ -8,11 +8,17 @@ Give exactly 5 bullet points about THIS tree — not a generic tree. Each bullet
 
 Write like a stylist texting a friend — casual, direct, 1–2 complete sentences per bullet. No headers. No generic advice that could apply to any tree. Every sentence must be complete.`
 
-const OVERLAY_PROMPT = `Study this Christmas tree photo carefully. You will suggest exactly 7 ornaments to add to this specific tree to complete its look.
+const OVERLAY_PROMPT = `Study this Christmas tree photo carefully. You will suggest exactly 7 ornaments to add to this specific tree.
 
 Output ONLY a valid JSON array — no markdown, no explanation, no code fences. Start with [ and end with ].
 
-For each ornament, choose a realistic branch location on this tree. Express x and y as percentages of the full image (0 = left/top edge, 100 = right/bottom edge). Only place ornaments where there are actual branches visible in the photo.
+CRITICAL — placement rules (violations will break the UI):
+Christmas trees are roughly triangular. The tree gets narrower toward the top.
+- Upper third of tree (y=10–35%): x must stay within roughly 38–62% of image width (narrow zone near the tip). r must be 1.4–1.8.
+- Middle third of tree (y=35–65%): x must stay within roughly 28–72% of image width. r must be 1.8–2.4.
+- Lower third of tree (y=65–88%): x must stay within roughly 22–78% of image width. r must be 2.2–3.0.
+- NEVER place ornaments in the sky/background, outside the green tree silhouette, on the floor, or on the trunk.
+- You MUST have at least 2 ornaments in each zone (upper/middle/lower).
 
 Each item must use exactly this structure:
 {
@@ -21,19 +27,16 @@ Each item must use exactly this structure:
   "color": "#hexcolor",
   "x": 42,
   "y": 55,
-  "r": 3.5,
+  "r": 2.0,
   "walmart":     { "price": "$X–$XX" },
   "amazon":      { "price": "$X–$XX" },
   "potterybarn": { "price": "$X–$XX" }
 }
 
-Rules:
-- x and y must be ON the tree branches (not background, floor, or ceiling)
-- Spread ornaments across all three zones: upper third, middle third, lower third
-- Vary left/right placement naturally — trees aren't symmetric
-- r (radius as % of image width) should be 2.8–4.5 for a natural ornament size
+Additional rules:
+- Vary x placement naturally within each zone — trees aren't symmetric
 - Choose colors that complement this tree's existing palette and style
-- Name must be specific enough to return good results on Walmart, Amazon, and Pottery Barn
+- Name must be specific enough to return good search results
 
 Return exactly 7 items.`
 
@@ -260,20 +263,26 @@ export default function TreeAdvisor() {
 
           <div className="tree-overlay-wrap">
             <img src={image.preview} alt="Your decorated tree" className="tree-overlay-img" />
-            {ornaments.map((o, i) => (
-              <div
-                key={i}
-                className="ornament-pin"
-                title={o.label}
-                style={{
-                  left: `${o.x}%`,
-                  top:  `${o.y}%`,
-                  width:  `${Math.max(o.r * 2, 5)}%`,
-                  paddingBottom: `${Math.max(o.r * 2, 5)}%`,
-                  background: `radial-gradient(circle at 32% 28%, rgba(255,255,255,0.6) 0%, ${o.color}dd 38%, ${o.color} 100%)`,
-                }}
-              />
-            ))}
+            {ornaments.map((o, i) => {
+              // Perspective: ornaments shrink toward the top (smaller y = higher = smaller)
+              const perspectiveScale = 0.72 + (o.y / 100) * 0.55
+              const diameter = `${o.r * 2 * perspectiveScale}%`
+              return (
+                <div
+                  key={i}
+                  className="ornament-pin"
+                  title={o.label}
+                  style={{
+                    left: `${o.x}%`,
+                    top:  `${o.y}%`,
+                    width:         diameter,
+                    paddingBottom: diameter,
+                    background: `radial-gradient(circle at 32% 28%, rgba(255,255,255,0.58) 0%, ${o.color}e0 36%, ${o.color} 100%)`,
+                    filter: `drop-shadow(0 ${Math.round(2 * perspectiveScale)}px ${Math.round(6 * perspectiveScale)}px rgba(0,0,0,0.65))`,
+                  }}
+                />
+              )
+            })}
           </div>
 
           <div className="ornament-legend">
