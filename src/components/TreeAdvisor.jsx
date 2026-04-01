@@ -12,19 +12,19 @@ const OVERLAY_PROMPT = `Study this Christmas tree photo carefully. You will sugg
 
 Output ONLY a valid JSON array — no markdown, no explanation, no code fences. Start with [ and end with ].
 
-CRITICAL — placement rules (violations will break the UI):
-Christmas trees are roughly triangular. The tree gets narrower toward the top.
-- Upper third of tree (y=10–35%): x must stay within roughly 38–62% of image width (narrow zone near the tip). r must be 1.4–1.8.
-- Middle third of tree (y=35–65%): x must stay within roughly 28–72% of image width. r must be 1.8–2.4.
-- Lower third of tree (y=65–88%): x must stay within roughly 22–78% of image width. r must be 2.2–3.0.
-- NEVER place ornaments in the sky/background, outside the green tree silhouette, on the floor, or on the trunk.
-- You MUST have at least 2 ornaments in each zone (upper/middle/lower).
+CRITICAL — placement rules (a violation will break the UI):
+Christmas trees are triangular — they get narrower toward the top. Only place ornaments inside the visible green tree silhouette.
+- Upper zone (y=12–33%): x within 40–60%. r = 1.3–1.7. Must have at least 2 ornaments here.
+- Middle zone (y=33–62%): x within 28–72%. r = 1.7–2.3. Must have at least 2 ornaments here.
+- Lower zone (y=62–85%): x within 20–80%. r = 2.1–2.8. Must have at least 2 ornaments here.
+- NEVER place x,y in the background sky, floor, pot/stand, or outside the tree outline.
 
 Each item must use exactly this structure:
 {
   "name": "Specific searchable ornament name (e.g. 'Shiny red glass ball ornament set of 12')",
   "label": "Short display label (e.g. 'Red Ball')",
   "color": "#hexcolor",
+  "shape": "ball",
   "x": 42,
   "y": 55,
   "r": 2.0,
@@ -33,10 +33,9 @@ Each item must use exactly this structure:
   "potterybarn": { "price": "$X–$XX" }
 }
 
-Additional rules:
-- Vary x placement naturally within each zone — trees aren't symmetric
-- Choose colors that complement this tree's existing palette and style
-- Name must be specific enough to return good search results
+Shape must be one of: "ball" (round glass ball), "drop" (elongated teardrop), "star" (5-pointed star), "snowflake" (6-armed snowflake), "pinecone" (oval pinecone).
+Choose the shape that matches what you're recommending. Default to "ball" when in doubt.
+Choose colors that complement this tree's existing palette. Name must be specific enough for good search results.
 
 Return exactly 7 items.`
 
@@ -45,6 +44,90 @@ const RETAILERS = [
   { key: 'amazon',      label: 'Amazon',       color: '#ff9900' },
   { key: 'potterybarn', label: 'Pottery Barn', color: '#8b6914' },
 ]
+
+function BallOrnament({ color }) {
+  return (
+    <svg width="100%" viewBox="0 0 60 74" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="26" y="0" width="8" height="14" rx="3.5" fill="#c9a84c"/>
+      <circle cx="30" cy="46" r="26" fill={color}/>
+      <ellipse cx="21" cy="35" rx="8" ry="6" fill="rgba(255,255,255,0.48)" transform="rotate(-20 21 35)"/>
+    </svg>
+  )
+}
+
+function DropOrnament({ color }) {
+  return (
+    <svg width="100%" viewBox="0 0 60 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="26" y="0" width="8" height="13" rx="3.5" fill="#c9a84c"/>
+      <path d="M30,13 C18,13 7,27 7,45 C7,62 17,76 30,76 C43,76 53,62 53,45 C53,27 42,13 30,13 Z" fill={color}/>
+      <ellipse cx="21" cy="32" rx="6" ry="10" fill="rgba(255,255,255,0.44)" transform="rotate(-15 21 32)"/>
+    </svg>
+  )
+}
+
+function StarOrnament({ color }) {
+  return (
+    <svg width="100%" viewBox="0 0 60 74" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="26" y="0" width="8" height="14" rx="3.5" fill="#c9a84c"/>
+      {/* 5-pointed star, center (30,48), outer R=20, inner r=8 */}
+      <polygon
+        points="30,28 35,42 49,42 38,51 42,64 30,56 18,64 22,51 11,42 25,42"
+        fill={color}
+      />
+      <ellipse cx="23" cy="37" rx="4" ry="3" fill="rgba(255,255,255,0.38)" transform="rotate(-30 23 37)"/>
+    </svg>
+  )
+}
+
+function SnowflakeOrnament({ color }) {
+  return (
+    <svg width="100%" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g stroke={color} strokeWidth="4.5" strokeLinecap="round">
+        {/* 3 axes = 6 arms */}
+        <line x1="30" y1="6"  x2="30" y2="54"/>
+        <line x1="7"  y1="19" x2="53" y2="41"/>
+        <line x1="53" y1="19" x2="7"  y2="41"/>
+        {/* branch marks on vertical arm */}
+        <line x1="23" y1="17" x2="37" y2="17"/>
+        <line x1="23" y1="43" x2="37" y2="43"/>
+        {/* branch marks on 60° arm */}
+        <line x1="14" y1="22" x2="22" y2="14"/>
+        <line x1="38" y1="46" x2="46" y2="38"/>
+        {/* branch marks on 120° arm */}
+        <line x1="46" y1="22" x2="38" y2="14"/>
+        <line x1="22" y1="46" x2="14" y2="38"/>
+      </g>
+      <circle cx="30" cy="30" r="4" fill={color}/>
+    </svg>
+  )
+}
+
+function PineconeOrnament({ color }) {
+  const brown = color || '#7a4a22'
+  return (
+    <svg width="100%" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="26" y="0" width="8" height="12" rx="3" fill="#c9a84c"/>
+      <ellipse cx="30" cy="48" rx="18" ry="28" fill={brown}/>
+      {/* scale arcs from bottom to top */}
+      <path d="M13,62 Q30,54 47,62" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
+      <path d="M14,52 Q30,44 46,52" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
+      <path d="M15,42 Q30,34 45,42" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
+      <path d="M17,32 Q30,24 43,32" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
+      <path d="M20,22 Q30,15 40,22" stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none"/>
+      <ellipse cx="21" cy="36" rx="5" ry="4" fill="rgba(255,255,255,0.12)" transform="rotate(-10 21 36)"/>
+    </svg>
+  )
+}
+
+function OrnamentShape({ shape, color }) {
+  switch (shape) {
+    case 'drop':      return <DropOrnament      color={color} />
+    case 'star':      return <StarOrnament      color={color} />
+    case 'snowflake': return <SnowflakeOrnament color={color} />
+    case 'pinecone':  return <PineconeOrnament  color={color} />
+    default:          return <BallOrnament      color={color} />
+  }
+}
 
 function getSearchUrl(retailer, name) {
   const q = encodeURIComponent(name + ' christmas ornament')
@@ -264,23 +347,25 @@ export default function TreeAdvisor() {
           <div className="tree-overlay-wrap">
             <img src={image.preview} alt="Your decorated tree" className="tree-overlay-img" />
             {ornaments.map((o, i) => {
-              // Perspective: ornaments shrink toward the top (smaller y = higher = smaller)
+              // Perspective: ornaments shrink toward the top (smaller y = higher on tree = smaller)
               const perspectiveScale = 0.72 + (o.y / 100) * 0.55
-              const diameter = `${o.r * 2 * perspectiveScale}%`
+              const size = `${o.r * 2 * perspectiveScale}%`
+              const shadowBlur   = Math.round(7 * perspectiveScale)
+              const shadowOffset = Math.round(2 * perspectiveScale)
               return (
                 <div
                   key={i}
                   className="ornament-pin"
                   title={o.label}
                   style={{
-                    left: `${o.x}%`,
-                    top:  `${o.y}%`,
-                    width:         diameter,
-                    paddingBottom: diameter,
-                    background: `radial-gradient(circle at 32% 28%, rgba(255,255,255,0.58) 0%, ${o.color}e0 36%, ${o.color} 100%)`,
-                    filter: `drop-shadow(0 ${Math.round(2 * perspectiveScale)}px ${Math.round(6 * perspectiveScale)}px rgba(0,0,0,0.65))`,
+                    left:   `${o.x}%`,
+                    top:    `${o.y}%`,
+                    width:  size,
+                    filter: `drop-shadow(0 ${shadowOffset}px ${shadowBlur}px rgba(0,0,0,0.62))`,
                   }}
-                />
+                >
+                  <OrnamentShape shape={o.shape} color={o.color} />
+                </div>
               )
             })}
           </div>

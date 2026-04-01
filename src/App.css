@@ -775,15 +775,11 @@ a { text-decoration: none; color: inherit; }
 }
 .ornament-pin {
   position: absolute;
-  border-radius: 50%;
-  height: 0;
   transform: translate(-50%, -50%);
-  box-shadow:
-    inset -2px -3px 7px rgba(0,0,0,0.35),
-    inset 1px 1px 4px rgba(255,255,255,0.18),
-    0 0 0 1px rgba(255,255,255,0.18);
   pointer-events: none;
+  line-height: 0; /* collapse inline whitespace around SVG */
 }
+.ornament-pin svg { display: block; width: 100%; height: auto; }
 
 .ornament-legend {
   display: flex;
@@ -816,6 +812,7 @@ a { text-decoration: none; color: inherit; }
   justify-content: center;
   width: 100%;
   margin-top: 18px;
+  margin-bottom: calc(var(--nav-h) + 16px);
   padding: 18px 24px;
   background: linear-gradient(135deg, #c9a84c 0%, #e8c96a 50%, #c9a84c 100%);
   background-size: 200% 100%;
