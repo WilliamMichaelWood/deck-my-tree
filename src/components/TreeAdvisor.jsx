@@ -14,10 +14,11 @@ Output ONLY a valid JSON array — no markdown, no explanation, no code fences. 
 
 CRITICAL — placement rules (a violation will break the UI):
 Christmas trees are triangular — they get narrower toward the top. Only place ornaments inside the visible green tree silhouette.
-- Upper zone (y=12–33%): x within 40–60%. r = 1.3–1.7. Must have at least 2 ornaments here.
-- Middle zone (y=33–62%): x within 28–72%. r = 1.7–2.3. Must have at least 2 ornaments here.
-- Lower zone (y=62–85%): x within 20–80%. r = 2.1–2.8. Must have at least 2 ornaments here.
+- Upper zone (y=12–33%): x within 40–60%. r = 1.6–2.1. Must have at least 4 ornaments here. Spread left and right of center.
+- Middle zone (y=33–62%): x within 26–74%. r = 2.1–2.8. Must have at least 5 ornaments here. Spread across the full width.
+- Lower zone (y=62–85%): x within 18–82%. r = 2.6–3.4. Must have at least 4 ornaments here. Spread across the full width.
 - NEVER place x,y in the background sky, floor, pot/stand, or outside the tree outline.
+- Spread ornaments naturally — avoid clustering. No two ornaments should have nearly identical x,y values.
 
 Each item must use exactly this structure:
 {
@@ -37,7 +38,7 @@ Shape must be one of: "ball" (round glass ball), "drop" (elongated teardrop), "s
 Choose the shape that matches what you're recommending. Default to "ball" when in doubt.
 Choose colors that complement this tree's existing palette. Name must be specific enough for good search results.
 
-Return exactly 7 items.`
+Return exactly 13 items.`
 
 const RETAILERS = [
   { key: 'walmart',     label: 'Walmart',      color: '#0071ce' },
@@ -241,7 +242,7 @@ export default function TreeAdvisor() {
             { type: 'text', text: OVERLAY_PROMPT },
           ],
         }],
-        maxTokens: 2000,
+        maxTokens: 3500,
         onText: (text) => setRawOverlay(prev => prev + text),
       })
     } catch {
