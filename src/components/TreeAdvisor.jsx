@@ -184,6 +184,17 @@ export default function TreeAdvisor() {
   const fileInputRef = useRef(null)
   const shopRef      = useRef(null)
   const overlayRef   = useRef(null)
+  const resultRef    = useRef(null)
+  const loaderRef    = useRef(null)
+
+  // Scroll helper — offsets for sticky header height so element isn't hidden behind it
+  const smoothScrollTo = useCallback((ref, delay = 120) => {
+    setTimeout(() => {
+      if (!ref.current) return
+      const top = ref.current.getBoundingClientRect().top + window.scrollY - 88
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
+    }, delay)
+  }, [])
 
   // Parse ornament JSON once overlay stream finishes
   useEffect(() => {
@@ -204,6 +215,16 @@ export default function TreeAdvisor() {
       handleOverlay()
     }
   }, [loading, result])
+
+  // Scroll to MagicLoader the moment overlay loading starts
+  useEffect(() => {
+    if (overlayLoading) smoothScrollTo(loaderRef, 80)
+  }, [overlayLoading])
+
+  // Scroll to decorated tree the moment ornaments are ready
+  useEffect(() => {
+    if (ornaments.length > 0) smoothScrollTo(overlayRef, 150)
+  }, [ornaments.length])
 
   const processFile = (file) => {
     if (!file?.type.startsWith('image/')) {
@@ -238,6 +259,7 @@ export default function TreeAdvisor() {
     setRawOverlay('')
     setOverlayError('')
     setShowShop(false)
+    smoothScrollTo(resultRef, 160) // scroll to result card as soon as it mounts
     try {
       await streamChat({
         messages: [{
@@ -342,7 +364,7 @@ export default function TreeAdvisor() {
 
       {/* Analysis result */}
       {(result || loading) && !ornaments.length && (
-        <div className="result-card">
+        <div className="result-card" ref={resultRef}>
           <div className="result-header">
             <span>🎄 Your Personalized Decoration Plan</span>
             {loading && <span className="streaming-badge">Generating…</span>}
@@ -355,7 +377,7 @@ export default function TreeAdvisor() {
       )}
 
       {/* Overlay loading state */}
-      {overlayLoading && <MagicLoader />}
+      {overlayLoading && <div ref={loaderRef}><MagicLoader /></div>}
 
       {overlayError && <div className="error-card">⚠️ {overlayError}</div>}
 
