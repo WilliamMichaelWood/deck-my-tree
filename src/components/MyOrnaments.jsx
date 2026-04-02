@@ -1,14 +1,28 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { streamChat } from '../lib/stream'
 import MarkdownContent from './MarkdownContent'
 
-const STYLES = ['Classic', 'Modern', 'Rustic', 'Vintage', 'Whimsical', 'Elegant', 'Scandinavian', 'Handmade']
+const STYLES    = ['Classic', 'Modern', 'Rustic', 'Vintage', 'Whimsical', 'Elegant', 'Scandinavian', 'Handmade']
 const MATERIALS = ['Glass', 'Metal', 'Wood', 'Fabric', 'Plastic', 'Ceramic', 'Paper', 'Mixed']
+const SHAPES    = ['ball', 'star', 'snowflake', 'drop', 'pinecone']
+
+const BLANK_FORM = { name: '', colorDesc: '', colorHex: '', shape: 'ball', style: 'Classic', material: 'Glass', size: 'medium', notes: '' }
+
+const ANALYZE_PHOTO_PROMPT = `Analyze this Christmas ornament photo. Return ONLY a valid JSON object — no markdown, no explanation:
+{
+  "name": "concise descriptive name e.g. 'Red Mercury Glass Ball' or 'Gold Glitter Star'",
+  "colorDesc": "short color description e.g. 'deep burgundy with gold accents'",
+  "colorHex": "#hexcolor matching the ornament's primary color",
+  "shape": "ball | star | snowflake | drop | pinecone",
+  "material": "Glass | Metal | Wood | Fabric | Plastic | Ceramic | Paper | Mixed",
+  "size": "small | medium | large",
+  "notes": "one brief phrase e.g. 'matte finish' or 'hand-painted detail'"
+}`
 
 const buildPrompt = (ornaments) => `You are a professional Christmas tree stylist with a gift for creating cohesive, beautiful holiday displays.
 
 Here is my ornament collection:
-${ornaments.map((o, i) => `${i + 1}. **${o.name}** — Color: ${o.color}, Style: ${o.style}, Material: ${o.material}${o.notes ? `, Notes: ${o.notes}` : ''}`).join('\n')}
+${ornaments.map((o, i) => `${i + 1}. **${o.name}** — Color: ${o.colorDesc || o.color || ''}, Style: ${o.style}, Material: ${o.material}${o.shape ? `, Shape: ${o.shape}` : ''}${o.size ? `, Size: ${o.size}` : ''}${o.notes ? `, Notes: ${o.notes}` : ''}`).join('\n')}
 
 Please provide a detailed analysis:
 
@@ -30,23 +44,89 @@ How should I arrange these ornaments on the tree for maximum impact? Use clock p
 ## 💡 Pro Styling Tips
 3 expert tips to elevate this collection and make the tree look professionally decorated.`
 
+const resizePhoto = (dataUrl, maxPx = 400) => new Promise(resolve => {
+  const img = new Image()
+  img.onload = () => {
+    const scale = Math.min(1, maxPx / Math.max(img.width, img.height))
+    const canvas = document.createElement('canvas')
+    canvas.width  = Math.round(img.width  * scale)
+    canvas.height = Math.round(img.height * scale)
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+    resolve(canvas.toDataURL('image/jpeg', 0.75))
+  }
+  img.src = dataUrl
+})
+
 export default function MyOrnaments() {
-  const [ornaments, setOrnaments] = useState(() => {
+  const [ornaments,    setOrnaments]    = useState(() => {
     try { return JSON.parse(localStorage.getItem('deck-my-tree-ornaments')) || [] } catch { return [] }
   })
-  const [form, setForm] = useState({ name: '', color: '', style: 'Classic', material: 'Glass', notes: '' })
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState('')
-  const [error, setError] = useState('')
+  const [form,         setForm]         = useState(BLANK_FORM)
+  const [photo,        setPhoto]        = useState(null)   // resized data URL for current add
+  const [analyzing,    setAnalyzing]    = useState(false)
+  const [analyzeError, setAnalyzeError] = useState('')
+  const [loading,      setLoading]      = useState(false)
+  const [result,       setResult]       = useState('')
+  const [error,        setError]        = useState('')
+
+  const cameraRef  = useRef(null)
+  const libraryRef = useRef(null)
 
   useEffect(() => {
     localStorage.setItem('deck-my-tree-ornaments', JSON.stringify(ornaments))
   }, [ornaments])
 
+  const handlePhotoSelect = useCallback(async (file) => {
+    if (!file?.type.startsWith('image/')) return
+    setAnalyzeError('')
+    const reader = new FileReader()
+    reader.onloadend = async () => {
+      const resized = await resizePhoto(reader.result)
+      setPhoto(resized)
+      setAnalyzing(true)
+      try {
+        const base64 = resized.split(',')[1]
+        let raw = ''
+        await streamChat({
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64 } },
+              { type: 'text', text: ANALYZE_PHOTO_PROMPT },
+            ],
+          }],
+          maxTokens: 300,
+          onText: (t) => { raw += t },
+        })
+        const s = raw.indexOf('{'), e = raw.lastIndexOf('}')
+        if (s !== -1 && e !== -1) {
+          const d = JSON.parse(raw.slice(s, e + 1))
+          setForm(f => ({
+            ...f,
+            name:      d.name      || f.name,
+            colorDesc: d.colorDesc || f.colorDesc,
+            colorHex:  d.colorHex  || f.colorHex,
+            shape:     SHAPES.includes(d.shape) ? d.shape : f.shape,
+            material:  MATERIALS.includes(d.material) ? d.material : f.material,
+            size:      d.size      || f.size,
+            notes:     d.notes     || f.notes,
+          }))
+        }
+      } catch {
+        setAnalyzeError('Could not analyze photo — fill in the details manually.')
+      } finally {
+        setAnalyzing(false)
+      }
+    }
+    reader.readAsDataURL(file)
+  }, [])
+
   const addOrnament = () => {
-    if (!form.name.trim() || !form.color.trim()) return
-    setOrnaments(prev => [...prev, { ...form, id: Date.now() }])
-    setForm({ name: '', color: '', style: 'Classic', material: 'Glass', notes: '' })
+    if (!form.name.trim()) return
+    setOrnaments(prev => [...prev, { ...form, photo, id: Date.now() }])
+    setForm(BLANK_FORM)
+    setPhoto(null)
+    setAnalyzeError('')
     setResult('')
   }
 
@@ -60,7 +140,6 @@ export default function MyOrnaments() {
     setLoading(true)
     setResult('')
     setError('')
-
     try {
       await streamChat({
         messages: [{ role: 'user', content: buildPrompt(ornaments) }],
@@ -68,8 +147,7 @@ export default function MyOrnaments() {
       })
     } catch (err) {
       const msg = err.message || ''
-      const isNetworkError = /load failed|failed to fetch|network/i.test(msg)
-      setError(isNetworkError
+      setError(/load failed|failed to fetch|network/i.test(msg)
         ? 'Connection error. Please check your internet and try again.'
         : 'Something went wrong. Please try again in a moment.')
     } finally {
@@ -86,7 +164,37 @@ export default function MyOrnaments() {
 
       <div className="form-card">
         <h3 className="form-card-title">Add an Ornament</h3>
-        <div className="form-grid">
+
+        {/* Photo capture buttons */}
+        <div className="photo-btn-row">
+          <button className="btn-photo" onClick={() => cameraRef.current?.click()}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Take Photo
+          </button>
+          <button className="btn-photo" onClick={() => libraryRef.current?.click()}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            Choose from Library
+          </button>
+        </div>
+        <input ref={cameraRef}  type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => handlePhotoSelect(e.target.files[0])} />
+        <input ref={libraryRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => handlePhotoSelect(e.target.files[0])} />
+
+        {/* Photo preview + analyzing state */}
+        {photo && (
+          <div className="photo-preview-wrap">
+            <img src={photo} alt="Ornament preview" className="photo-preview-img" />
+            {analyzing && (
+              <div className="photo-analyzing-overlay">
+                <span className="spin">✦</span>
+                <span>Analyzing ornament…</span>
+              </div>
+            )}
+          </div>
+        )}
+        {analyzeError && <p className="analyze-error">{analyzeError}</p>}
+
+        {/* Form fields */}
+        <div className="form-grid" style={{ marginTop: photo ? '14px' : '0' }}>
           <div className="form-group">
             <label className="form-label">Ornament Name *</label>
             <input
@@ -98,13 +206,22 @@ export default function MyOrnaments() {
             />
           </div>
           <div className="form-group">
-            <label className="form-label">Color / Finish *</label>
-            <input
-              className="form-input"
-              placeholder="e.g. Deep red with gold glitter"
-              value={form.color}
-              onChange={(e) => setForm(f => ({ ...f, color: e.target.value }))}
-            />
+            <label className="form-label">Color / Finish</label>
+            <div className="color-input-wrap">
+              {form.colorHex && <span className="color-swatch-inline" style={{ background: form.colorHex }} />}
+              <input
+                className="form-input"
+                placeholder="e.g. Deep red with gold glitter"
+                value={form.colorDesc}
+                onChange={(e) => setForm(f => ({ ...f, colorDesc: e.target.value }))}
+              />
+            </div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Shape</label>
+            <select className="form-select" value={form.shape} onChange={(e) => setForm(f => ({ ...f, shape: e.target.value }))}>
+              {SHAPES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+            </select>
           </div>
           <div className="form-group">
             <label className="form-label">Style</label>
@@ -118,6 +235,12 @@ export default function MyOrnaments() {
               {MATERIALS.map(m => <option key={m}>{m}</option>)}
             </select>
           </div>
+          <div className="form-group">
+            <label className="form-label">Size</label>
+            <select className="form-select" value={form.size} onChange={(e) => setForm(f => ({ ...f, size: e.target.value }))}>
+              {['small', 'medium', 'large'].map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+            </select>
+          </div>
           <div className="form-group form-group-full">
             <label className="form-label">Notes (optional)</label>
             <input
@@ -128,8 +251,12 @@ export default function MyOrnaments() {
             />
           </div>
         </div>
-        <button className="btn-primary btn-full" onClick={addOrnament} disabled={!form.name.trim() || !form.color.trim()}>
-          + Add to Collection
+        <button
+          className="btn-primary btn-full"
+          onClick={addOrnament}
+          disabled={!form.name.trim() || analyzing}
+        >
+          {analyzing ? <><span className="spin">✦</span> Analyzing photo…</> : '+ Add to Collection'}
         </button>
       </div>
 
@@ -143,10 +270,15 @@ export default function MyOrnaments() {
             {ornaments.map(o => (
               <div key={o.id} className="ornament-card">
                 <button className="ornament-remove" onClick={() => removeOrnament(o.id)}>×</button>
+                {o.photo ? (
+                  <img src={o.photo} alt={o.name} className="ornament-photo-thumb" />
+                ) : (
+                  <div className="ornament-color-dot" style={{ background: o.colorHex || '#c9a84c' }} />
+                )}
                 <div className="ornament-name">{o.name}</div>
                 <div className="ornament-meta">
-                  <span className="ornament-tag ornament-tag-color">{o.color}</span>
-                  <span className="ornament-tag ornament-tag-style">{o.style}</span>
+                  {(o.colorDesc || o.color) && <span className="ornament-tag ornament-tag-color">{o.colorDesc || o.color}</span>}
+                  {o.shape    && <span className="ornament-tag ornament-tag-style">{o.shape}</span>}
                   <span className="ornament-tag ornament-tag-mat">{o.material}</span>
                 </div>
                 {o.notes && <div className="ornament-notes">{o.notes}</div>}
