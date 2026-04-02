@@ -290,6 +290,7 @@ export default function TreeAdvisor() {
   const [ornaments,      setOrnaments]      = useState([])
   const [showShop,       setShowShop]       = useState(false)
   const [overlayError,   setOverlayError]   = useState('')
+  const [shareLoading,   setShareLoading]   = useState(false)
   const fileInputRef = useRef(null)
   const shopRef      = useRef(null)
   const overlayRef   = useRef(null)
@@ -444,6 +445,94 @@ export default function TreeAdvisor() {
     setTimeout(() => shopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
   }
 
+  const handleShare = useCallback(async () => {
+    if (!image || !ornaments.length || shareLoading) return
+    setShareLoading(true)
+
+    // Inline SVG markup for each ornament shape (mirrors the React components)
+    const ornamentSVG = (shape, color) => {
+      const g = '#c9a84c'
+      switch (shape) {
+        case 'drop':
+          return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 84"><rect x="26" y="0" width="8" height="13" rx="3.5" fill="${g}"/><path d="M30,13 C18,13 7,27 7,45 C7,62 17,76 30,76 C43,76 53,62 53,45 C53,27 42,13 30,13 Z" fill="${color}"/><ellipse cx="21" cy="32" rx="6" ry="10" fill="rgba(255,255,255,0.44)" transform="rotate(-15 21 32)"/></svg>`
+        case 'star':
+          return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 74"><rect x="26" y="0" width="8" height="14" rx="3.5" fill="${g}"/><polygon points="30,28 35,42 49,42 38,51 42,64 30,56 18,64 22,51 11,42 25,42" fill="${color}"/><ellipse cx="23" cy="37" rx="4" ry="3" fill="rgba(255,255,255,0.38)" transform="rotate(-30 23 37)"/></svg>`
+        case 'snowflake':
+          return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><g stroke="${color}" stroke-width="4.5" stroke-linecap="round"><line x1="30" y1="6" x2="30" y2="54"/><line x1="7" y1="19" x2="53" y2="41"/><line x1="53" y1="19" x2="7" y2="41"/><line x1="23" y1="17" x2="37" y2="17"/><line x1="23" y1="43" x2="37" y2="43"/><line x1="14" y1="22" x2="22" y2="14"/><line x1="38" y1="46" x2="46" y2="38"/><line x1="46" y1="22" x2="38" y2="14"/><line x1="22" y1="46" x2="14" y2="38"/></g><circle cx="30" cy="30" r="4" fill="${color}"/></svg>`
+        case 'pinecone':
+          return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 80"><rect x="26" y="0" width="8" height="12" rx="3" fill="${g}"/><ellipse cx="30" cy="48" rx="18" ry="28" fill="${color}"/><path d="M13,62 Q30,54 47,62" stroke="rgba(255,255,255,0.18)" stroke-width="2" fill="none"/><path d="M14,52 Q30,44 46,52" stroke="rgba(255,255,255,0.18)" stroke-width="2" fill="none"/><path d="M15,42 Q30,34 45,42" stroke="rgba(255,255,255,0.18)" stroke-width="2" fill="none"/><path d="M17,32 Q30,24 43,32" stroke="rgba(255,255,255,0.18)" stroke-width="2" fill="none"/><path d="M20,22 Q30,15 40,22" stroke="rgba(255,255,255,0.15)" stroke-width="2" fill="none"/></svg>`
+        default: // ball
+          return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 74"><rect x="26" y="0" width="8" height="14" rx="3.5" fill="${g}"/><circle cx="30" cy="46" r="26" fill="${color}"/><ellipse cx="21" cy="35" rx="8" ry="6" fill="rgba(255,255,255,0.48)" transform="rotate(-20 21 35)"/></svg>`
+      }
+    }
+
+    // height/width ratio of each SVG viewBox
+    const svgAspect = { ball: 74/60, drop: 84/60, star: 74/60, snowflake: 1, pinecone: 80/60 }
+
+    try {
+      // Draw the tree photo onto a canvas at full resolution
+      const treeImg = new Image()
+      treeImg.src = image.preview
+      await new Promise(resolve => { treeImg.onload = resolve })
+      const W = treeImg.naturalWidth
+      const H = treeImg.naturalHeight
+      const canvas = document.createElement('canvas')
+      canvas.width = W
+      canvas.height = H
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(treeImg, 0, 0)
+
+      // Sort back→front so front-layer ornaments render on top
+      const sorted = [...ornaments].sort((a, b) => (a.z ?? 55) - (b.z ?? 55))
+
+      for (const o of sorted) {
+        const z = o.z ?? 55
+        const yPerspective = 0.74 + (o.y / 100) * 0.48
+        let depthScale, opacity
+        if      (z < 34) { depthScale = 0.70; opacity = 0.50 }
+        else if (z < 67) { depthScale = 1.00; opacity = 0.75 }
+        else             { depthScale = 1.10; opacity = 1.00 }
+
+        const ow = (o.r * 2 * yPerspective * depthScale / 100) * W
+        const oh = ow * (svgAspect[o.shape] ?? svgAspect.ball)
+        const ox = (o.x / 100) * W - ow / 2
+        const oy = (o.y / 100) * H - oh / 2
+
+        const svg  = ornamentSVG(o.shape, o.color)
+        const blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' })
+        const url  = URL.createObjectURL(blob)
+        const oi   = new Image()
+        await new Promise((res, rej) => { oi.onload = res; oi.onerror = rej; oi.src = url })
+        ctx.globalAlpha = opacity
+        ctx.drawImage(oi, ox, oy, ow, oh)
+        ctx.globalAlpha = 1
+        URL.revokeObjectURL(url)
+      }
+
+      const jpegBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92))
+      const file     = new File([jpegBlob], 'my-decorated-tree.jpg', { type: 'image/jpeg' })
+      const shareData = {
+        files: [file],
+        title: 'My Decorated Christmas Tree',
+        text:  'I just styled my Christmas tree with Deck My Tree ✨ deck-my-tree.vercel.app',
+      }
+
+      if (navigator.canShare?.(shareData)) {
+        await navigator.share(shareData)
+      } else if (navigator.share) {
+        // Files not supported — share text + URL only
+        await navigator.share({
+          title: 'My Decorated Christmas Tree',
+          text:  'I just styled my Christmas tree with Deck My Tree ✨ deck-my-tree.vercel.app',
+        })
+      }
+    } catch (err) {
+      if (err?.name !== 'AbortError') console.error('Share failed:', err)
+    } finally {
+      setShareLoading(false)
+    }
+  }, [image, ornaments, shareLoading])
+
   return (
     <div className="tab-content">
       <div className="section-header">
@@ -583,14 +672,19 @@ export default function TreeAdvisor() {
             ))}
           </div>
 
-          {!showShop && (
-            <button className="btn-sleigh-it" onClick={handleSleighIt}>
-              Sleigh It — Shop the Look
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:'inline',verticalAlign:'middle',marginLeft:'8px'}}>
-                <path d="M3.5 9H14.5M14.5 9L9.5 4M14.5 9L9.5 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+          <div className="overlay-actions">
+            {!showShop && (
+              <button className="btn-sleigh-it" onClick={handleSleighIt}>
+                Sleigh It — Shop the Look
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:'inline',verticalAlign:'middle',marginLeft:'8px'}}>
+                  <path d="M3.5 9H14.5M14.5 9L9.5 4M14.5 9L9.5 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            )}
+            <button className="btn-share" onClick={handleShare} disabled={shareLoading}>
+              {shareLoading ? <><span className="spin">✦</span> Preparing…</> : '✦ Share My Tree'}
             </button>
-          )}
+          </div>
         </div>
       )}
 

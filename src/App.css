@@ -861,6 +861,43 @@ a { text-decoration: none; color: inherit; }
 }
 .btn-sleigh-it:active { transform: translateY(0); }
 
+.overlay-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+  margin-bottom: calc(var(--nav-h) + 16px);
+  animation: fadeSlideUp 0.4s 0.2s ease both;
+}
+.overlay-actions .btn-sleigh-it {
+  margin-top: 0;
+  margin-bottom: 0;
+  animation: none;
+}
+.btn-share {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 24px;
+  background: transparent;
+  border: 1.5px solid rgba(201,168,76,0.55);
+  color: var(--gold);
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: var(--radius-lg);
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+.btn-share:hover:not(:disabled) {
+  background: rgba(201,168,76,0.1);
+  border-color: rgba(201,168,76,0.85);
+  transform: translateY(-1px);
+}
+.btn-share:active { transform: translateY(0); }
+.btn-share:disabled { opacity: 0.6; cursor: default; }
+
 /* ─── Ornament Shop Section ──────────────────────────────────── */
 .ornament-shop-section {
   margin-top: 32px;
