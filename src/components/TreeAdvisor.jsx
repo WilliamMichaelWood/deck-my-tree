@@ -40,17 +40,41 @@ function buildOverlayPrompt(b) {
   const rBase = Math.max(1.4, Math.min(2.8, hw * 0.13))
   const rU = rBase * 0.78, rM = rBase, rL = rBase * 1.28
 
-  return `Study this Christmas tree photo. Suggest exactly 13 ornaments to add.
+  // 70-20-10 sizing for 13 ornaments: 9 medium, 3 large, 1 small accent
+  const rSm = (rU * 0.70).toFixed(1)
+  const rMd = rM.toFixed(1)
+  const rLg = (rL * 1.25).toFixed(1)
+
+  return `You are a professional Christmas tree decorator. Study this photo and place exactly 13 ornaments using pro decorating rules.
 
 Output ONLY a valid JSON array — no markdown, no explanation, no code fences. Start with [ and end with ].
 
-DETECTED TREE BOUNDS — these coordinates come from automated analysis of THIS exact photo. Every ornament x,y must stay inside these zones:
-- Upper zone  y=${u1}–${u2}%  |  x=${uxl}–${uxr}%  |  r=${rU.toFixed(1)}–${(rU*1.4).toFixed(1)}  |  place exactly 4 ornaments
-- Middle zone y=${u2}–${m2}%  |  x=${mxl}–${mxr}%  |  r=${rM.toFixed(1)}–${(rM*1.4).toFixed(1)}  |  place exactly 5 ornaments
-- Lower zone  y=${m2}–${l2}%  |  x=${lxl}–${lxr}%  |  r=${rL.toFixed(1)}–${(rL*1.4).toFixed(1)}  |  place exactly 4 ornaments
+DETECTED TREE BOUNDS (from computer vision analysis of this exact photo):
+- Upper zone  y=${u1}–${u2}%  x=${uxl}–${uxr}%
+- Middle zone y=${u2}–${m2}%  x=${mxl}–${mxr}%
+- Lower zone  y=${m2}–${l2}%  x=${lxl}–${lxr}%
+These are hard walls. Any ornament outside its zone's x or y range renders off the tree.
 
-CRITICAL: an ornament placed outside its zone's x or y range will render off the tree. Treat these bounds as hard walls.
-Spread ornaments naturally across each zone — no two should share nearly identical x,y values.
+SIZE DISTRIBUTION — 70/20/10 professional rule:
+- 9 MEDIUM ornaments  r=${rMd}  — distributed across all zones, heaviest in middle
+- 3 LARGE ornaments   r=${rLg}  — lower zone only, they anchor the base visually
+- 1 SMALL accent      r=${rSm}  — upper zone only, a delicate detail near the tip
+
+SIZE BY POSITION — ornaments must taper with the tree:
+- Upper zone: use r=${rSm}–${(rU * 0.95).toFixed(1)} only (small/delicate)
+- Middle zone: use r=${(rM * 0.85).toFixed(1)}–${(rM * 1.15).toFixed(1)} (medium)
+- Lower zone: use r=${(rL * 0.90).toFixed(1)}–${rLg} (large/bold anchors)
+
+CLUSTERING RULE — professional decorators never space evenly:
+- Arrange ornaments in 2–3 visible clusters of 3 or 5 within the tree
+- Within a cluster, ornaments should be 3–9% apart in x or y
+- Leave some areas deliberately sparse — negative space makes clusters pop
+- Do NOT place ornaments at regular intervals or mirror them left-to-right
+
+ORGANIC PLACEMENT:
+- Vary depth: some ornaments push left of center, others right — never balanced
+- Avoid placing any ornament within 3% of y=${u1} (tip) or y=${l2} (base)
+- No two ornaments may share x within ±2% AND y within ±3% of each other
 
 Each item must use exactly this structure:
 {
@@ -60,14 +84,14 @@ Each item must use exactly this structure:
   "shape": "ball",
   "x": ${Math.round(cx)},
   "y": ${Math.round(top + h * 0.5)},
-  "r": ${rM.toFixed(1)},
+  "r": ${rMd},
   "walmart":     { "price": "$X–$XX" },
   "amazon":      { "price": "$X–$XX" },
   "potterybarn": { "price": "$X–$XX" }
 }
 
-shape must be one of: "ball" "drop" "star" "snowflake" "pinecone" — choose what matches the ornament.
-Choose colors that complement this tree's existing palette. Return exactly 13 items.`
+shape: "ball" "drop" "star" "snowflake" "pinecone" — match the ornament type.
+Choose colors complementing this tree's palette. Return exactly 13 items.`
 }
 
 const RETAILERS = [
