@@ -918,6 +918,91 @@ a { text-decoration: none; color: inherit; }
 .btn-share:active { transform: translateY(0); }
 .btn-share:disabled { opacity: 0.6; cursor: default; }
 
+/* ─── Recent Trees ───────────────────────────────────────────── */
+.recent-trees-section {
+  margin-top: 28px;
+  animation: fadeSlideUp 0.35s ease both;
+}
+.recent-trees-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin: 0 0 14px;
+  letter-spacing: 0.02em;
+}
+.recent-trees-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+.recent-tree-card {
+  background: var(--navy-card);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.recent-tree-card:hover {
+  border-color: rgba(201,168,76,0.3);
+  box-shadow: var(--shadow-md);
+}
+.recent-tree-thumb-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+}
+.recent-tree-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.recent-tree-ornament-dots {
+  position: absolute;
+  bottom: 6px;
+  left: 6px;
+  display: flex;
+  gap: 4px;
+}
+.recent-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.3);
+  display: block;
+}
+.recent-tree-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px 4px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.recent-tree-date { font-weight: 600; }
+.recent-tree-count { opacity: 0.75; }
+.btn-view-again {
+  margin: 4px 10px 10px;
+  padding: 7px 0;
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.4);
+  border-radius: var(--radius-sm, 8px);
+  color: var(--gold);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition);
+}
+.btn-view-again:hover {
+  background: rgba(201,168,76,0.1);
+  border-color: rgba(201,168,76,0.7);
+}
+
 /* ─── Ornament Shop Section ──────────────────────────────────── */
 .ornament-shop-section {
   margin-top: 32px;

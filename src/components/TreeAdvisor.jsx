@@ -367,6 +367,23 @@ function BeforeAfterSlider({ image, ornaments }) {
   )
 }
 
+const saveDecoration = (image, ornaments, analysis) => {
+  const decoration = {
+    id: Date.now(),
+    image: image.preview,
+    ornaments,
+    analysis,
+    timestamp: new Date().toISOString(),
+  }
+  const saved = JSON.parse(localStorage.getItem('decorations') || '[]')
+  saved.unshift(decoration)
+  localStorage.setItem('decorations', JSON.stringify(saved.slice(0, 5)))
+}
+
+const loadDecorations = () => {
+  try { return JSON.parse(localStorage.getItem('decorations') || '[]') } catch { return [] }
+}
+
 function getOrnamentShape(name = '') {
   const n = name.toLowerCase()
   if (n.includes('snowflake'))                           return 'snowflake'
@@ -395,6 +412,7 @@ export default function TreeAdvisor() {
   const [showShop,       setShowShop]       = useState(false)
   const [overlayError,   setOverlayError]   = useState('')
   const [shareLoading,   setShareLoading]   = useState(false)
+  const [recentTrees,    setRecentTrees]    = useState(() => loadDecorations())
   const fileInputRef = useRef(null)
   const shopRef      = useRef(null)
   const overlayRef   = useRef(null)
@@ -410,14 +428,19 @@ export default function TreeAdvisor() {
     }, delay)
   }, [])
 
-  // Parse ornament JSON once overlay stream finishes
+  // Parse ornament JSON once overlay stream finishes, then persist
   useEffect(() => {
     if (!rawOverlay || overlayLoading) return
     try {
       const start = rawOverlay.indexOf('[')
       const end   = rawOverlay.lastIndexOf(']')
       if (start === -1 || end === -1) throw new Error('No array')
-      setOrnaments(JSON.parse(rawOverlay.slice(start, end + 1)))
+      const parsed = JSON.parse(rawOverlay.slice(start, end + 1))
+      setOrnaments(parsed)
+      if (image && result) {
+        saveDecoration(image, parsed, result)
+        setRecentTrees(loadDecorations())
+      }
     } catch {
       setOverlayError('Your stylist had trouble placing ornaments. Try analyzing again.')
     }
@@ -542,6 +565,17 @@ export default function TreeAdvisor() {
     } finally {
       setOverlayLoading(false)
     }
+  }
+
+  const handleViewAgain = (decoration) => {
+    setImage({ preview: decoration.image, base64: null, mediaType: 'image/jpeg' })
+    setResult(decoration.analysis)
+    setRawOverlay('')
+    setOverlayError('')
+    setError('')
+    setShowShop(false)
+    setOrnaments(decoration.ornaments)
+    setTimeout(() => overlayRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
   }
 
   const handleSleighIt = () => {
@@ -689,6 +723,36 @@ export default function TreeAdvisor() {
             </div>
           )}
         </>
+      )}
+
+      {/* Recent Trees — shown only when no active decoration */}
+      {!ornaments.length && recentTrees.length > 0 && (
+        <div className="recent-trees-section">
+          <h3 className="recent-trees-title">✦ My Recent Trees</h3>
+          <div className="recent-trees-grid">
+            {recentTrees.map((d) => (
+              <div key={d.id} className="recent-tree-card">
+                <div className="recent-tree-thumb-wrap">
+                  <img src={d.image} alt="Decorated tree" className="recent-tree-thumb" />
+                  <div className="recent-tree-ornament-dots">
+                    {d.ornaments.slice(0, 5).map((o, i) => (
+                      <span key={i} className="recent-dot" style={{ background: o.color }} />
+                    ))}
+                  </div>
+                </div>
+                <div className="recent-tree-meta">
+                  <span className="recent-tree-date">
+                    {new Date(d.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  </span>
+                  <span className="recent-tree-count">{d.ornaments.length} ornaments</span>
+                </div>
+                <button className="btn-view-again" onClick={() => handleViewAgain(d)}>
+                  View Again
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {error && <div className="error-card">⚠️ {error}</div>}
