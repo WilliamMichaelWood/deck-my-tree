@@ -886,6 +886,14 @@ a { text-decoration: none; color: inherit; }
   margin-bottom: 0;
   animation: none;
 }
+.share-row {
+  display: flex;
+  gap: 10px;
+}
+.share-row .btn-share {
+  flex: 1;
+  padding: 14px 12px;
+}
 .btn-share {
   display: flex;
   align-items: center;
