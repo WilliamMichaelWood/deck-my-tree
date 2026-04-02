@@ -40,12 +40,17 @@ Each item must use exactly this structure:
 {
   "name": "Ornament Name",
   "description": "One vivid sentence describing this ornament",
-  "type": "ball | drop | figure | garland | clip-on | etc",
+  "shape": "ball | drop | star | snowflake | pinecone",
+  "color": "#hexcolor",
   "quantity": "X pieces",
   "whyPerfect": "One sentence why this suits their palette and style",
   "walmart": { "price": "$X–$XX" },
   "amazon":  { "price": "$X–$XX" }
 }
+
+shape must be exactly one of: ball, drop, star, snowflake, pinecone — match the actual ornament type.
+color must be a hex color that matches the ornament's primary color.
+Use a variety of shapes across the 8 items — do not make them all balls.
 
 Tree Style:    ${style}
 Color Palette: ${palette}
@@ -61,23 +66,76 @@ function getSearchUrl(retailer, name) {
   if (retailer === 'amazon')  return `https://www.amazon.com/s?k=${q}`
 }
 
-function OrnamentPlaceholder({ color }) {
+function OrnamentSVG({ shape, color }) {
+  switch (shape) {
+    case 'drop':
+      return (
+        <svg viewBox="0 0 60 84" width="46" height="54" fill="none" aria-hidden="true">
+          <rect x="26" y="0" width="8" height="13" rx="3.5" fill="#c9a84c"/>
+          <path d="M30,13 C18,13 7,27 7,45 C7,62 17,76 30,76 C43,76 53,62 53,45 C53,27 42,13 30,13 Z" fill={color}/>
+          <ellipse cx="21" cy="32" rx="6" ry="10" fill="rgba(255,255,255,0.44)" transform="rotate(-15 21 32)"/>
+        </svg>
+      )
+    case 'star':
+      return (
+        <svg viewBox="0 0 60 74" width="54" height="54" fill="none" aria-hidden="true">
+          <rect x="26" y="0" width="8" height="14" rx="3.5" fill="#c9a84c"/>
+          <polygon points="30,28 35,42 49,42 38,51 42,64 30,56 18,64 22,51 11,42 25,42" fill={color}/>
+          <ellipse cx="23" cy="37" rx="4" ry="3" fill="rgba(255,255,255,0.38)" transform="rotate(-30 23 37)"/>
+        </svg>
+      )
+    case 'snowflake':
+      return (
+        <svg viewBox="0 0 60 60" width="54" height="54" fill="none" aria-hidden="true">
+          <g stroke={color} strokeWidth="4.5" strokeLinecap="round">
+            <line x1="30" y1="6"  x2="30" y2="54"/>
+            <line x1="7"  y1="19" x2="53" y2="41"/>
+            <line x1="53" y1="19" x2="7"  y2="41"/>
+            <line x1="23" y1="17" x2="37" y2="17"/>
+            <line x1="23" y1="43" x2="37" y2="43"/>
+            <line x1="14" y1="22" x2="22" y2="14"/>
+            <line x1="38" y1="46" x2="46" y2="38"/>
+            <line x1="46" y1="22" x2="38" y2="14"/>
+            <line x1="22" y1="46" x2="14" y2="38"/>
+          </g>
+          <circle cx="30" cy="30" r="4" fill={color}/>
+        </svg>
+      )
+    case 'pinecone':
+      return (
+        <svg viewBox="0 0 60 80" width="46" height="54" fill="none" aria-hidden="true">
+          <rect x="26" y="0" width="8" height="12" rx="3" fill="#c9a84c"/>
+          <ellipse cx="30" cy="48" rx="18" ry="28" fill={color}/>
+          <path d="M13,62 Q30,54 47,62" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
+          <path d="M14,52 Q30,44 46,52" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
+          <path d="M15,42 Q30,34 45,42" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
+          <path d="M17,32 Q30,24 43,32" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
+          <path d="M20,22 Q30,15 40,22" stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none"/>
+        </svg>
+      )
+    default: // ball
+      return (
+        <svg viewBox="0 0 60 74" width="54" height="54" fill="none" aria-hidden="true">
+          <rect x="26" y="0" width="8" height="14" rx="3.5" fill="#c9a84c"/>
+          <circle cx="30" cy="46" r="26" fill={color}/>
+          <ellipse cx="21" cy="35" rx="8" ry="6" fill="rgba(255,255,255,0.48)" transform="rotate(-20 21 35)"/>
+        </svg>
+      )
+  }
+}
+
+function OrnamentPlaceholder({ shape, color }) {
   return (
     <div
       className="product-image-placeholder"
-      style={{ background: `linear-gradient(135deg, ${color}18 0%, #172a4088 100%)` }}
+      style={{ background: `linear-gradient(135deg, ${color}22 0%, #172a4088 100%)` }}
     >
-      <svg viewBox="0 0 80 80" width="54" height="54" aria-hidden="true">
-        <rect x="35" y="3" width="10" height="16" rx="3.5" fill={color} opacity="0.55"/>
-        <circle cx="40" cy="51" r="25" fill={color} opacity="0.14"/>
-        <circle cx="40" cy="51" r="25" fill="none" stroke={color} strokeWidth="1.2" opacity="0.28"/>
-        <ellipse cx="31" cy="41" rx="7" ry="5" fill="rgba(255,255,255,0.11)" transform="rotate(-25 31 41)"/>
-      </svg>
+      <OrnamentSVG shape={shape} color={color} />
     </div>
   )
 }
 
-function ProductCard({ retailer, price, ornamentName }) {
+function ProductCard({ retailer, price, ornamentName, shape, color }) {
   const r = RETAILERS.find(x => x.key === retailer)
   return (
     <div className="product-card">
@@ -85,7 +143,7 @@ function ProductCard({ retailer, price, ornamentName }) {
         <span className="retailer-dot" style={{ background: r.color }} />
         <span style={{ color: r.color }}>{r.label}</span>
       </div>
-      <OrnamentPlaceholder color={r.color} />
+      <OrnamentPlaceholder shape={shape} color={color} />
       <div className="product-price">{price ?? '—'}</div>
       <a
         href={getSearchUrl(retailer, ornamentName)}
@@ -121,6 +179,8 @@ function RecommendationCard({ item, index }) {
             retailer={r.key}
             price={item[r.key]?.price}
             ornamentName={item.name}
+            shape={item.shape}
+            color={item.color || '#c9a84c'}
           />
         ))}
       </div>
