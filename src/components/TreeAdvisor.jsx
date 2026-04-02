@@ -272,6 +272,101 @@ function OrnamentShape({ shape, color }) {
   }
 }
 
+function renderOrnamentLayer(ornaments) {
+  return ornaments.map((o, i) => {
+    const z  = o.z ?? 55
+    const yp = 0.74 + (o.y / 100) * 0.48
+    let ds, op, fl, zi
+    if      (z < 34) { ds = 0.70; op = 0.50; fl = 'brightness(0.62)';                        zi = 10 + Math.round(z * 0.7) }
+    else if (z < 67) { ds = 1.00; op = 0.75; fl = undefined;                                 zi = 40 + Math.round((z - 34) * 0.9) }
+    else             { ds = 1.10; op = 1.00; fl = 'drop-shadow(0 3px 10px rgba(0,0,0,0.52))'; zi = 70 + Math.round((z - 67) * 0.9) }
+    return (
+      <div key={i} className="ornament-pin" title={o.label} style={{
+        left: `${o.x}%`, top: `${o.y}%`,
+        width: `${o.r * 2 * yp * ds}%`,
+        opacity: op, zIndex: zi, filter: fl,
+      }}>
+        <OrnamentShape shape={o.shape} color={o.color} />
+      </div>
+    )
+  })
+}
+
+function BeforeAfterSlider({ image, ornaments }) {
+  const [pct, setPct]       = useState(38)
+  const [active, setActive] = useState(false)
+  const containerRef = useRef(null)
+  const activeRef    = useRef(false)
+
+  // Animate intro slide so user discovers the interaction
+  useEffect(() => {
+    const t = setTimeout(() => setPct(50), 480)
+    return () => clearTimeout(t)
+  }, [])
+
+  const getX = (e) => e.touches ? e.touches[0].clientX : e.clientX
+
+  const onMove = useCallback((e) => {
+    if (!activeRef.current || !containerRef.current) return
+    if (e.cancelable) e.preventDefault()
+    const rect = containerRef.current.getBoundingClientRect()
+    setPct(Math.max(2, Math.min(98, ((getX(e) - rect.left) / rect.width) * 100)))
+  }, [])
+
+  const onStop = useCallback(() => { activeRef.current = false; setActive(false) }, [])
+
+  const onStart = useCallback((e) => {
+    activeRef.current = true
+    setActive(true)
+    if (e.cancelable) e.preventDefault()
+    const rect = containerRef.current?.getBoundingClientRect()
+    if (rect) setPct(Math.max(2, Math.min(98, ((getX(e) - rect.left) / rect.width) * 100)))
+  }, [])
+
+  useEffect(() => {
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup',   onStop)
+    window.addEventListener('touchmove', onMove, { passive: false })
+    window.addEventListener('touchend',  onStop)
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup',   onStop)
+      window.removeEventListener('touchmove', onMove)
+      window.removeEventListener('touchend',  onStop)
+    }
+  }, [onMove, onStop])
+
+  const ease = active ? 'none' : 'clip-path 0.55s cubic-bezier(0.4,0,0.2,1)'
+  const posEase = active ? 'none' : 'left 0.55s cubic-bezier(0.4,0,0.2,1)'
+
+  return (
+    <div ref={containerRef} className="ba-slider" onMouseDown={onStart} onTouchStart={onStart}>
+
+      {/* Before — base layer, defines container height */}
+      <div className="ba-before">
+        <img src={image.preview} alt="Before" className="ba-img" draggable={false} />
+        <span className="ba-label ba-label-before">Before</span>
+      </div>
+
+      {/* After — clipped to slider position */}
+      <div className="ba-after" style={{ clipPath: `inset(0 ${100 - pct}% 0 0)`, transition: ease }}>
+        <img src={image.preview} alt="After" className="ba-img ba-img-after" draggable={false} />
+        {renderOrnamentLayer(ornaments)}
+        <span className="ba-label ba-label-after">After ✦</span>
+      </div>
+
+      {/* Gold divider line + circular handle */}
+      <div className="ba-divider" style={{ left: `${pct}%`, transition: posEase }}>
+        <div className="ba-handle">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+            <path d="M8 4L2 11L8 18M14 4L20 11L14 18" stroke="#0f1f35" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function getSearchUrl(retailer, name) {
   const q = encodeURIComponent(name + ' christmas ornament')
   if (retailer === 'walmart')     return `https://www.walmart.com/search?q=${q}`
@@ -613,55 +708,7 @@ export default function TreeAdvisor() {
             </button>
           </div>
 
-          <div className="tree-overlay-wrap">
-            <img src={image.preview} alt="Your decorated tree" className="tree-overlay-img" />
-            {ornaments.map((o, i) => {
-              // y-based perspective: ornaments lower on tree appear naturally larger
-              const yPerspective = 0.74 + (o.y / 100) * 0.48
-              const z = o.z ?? 55
-
-              // Three discrete depth layers matching prompt specification
-              let depthScale, opacity, filter, zIndex
-              if (z < 34) {
-                // Back layer: 30% smaller, half opacity, darker (branches obscure)
-                depthScale = 0.70
-                opacity    = 0.50
-                filter     = 'brightness(0.62)'
-                zIndex     = 10 + Math.round(z * 0.7)
-              } else if (z < 67) {
-                // Middle layer: normal size, 75% opacity, no filter
-                depthScale = 1.00
-                opacity    = 0.75
-                filter     = undefined
-                zIndex     = 40 + Math.round((z - 34) * 0.9)
-              } else {
-                // Front layer: slightly larger, full opacity, subtle shadow
-                depthScale = 1.10
-                opacity    = 1.00
-                filter     = 'drop-shadow(0 3px 10px rgba(0,0,0,0.52))'
-                zIndex     = 70 + Math.round((z - 67) * 0.9)
-              }
-
-              const size = `${o.r * 2 * yPerspective * depthScale}%`
-              return (
-                <div
-                  key={i}
-                  className="ornament-pin"
-                  title={o.label}
-                  style={{
-                    left:   `${o.x}%`,
-                    top:    `${o.y}%`,
-                    width:  size,
-                    opacity,
-                    zIndex,
-                    filter,
-                  }}
-                >
-                  <OrnamentShape shape={o.shape} color={o.color} />
-                </div>
-              )
-            })}
-          </div>
+          <BeforeAfterSlider image={image} ornaments={ornaments} />
 
           <div className="ornament-legend">
             {ornaments.map((o, i) => (
