@@ -711,7 +711,10 @@ export default function TreeAdvisor() {
           <BeforeAfterSlider image={image} ornaments={ornaments} />
 
           <div className="ornament-legend">
-            {ornaments.map((o, i) => (
+            {ornaments
+              .filter((o, i, arr) => arr.findIndex(x => x.shape === o.shape && x.color === o.color) === i)
+              .slice(0, 8)
+              .map((o, i) => (
               <div key={i} className="legend-item">
                 <span className="legend-dot" style={{ background: o.color }} />
                 <span>{o.label}</span>
