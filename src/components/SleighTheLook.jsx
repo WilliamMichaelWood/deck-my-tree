@@ -60,6 +60,15 @@ ${extraContext ? `Notes: ${extraContext}` : ''}
 
 Return exactly 8 items. Output only the JSON array.`
 
+function getOrnamentShape(name = '') {
+  const n = name.toLowerCase()
+  if (n.includes('snowflake'))                          return 'snowflake'
+  if (n.includes('star'))                               return 'star'
+  if (n.includes('pinecone') || n.includes('pine cone')) return 'pinecone'
+  if (n.includes('drop') || n.includes('teardrop'))     return 'drop'
+  return 'ball'
+}
+
 function getSearchUrl(retailer, name) {
   const q = encodeURIComponent(name + ' christmas ornament')
   if (retailer === 'walmart') return `https://www.walmart.com/search?q=${q}`
@@ -179,7 +188,7 @@ function RecommendationCard({ item, index }) {
             retailer={r.key}
             price={item[r.key]?.price}
             ornamentName={item.name}
-            shape={item.shape}
+            shape={getOrnamentShape(item.name)}
             color={item.color || '#c9a84c'}
           />
         ))}
