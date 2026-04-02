@@ -58,12 +58,12 @@ Middle zone: y=${topEnd}–${midEnd}%, x=${mxl}–${mxr}%
 Lower zone:  y=${midEnd}–${baseY}%,  x=${lxl}–${lxr}%
 Approx zone centers: top y≈${midTop}, middle y≈${midMid}, lower y≈${midLow}
 
-═══ EXACTLY 27 ORNAMENTS — SIZE DISTRIBUTION ═══
-Sizes:  16 MEDIUM r=${rMd}  |  5 LARGE r=${rLg}  |  6 SMALL r=${rSm}
+═══ EXACTLY 30 ORNAMENTS — SIZE DISTRIBUTION ═══
+Sizes:  18 MEDIUM r=${rMd}  |  6 LARGE r=${rLg}  |  6 SMALL r=${rSm}
 
-Zone assignments — TOP IS FILLED, bottom is anchored:
-Top zone    (9 ornaments):  4 small r=${rSm}, 5 medium r=${rMd}           — fill the upper tree fully
-Middle zone (10 ornaments): 1 small r=${rSm}, 7 medium r=${rMd}, 2 large r=${rLg}  — densest zone
+Zone assignments — ALL THREE ZONES MUST BE FULLY POPULATED:
+Top zone    (10 ornaments): 4 small r=${rSm}, 6 medium r=${rMd}           — fill the upper tree fully, spread across full x range
+Middle zone (12 ornaments): 1 small r=${rSm}, 8 medium r=${rMd}, 3 large r=${rLg}  — densest zone
 Lower zone  (8 ornaments):  1 small r=${rSm}, 4 medium r=${rMd}, 3 large r=${rLg}  — heaviest anchors
 
 Size rules:
@@ -81,8 +81,8 @@ z=34–66  MIDDLE LAYER (mid-depth — rendered normal size, 75% opacity)
 z=67–100 FRONT LAYER  (near surface — rendered 10% larger, full opacity, shadow)
 
 Every zone MUST contain ornaments from ALL THREE layers:
-Top zone (9):    3 back (z=10–30), 4 middle (z=38–60), 2 front (z=70–88)
-Middle zone (10): 3 back (z=8–32),  4 middle (z=35–65), 3 front (z=68–95)
+Top zone (10):   3 back (z=10–30), 5 middle (z=38–60), 2 front (z=70–88)
+Middle zone (12): 4 back (z=8–32),  5 middle (z=35–65), 3 front (z=68–95)
 Lower zone (8):  2 back (z=12–30),  3 middle (z=38–62), 3 front (z=70–95)
 
 Depth + color rule: darker/matte ornaments → back layer (low z). Bright/glitter → front (high z).
@@ -104,12 +104,12 @@ Also stagger x: alternate left-of-center and right-of-center throughout.
 6. Include 2–3 metallics (gold #c9a84c, silver #c0c0c0, champagne #f5e6c8) as "glue"
 
 ═══ SHAPE VARIETY — max 30% any single type ═══
-With 27 ornaments, maximum 8 of any one shape (30% cap).
+With 30 ornaments, maximum 9 of any one shape (30% cap).
 Required distribution (all 5 types must be used):
-  "ball":      6  (classic — spread evenly across all zones)
+  "ball":      7  (classic — spread evenly across all zones)
   "drop":      6  (elegant — mostly middle/lower)
-  "star":      5  (statement — at least one in each zone)
-  "snowflake": 5  (delicate — prefer front layer, high z)
+  "star":      6  (statement — at least one in each zone)
+  "snowflake": 6  (delicate — prefer front layer, high z)
   "pinecone":  5  (rustic — prefer back layer, low z)
 FORBIDDEN: same shape in 2+ consecutive array positions.
 
@@ -120,16 +120,16 @@ FORBIDDEN: same shape in 2+ consecutive array positions.
 - Slight x asymmetry: skew more ornaments 5–8% toward one side of center
 
 ═══ VERIFICATION (check all before returning) ═══
-- Total = exactly 27 ✓
-- 16 medium, 5 large, 6 small ✓
-- Top zone has 9 ornaments (was sparse — now filled) ✓
+- Total = exactly 30 ✓
+- 18 medium, 6 large, 6 small ✓
+- Top zone has 10 ornaments, middle 12, lower 8 ✓
 - No ornament y > ${baseY}% (trunk rule) ✓
-- No shape > 8 occurrences ✓
+- No shape > 9 occurrences ✓
 - No same shape consecutive ✓
 - No 3+ ornaments at same y ±5% ✓
 - Each zone has back + middle + front layer ornaments ✓
 - Each color in 2+ zones ✓
-- Bottom zone (3 large) has more large ornaments than middle (2 large) ✓
+- Bottom zone (3 large) has more large ornaments than middle (3 large) ✓
 
 Each ornament must use exactly this JSON structure:
 {
@@ -146,7 +146,7 @@ Each ornament must use exactly this JSON structure:
   "potterybarn": { "price": "$X–$XX" }
 }
 
-Return exactly 27 items as a JSON array.`
+Return exactly 30 items as a JSON array.`
 }
 
 const RETAILERS = [
@@ -365,6 +365,15 @@ function BeforeAfterSlider({ image, ornaments }) {
       </div>
     </div>
   )
+}
+
+function getOrnamentShape(name = '') {
+  const n = name.toLowerCase()
+  if (n.includes('snowflake'))                           return 'snowflake'
+  if (n.includes('star'))                                return 'star'
+  if (n.includes('pinecone') || n.includes('pine cone')) return 'pinecone'
+  if (n.includes('drop') || n.includes('teardrop'))      return 'drop'
+  return 'ball'
 }
 
 function getSearchUrl(retailer, name) {
@@ -756,12 +765,7 @@ export default function TreeAdvisor() {
               <div key={i} className="ornament-shop-card">
                 <div className="shop-card-top">
                   <div className="shop-ornament-preview">
-                    <div
-                      className="shop-ornament-ball"
-                      style={{
-                        background: `radial-gradient(circle at 32% 28%, rgba(255,255,255,0.55) 0%, ${o.color}dd 38%, ${o.color} 100%)`,
-                      }}
-                    />
+                    <OrnamentShape shape={getOrnamentShape(o.name || o.label)} color={o.color} />
                   </div>
                   <div className="shop-card-info">
                     <span className="shop-card-num">{String(i + 1).padStart(2, '0')}</span>
