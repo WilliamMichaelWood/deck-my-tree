@@ -22,10 +22,10 @@ function buildOverlayPrompt(b) {
   const hw = (rgt - lft) / 2
 
   // Zone y boundaries: top 30% / middle 40% / bottom 30%
-  const tipY  = Math.round(top + h * 0.05)   // avoid the very tip
+  const tipY   = Math.round(top + h * 0.05)   // avoid the very tip
   const topEnd = Math.round(top + h * 0.30)
   const midEnd = Math.round(top + h * 0.70)
-  const baseY  = Math.round(top + h * 0.94)  // avoid the very base
+  const baseY  = Math.round(top + h * 0.88)  // stop well above trunk base
 
   // x constraints per zone — tree tapers toward top (triangular silhouette)
   const xRange = (frac, pad = 0.83) => {
@@ -37,10 +37,11 @@ function buildOverlayPrompt(b) {
   const { xl: lxl, xr: lxr } = xRange(0.88)   // lower zone: widest
 
   // r sizing scaled to apparent tree size in frame
+  // rLg reduced 15% from previous (1.20 → 1.02) — anchors were too dominant
   const rBase = Math.max(1.5, Math.min(3.0, hw * 0.13))
-  const rSm   = +(rBase * 0.54).toFixed(1)   // small accent (10%)
-  const rMd   = +rBase.toFixed(1)             // medium standard (70%)
-  const rLg   = +(rBase * 1.20).toFixed(1)   // large anchor (20%)
+  const rSm   = +(rBase * 0.54).toFixed(1)   // small accent
+  const rMd   = +rBase.toFixed(1)             // medium standard
+  const rLg   = +(rBase * 1.02).toFixed(1)   // large anchor (15% smaller than before)
 
   // Per-zone x midpoints for anti-stripe stagger hints
   const midTop = Math.round(tipY  + (topEnd - tipY)  / 2)
@@ -57,18 +58,22 @@ Middle zone: y=${topEnd}–${midEnd}%, x=${mxl}–${mxr}%
 Lower zone:  y=${midEnd}–${baseY}%,  x=${lxl}–${lxr}%
 Approx zone centers: top y≈${midTop}, middle y≈${midMid}, lower y≈${midLow}
 
-═══ EXACTLY 22 ORNAMENTS — 70/20/10 SIZE RULE ═══
-Sizes:  15 MEDIUM r=${rMd}  |  5 LARGE r=${rLg}  |  2 SMALL r=${rSm}
+═══ EXACTLY 27 ORNAMENTS — SIZE DISTRIBUTION ═══
+Sizes:  16 MEDIUM r=${rMd}  |  5 LARGE r=${rLg}  |  6 SMALL r=${rSm}
 
-Zone assignments (bottom-weighted for visual stability):
-Top zone    (5 ornaments):  2 small r=${rSm}, 3 medium r=${rMd}           — sparse, open
-Middle zone (10 ornaments): 8 medium r=${rMd}, 2 large r=${rLg}           — DENSEST zone
-Lower zone  (7 ornaments):  4 medium r=${rMd}, 3 large r=${rLg}           — heaviest anchors
+Zone assignments — TOP IS FILLED, bottom is anchored:
+Top zone    (9 ornaments):  4 small r=${rSm}, 5 medium r=${rMd}           — fill the upper tree fully
+Middle zone (10 ornaments): 1 small r=${rSm}, 7 medium r=${rMd}, 2 large r=${rLg}  — densest zone
+Lower zone  (8 ornaments):  1 small r=${rSm}, 4 medium r=${rMd}, 3 large r=${rLg}  — heaviest anchors
 
 Size rules:
 - LARGE r=${rLg}: MIDDLE and LOWER zones only — never top zone
-- Bottom zone must have MORE large ornaments than middle zone (stability rule)
-- Slightly vary r within each size class ±0.1–0.2 for natural look
+- Bottom zone has MORE large ornaments (3) than middle zone (2) — stability rule
+- Small accents r=${rSm}: scatter throughout ALL zones, bury deep in branches (z=8–35)
+- Slightly vary r within each size class ±0.1 for natural look
+
+TRUNK RULE — CRITICAL: no ornament may have y > ${baseY}%. The tree trunk begins there.
+Any ornament at or below the trunk base looks wrong and breaks the illusion.
 
 ═══ THREE DEPTH LAYERS — assign z deliberately ═══
 z=0–33   BACK LAYER   (buried in tree — rendered 30% smaller, 50% opacity, darker)
@@ -76,9 +81,9 @@ z=34–66  MIDDLE LAYER (mid-depth — rendered normal size, 75% opacity)
 z=67–100 FRONT LAYER  (near surface — rendered 10% larger, full opacity, shadow)
 
 Every zone MUST contain ornaments from ALL THREE layers:
-Top zone (5):    2 back (z=10–30), 2 middle (z=38–60), 1 front (z=70–88)
+Top zone (9):    3 back (z=10–30), 4 middle (z=38–60), 2 front (z=70–88)
 Middle zone (10): 3 back (z=8–32),  4 middle (z=35–65), 3 front (z=68–95)
-Lower zone (7):  2 back (z=12–30),  3 middle (z=38–62), 2 front (z=70–95)
+Lower zone (8):  2 back (z=12–30),  3 middle (z=38–62), 3 front (z=70–95)
 
 Depth + color rule: darker/matte ornaments → back layer (low z). Bright/glitter → front (high z).
 
@@ -99,13 +104,13 @@ Also stagger x: alternate left-of-center and right-of-center throughout.
 6. Include 2–3 metallics (gold #c9a84c, silver #c0c0c0, champagne #f5e6c8) as "glue"
 
 ═══ SHAPE VARIETY — max 30% any single type ═══
-With 22 ornaments, maximum 6 of any one shape (30% cap).
+With 27 ornaments, maximum 8 of any one shape (30% cap).
 Required distribution (all 5 types must be used):
-  "ball":      5  (classic — spread evenly, not clustered)
-  "drop":      5  (elegant — mostly middle/lower)
-  "star":      4  (statement — one per zone minimum)
-  "snowflake": 4  (delicate — prefer front layer, high z)
-  "pinecone":  4  (rustic — prefer back layer, low z)
+  "ball":      6  (classic — spread evenly across all zones)
+  "drop":      6  (elegant — mostly middle/lower)
+  "star":      5  (statement — at least one in each zone)
+  "snowflake": 5  (delicate — prefer front layer, high z)
+  "pinecone":  5  (rustic — prefer back layer, low z)
 FORBIDDEN: same shape in 2+ consecutive array positions.
 
 ═══ CLUSTERING — 2–3 tight groups of 3 ═══
@@ -115,14 +120,16 @@ FORBIDDEN: same shape in 2+ consecutive array positions.
 - Slight x asymmetry: skew more ornaments 5–8% toward one side of center
 
 ═══ VERIFICATION (check all before returning) ═══
-- Total = exactly 22 ✓
-- 15 medium, 5 large, 2 small ✓
-- No shape > 6 occurrences ✓
+- Total = exactly 27 ✓
+- 16 medium, 5 large, 6 small ✓
+- Top zone has 9 ornaments (was sparse — now filled) ✓
+- No ornament y > ${baseY}% (trunk rule) ✓
+- No shape > 8 occurrences ✓
 - No same shape consecutive ✓
 - No 3+ ornaments at same y ±5% ✓
 - Each zone has back + middle + front layer ornaments ✓
 - Each color in 2+ zones ✓
-- Bottom zone has more large ornaments than middle zone ✓
+- Bottom zone (3 large) has more large ornaments than middle (2 large) ✓
 
 Each ornament must use exactly this JSON structure:
 {
@@ -139,7 +146,7 @@ Each ornament must use exactly this JSON structure:
   "potterybarn": { "price": "$X–$XX" }
 }
 
-Return exactly 22 items as a JSON array.`
+Return exactly 27 items as a JSON array.`
 }
 
 const RETAILERS = [
@@ -422,7 +429,7 @@ export default function TreeAdvisor() {
             { type: 'text', text: buildOverlayPrompt(bounds) },
           ],
         }],
-        maxTokens: 5500,
+        maxTokens: 6500,
         onText: (text) => setRawOverlay(prev => prev + text),
       })
     } catch {
