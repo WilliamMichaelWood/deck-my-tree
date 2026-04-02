@@ -37,10 +37,11 @@ function buildOverlayPrompt(b) {
   const { xl: lxl, xr: lxr } = xRange(0.88)   // lower zone: widest
 
   // r sizing scaled to apparent tree size in frame
+  // Large r reduced 25% vs previous (1.52 → 1.14) to avoid oversized anchors
   const rBase = Math.max(1.5, Math.min(3.0, hw * 0.13))
   const rSm   = +(rBase * 0.54).toFixed(1)
   const rMd   = +rBase.toFixed(1)
-  const rLg   = +(rBase * 1.52).toFixed(1)
+  const rLg   = +(rBase * 1.14).toFixed(1)
 
   return `You are a professional Christmas tree decorator with 15 years of editorial experience. Study this specific photo — note the tree's actual colors, shape, density, and any existing decorations — before placing ornaments.
 
@@ -51,26 +52,26 @@ Top zone:    y=${tipY}–${topEnd}%,   x=${txl}–${txr}%   (narrow — tree tap
 Middle zone: y=${topEnd}–${midEnd}%, x=${mxl}–${mxr}%   (widest, most prominent zone)
 Lower zone:  y=${midEnd}–${baseY}%,  x=${lxl}–${lxr}%   (wide, anchoring zone)
 
-═══ EXACTLY 20 ORNAMENTS — zone assignments ═══
-Top zone (3 ornaments):
+═══ EXACTLY 9 ORNAMENTS — zone assignments ═══
+Top zone (2 ornaments):
   - 1 small filler  r=${rSm}  z=20–45
-  - 2 medium        r=${rMd}  z=40–65
+  - 1 medium        r=${rMd}  z=40–65
 
-Middle zone (10 ornaments) — THIS IS THE MONEY ZONE, fill it richly:
-  - 2 small fillers r=${rSm}  z=15–40
-  - 6 medium        r=${rMd}  z=40–72
-  - 2 large anchors r=${rLg}  z=62–85
+Middle zone (4 ornaments) — THE MONEY ZONE, richest variety:
+  - 1 small filler  r=${rSm}  z=15–40
+  - 2 medium        r=${rMd}  z=40–72
+  - 1 large anchor  r=${rLg}  z=62–85
 
-Lower zone (7 ornaments) — heavier than top, creates visual stability:
-  - 2 small fillers r=${rSm}  z=18–42
-  - 3 medium        r=${rMd}  z=45–70
-  - 2 large anchors r=${rLg}  z=65–90
+Lower zone (3 ornaments) — heavier than top, creates visual stability:
+  - 1 medium        r=${rMd}  z=45–70
+  - 1 medium        r=${rMd}  z=48–72
+  - 1 large anchor  r=${rLg}  z=65–90
 
 ═══ SIZE RULES ═══
 - Large ornaments (r=${rLg}): MIDDLE and LOWER zones only — never top zone
 - Bottom zone ornaments should use r values LARGER than same-zone medium (stability rule)
 - Top zone: small and medium only — large ornaments in top = top-heavy, amateur
-- Do NOT place all large ornaments in the same zone
+- The 2 large anchors go one in middle, one in lower — never both in same zone
 
 ═══ DEPTH (z) — the difference between flat and professional ═══
 z=0 means buried inside tree (back). z=100 means hanging on surface tip of branch.
@@ -96,21 +97,24 @@ z=0 means buried inside tree (back). z=100 means hanging on surface tip of branc
 - FORBIDDEN: two ornaments sharing the same y within ±2.5% (creates amateur horizontal line)
 - Slight asymmetry in x distribution (more ornaments pushed 5–10% off-center toward one side)
 
-═══ SHAPE VARIETY — use all 5 types ═══
-"ball": 7–8 total (classic foundation)
-"drop": 4 total (elegant elongated — use in middle/lower)
-"star": 3 total (statement pieces — scatter across zones)
-"snowflake": 2 total (delicate — high z near surface)
-"pinecone": 2 total (rustic texture — low z, buried deep)
-Never cluster same shapes together. Alternate shapes as you move through the tree.
+═══ SHAPE VARIETY — strict rules ═══
+MAXIMUM 3 "ball" ornaments (≤40% of total) — the rest MUST be other shapes.
+Required non-ball shapes (choose at least 3 of these 4 types):
+  "drop":      2 (elegant elongated — middle/lower zones)
+  "star":      2 (statement pieces — scatter across all zones)
+  "snowflake": 1 (delicate — high z, near surface)
+  "pinecone":  1 (rustic texture — low z, buried deep)
+FORBIDDEN: 4+ ball ornaments. FORBIDDEN: two ornaments of same shape adjacent in array.
+Alternate shapes as you move through the tree — never place same shape back to back.
 
 ═══ VERIFICATION CHECKLIST (check before returning) ═══
 - Bottom zone average r > top zone average r ✓
 - No same color 3+ consecutive positions ✓
 - No two ornaments at same y ±2.5% ✓
-- All 5 shapes used ✓
+- All 5 shapes used, no same shape back-to-back ✓
+- ball count ≤ 3 (max 40% of 9) ✓
 - Each color appears in 2+ different zones ✓
-- Total count = exactly 20 ✓
+- Total count = exactly 9 ✓
 
 Each ornament must use exactly this JSON structure:
 {
@@ -127,7 +131,7 @@ Each ornament must use exactly this JSON structure:
   "potterybarn": { "price": "$X–$XX" }
 }
 
-Return exactly 20 items as a JSON array.`
+Return exactly 9 items as a JSON array.`
 }
 
 const RETAILERS = [
@@ -410,7 +414,7 @@ export default function TreeAdvisor() {
             { type: 'text', text: buildOverlayPrompt(bounds) },
           ],
         }],
-        maxTokens: 4800,
+        maxTokens: 2400,
         onText: (text) => setRawOverlay(prev => prev + text),
       })
     } catch {
