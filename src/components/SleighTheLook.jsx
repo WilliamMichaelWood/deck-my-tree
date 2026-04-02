@@ -188,7 +188,7 @@ function RecommendationCard({ item, index }) {
             retailer={r.key}
             price={item[r.key]?.price}
             ornamentName={item.name}
-            shape={getOrnamentShape(item.name)}
+            shape={item.shape || getOrnamentShape(item.name)}
             color={item.color || '#c9a84c'}
           />
         ))}

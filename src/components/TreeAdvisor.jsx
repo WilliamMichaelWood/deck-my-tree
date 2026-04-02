@@ -776,7 +776,7 @@ export default function TreeAdvisor() {
               <div key={i} className="ornament-shop-card">
                 <div className="shop-card-top">
                   <div className="shop-ornament-preview">
-                    <OrnamentShape shape={getOrnamentShape(o.name || o.label)} color={o.color} />
+                    <OrnamentShape shape={o.shape || getOrnamentShape(o.name || o.label)} color={o.color} />
                   </div>
                   <div className="shop-card-info">
                     <span className="shop-card-num">{String(i + 1).padStart(2, '0')}</span>
