@@ -613,22 +613,25 @@ export default function TreeAdvisor() {
         URL.revokeObjectURL(url)
       }
 
-      const jpegBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92))
-      const file     = new File([jpegBlob], 'my-decorated-tree.jpg', { type: 'image/jpeg' })
-      const shareData = {
-        files: [file],
-        title: 'My Decorated Christmas Tree',
-        text:  'I just styled my Christmas tree with Deck My Tree ✨ deck-my-tree.vercel.app',
-      }
+      const jpegBlob  = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.92))
+      const file      = new File([jpegBlob], 'my-decorated-tree.jpg', { type: 'image/jpeg' })
+      const shareText = 'I just styled my Christmas tree with Deck My Tree ✨'
+      const shareUrl  = 'https://deck-my-tree.vercel.app'
+      const shareTitle = 'My Decorated Christmas Tree'
 
-      if (navigator.canShare?.(shareData)) {
-        await navigator.share(shareData)
+      // Prefer: image + clean text + url field (tappable link in iOS share sheet)
+      const withFileAndUrl = { files: [file], title: shareTitle, text: shareText, url: shareUrl }
+      // Fallback: image + text with url inlined (if browser rejects files+url combo)
+      const withFileOnly   = { files: [file], title: shareTitle, text: `${shareText}\n${shareUrl}` }
+      // Last resort: no image, but url field preserved as tappable link
+      const textAndUrl     = { title: shareTitle, text: shareText, url: shareUrl }
+
+      if (navigator.canShare?.(withFileAndUrl)) {
+        await navigator.share(withFileAndUrl)
+      } else if (navigator.canShare?.(withFileOnly)) {
+        await navigator.share(withFileOnly)
       } else if (navigator.share) {
-        // Files not supported — share text + URL only
-        await navigator.share({
-          title: 'My Decorated Christmas Tree',
-          text:  'I just styled my Christmas tree with Deck My Tree ✨ deck-my-tree.vercel.app',
-        })
+        await navigator.share(textAndUrl)
       }
     } catch (err) {
       if (err?.name !== 'AbortError') console.error('Share failed:', err)
