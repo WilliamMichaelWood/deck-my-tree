@@ -37,88 +37,96 @@ function buildOverlayPrompt(b) {
   const { xl: lxl, xr: lxr } = xRange(0.88)   // lower zone: widest
 
   // r sizing scaled to apparent tree size in frame
-  // Large r reduced 25% vs previous (1.52 → 1.14) to avoid oversized anchors
   const rBase = Math.max(1.5, Math.min(3.0, hw * 0.13))
-  const rSm   = +(rBase * 0.54).toFixed(1)
-  const rMd   = +rBase.toFixed(1)
-  const rLg   = +(rBase * 1.14).toFixed(1)
+  const rSm   = +(rBase * 0.54).toFixed(1)   // small accent (10%)
+  const rMd   = +rBase.toFixed(1)             // medium standard (70%)
+  const rLg   = +(rBase * 1.20).toFixed(1)   // large anchor (20%)
+
+  // Per-zone x midpoints for anti-stripe stagger hints
+  const midTop = Math.round(tipY  + (topEnd - tipY)  / 2)
+  const midMid = Math.round(topEnd + (midEnd - topEnd) / 2)
+  const midLow = Math.round(midEnd + (baseY  - midEnd) / 2)
 
   return `You are a professional Christmas tree decorator with 15 years of editorial experience. Study this specific photo — note the tree's actual colors, shape, density, and any existing decorations — before placing ornaments.
 
 Output ONLY a valid JSON array. No markdown, no explanation, no code fences. Start with [ and end with ].
 
 ═══ TREE BOUNDARIES (hard walls — no ornament may exceed these) ═══
-Top zone:    y=${tipY}–${topEnd}%,   x=${txl}–${txr}%   (narrow — tree tapers here)
-Middle zone: y=${topEnd}–${midEnd}%, x=${mxl}–${mxr}%   (widest, most prominent zone)
-Lower zone:  y=${midEnd}–${baseY}%,  x=${lxl}–${lxr}%   (wide, anchoring zone)
+Top zone:    y=${tipY}–${topEnd}%,   x=${txl}–${txr}%
+Middle zone: y=${topEnd}–${midEnd}%, x=${mxl}–${mxr}%
+Lower zone:  y=${midEnd}–${baseY}%,  x=${lxl}–${lxr}%
+Approx zone centers: top y≈${midTop}, middle y≈${midMid}, lower y≈${midLow}
 
-═══ EXACTLY 9 ORNAMENTS — zone assignments ═══
-Top zone (2 ornaments):
-  - 1 small filler  r=${rSm}  z=20–45
-  - 1 medium        r=${rMd}  z=40–65
+═══ EXACTLY 22 ORNAMENTS — 70/20/10 SIZE RULE ═══
+Sizes:  15 MEDIUM r=${rMd}  |  5 LARGE r=${rLg}  |  2 SMALL r=${rSm}
 
-Middle zone (4 ornaments) — THE MONEY ZONE, richest variety:
-  - 1 small filler  r=${rSm}  z=15–40
-  - 2 medium        r=${rMd}  z=40–72
-  - 1 large anchor  r=${rLg}  z=62–85
+Zone assignments (bottom-weighted for visual stability):
+Top zone    (5 ornaments):  2 small r=${rSm}, 3 medium r=${rMd}           — sparse, open
+Middle zone (10 ornaments): 8 medium r=${rMd}, 2 large r=${rLg}           — DENSEST zone
+Lower zone  (7 ornaments):  4 medium r=${rMd}, 3 large r=${rLg}           — heaviest anchors
 
-Lower zone (3 ornaments) — heavier than top, creates visual stability:
-  - 1 medium        r=${rMd}  z=45–70
-  - 1 medium        r=${rMd}  z=48–72
-  - 1 large anchor  r=${rLg}  z=65–90
+Size rules:
+- LARGE r=${rLg}: MIDDLE and LOWER zones only — never top zone
+- Bottom zone must have MORE large ornaments than middle zone (stability rule)
+- Slightly vary r within each size class ±0.1–0.2 for natural look
 
-═══ SIZE RULES ═══
-- Large ornaments (r=${rLg}): MIDDLE and LOWER zones only — never top zone
-- Bottom zone ornaments should use r values LARGER than same-zone medium (stability rule)
-- Top zone: small and medium only — large ornaments in top = top-heavy, amateur
-- The 2 large anchors go one in middle, one in lower — never both in same zone
+═══ THREE DEPTH LAYERS — assign z deliberately ═══
+z=0–33   BACK LAYER   (buried in tree — rendered 30% smaller, 50% opacity, darker)
+z=34–66  MIDDLE LAYER (mid-depth — rendered normal size, 75% opacity)
+z=67–100 FRONT LAYER  (near surface — rendered 10% larger, full opacity, shadow)
 
-═══ DEPTH (z) — the difference between flat and professional ═══
-z=0 means buried inside tree (back). z=100 means hanging on surface tip of branch.
-- Small ornaments:  z=15–45 (buried deep — create visual fullness from front)
-- Medium ornaments: z=38–72 (mid-layer — transition pieces)
-- Large ornaments:  z=60–90 (near surface — statement focal points)
-- Darker/matte colors → lower z. Bright/glitter/reflective colors → higher z.
-- This layering is what separates professional from amateur flat decoration.
+Every zone MUST contain ornaments from ALL THREE layers:
+Top zone (5):    2 back (z=10–30), 2 middle (z=38–60), 1 front (z=70–88)
+Middle zone (10): 3 back (z=8–32),  4 middle (z=35–65), 3 front (z=68–95)
+Lower zone (7):  2 back (z=12–30),  3 middle (z=38–62), 2 front (z=70–95)
 
-═══ COLOR PLACEMENT — diagonal distribution required ═══
-1. Choose 3–4 complementary colors that match this tree's existing palette
-2. Each color MUST appear in ALL three zones (vertical distribution, not blocks)
-3. Primary color: place in triangular pattern across zones (e.g. upper-left, mid-right, lower-left)
-4. FORBIDDEN: same hex color in 3+ ornaments in the same zone
-5. FORBIDDEN: same color appearing in 3+ consecutive array positions
-6. Include 2–3 neutral/metallic ornaments (gold #c9a84c, silver #c0c0c0, champagne #f5e6c8) as "glue"
-7. Never place same color touching — always break with a neutral or different color between
+Depth + color rule: darker/matte ornaments → back layer (low z). Bright/glitter → front (high z).
 
-═══ CLUSTERING — odd numbers = professional ═══
-- Form exactly 2–3 clusters of 3 ornaments with tight spacing (x/y within 5–11% of each other)
-- Between clusters: leave deliberate negative space (>15% gap) — sparse areas make clusters pop
-- FORBIDDEN: uniform grid spacing, horizontal stripes (same y ±3%), left-right mirror symmetry
-- FORBIDDEN: two ornaments sharing the same y within ±2.5% (creates amateur horizontal line)
-- Slight asymmetry in x distribution (more ornaments pushed 5–10% off-center toward one side)
+═══ ANTI-STRIPE — diagonal scatter is mandatory ═══
+FORBIDDEN: 3 or more ornaments within ±5% of the same y value.
+FORBIDDEN: uniform horizontal rows — this is the #1 amateur mistake.
+REQUIRED: ornaments must form diagonal visual lines when you connect them.
+Strategy: within each zone, vary y values wildly. If one ornament is at y=${midMid}%,
+the next in that zone must differ by at least 5% in y. Stagger: high-low-mid-high-low.
+Also stagger x: alternate left-of-center and right-of-center throughout.
 
-═══ SHAPE VARIETY — strict rules ═══
-MAXIMUM 3 "ball" ornaments (≤40% of total) — the rest MUST be other shapes.
-Required non-ball shapes (choose at least 3 of these 4 types):
-  "drop":      2 (elegant elongated — middle/lower zones)
-  "star":      2 (statement pieces — scatter across all zones)
-  "snowflake": 1 (delicate — high z, near surface)
-  "pinecone":  1 (rustic texture — low z, buried deep)
-FORBIDDEN: 4+ ball ornaments. FORBIDDEN: two ornaments of same shape adjacent in array.
-Alternate shapes as you move through the tree — never place same shape back to back.
+═══ COLOR PLACEMENT — diagonal distribution ═══
+1. Choose 3–4 complementary colors matching this tree's existing palette
+2. Each color MUST appear across ALL three zones (no color blocks)
+3. Primary color in triangular pattern: upper-left → mid-right → lower-left (or mirror)
+4. FORBIDDEN: same hex color 3+ consecutive positions in array
+5. FORBIDDEN: same color twice in same zone without a different color between
+6. Include 2–3 metallics (gold #c9a84c, silver #c0c0c0, champagne #f5e6c8) as "glue"
 
-═══ VERIFICATION CHECKLIST (check before returning) ═══
-- Bottom zone average r > top zone average r ✓
-- No same color 3+ consecutive positions ✓
-- No two ornaments at same y ±2.5% ✓
-- All 5 shapes used, no same shape back-to-back ✓
-- ball count ≤ 3 (max 40% of 9) ✓
-- Each color appears in 2+ different zones ✓
-- Total count = exactly 9 ✓
+═══ SHAPE VARIETY — max 30% any single type ═══
+With 22 ornaments, maximum 6 of any one shape (30% cap).
+Required distribution (all 5 types must be used):
+  "ball":      5  (classic — spread evenly, not clustered)
+  "drop":      5  (elegant — mostly middle/lower)
+  "star":      4  (statement — one per zone minimum)
+  "snowflake": 4  (delicate — prefer front layer, high z)
+  "pinecone":  4  (rustic — prefer back layer, low z)
+FORBIDDEN: same shape in 2+ consecutive array positions.
+
+═══ CLUSTERING — 2–3 tight groups of 3 ═══
+- Form 2–3 clusters of 3 ornaments (x/y within 6–12% of each other)
+- Vary depth (z) within each cluster — never all same layer
+- Between clusters: deliberate negative space >15% — sparse zones make clusters pop
+- Slight x asymmetry: skew more ornaments 5–8% toward one side of center
+
+═══ VERIFICATION (check all before returning) ═══
+- Total = exactly 22 ✓
+- 15 medium, 5 large, 2 small ✓
+- No shape > 6 occurrences ✓
+- No same shape consecutive ✓
+- No 3+ ornaments at same y ±5% ✓
+- Each zone has back + middle + front layer ornaments ✓
+- Each color in 2+ zones ✓
+- Bottom zone has more large ornaments than middle zone ✓
 
 Each ornament must use exactly this JSON structure:
 {
-  "name": "Specific searchable product name for shopping (e.g. 'Shiny ruby red mercury glass ball ornament set of 6')",
+  "name": "Specific searchable product name (e.g. 'Shiny ruby red mercury glass ball ornament set of 6')",
   "label": "Short display label (e.g. 'Ruby Mercury Ball')",
   "color": "#hexcolor",
   "shape": "ball",
@@ -131,7 +139,7 @@ Each ornament must use exactly this JSON structure:
   "potterybarn": { "price": "$X–$XX" }
 }
 
-Return exactly 9 items as a JSON array.`
+Return exactly 22 items as a JSON array.`
 }
 
 const RETAILERS = [
@@ -414,7 +422,7 @@ export default function TreeAdvisor() {
             { type: 'text', text: buildOverlayPrompt(bounds) },
           ],
         }],
-        maxTokens: 2400,
+        maxTokens: 5500,
         onText: (text) => setRawOverlay(prev => prev + text),
       })
     } catch {
@@ -512,30 +520,45 @@ export default function TreeAdvisor() {
           <div className="tree-overlay-wrap">
             <img src={image.preview} alt="Your decorated tree" className="tree-overlay-img" />
             {ornaments.map((o, i) => {
-              // y-based perspective: lower on tree = larger (natural foreshortening)
-              const yScale = 0.72 + (o.y / 100) * 0.52
-              // z-based depth: deep in tree (low z) = smaller and dimmer; surface (high z) = full size
-              const z = o.z ?? 70
-              const zScale = 0.74 + (z / 100) * 0.26
-              const totalScale = yScale * zScale
-              const size = `${o.r * 2 * totalScale}%`
-              // Deeper ornaments appear slightly faded (obscured by branches)
-              const opacity = 0.58 + (z / 100) * 0.42
-              const shadowBlur   = Math.round((5 + z * 0.05) * zScale)
-              const shadowOffset = Math.round(2 * zScale)
-              const shadowAlpha  = (0.28 + zScale * 0.38).toFixed(2)
+              // y-based perspective: ornaments lower on tree appear naturally larger
+              const yPerspective = 0.74 + (o.y / 100) * 0.48
+              const z = o.z ?? 55
+
+              // Three discrete depth layers matching prompt specification
+              let depthScale, opacity, filter, zIndex
+              if (z < 34) {
+                // Back layer: 30% smaller, half opacity, darker (branches obscure)
+                depthScale = 0.70
+                opacity    = 0.50
+                filter     = 'brightness(0.62)'
+                zIndex     = 10 + Math.round(z * 0.7)
+              } else if (z < 67) {
+                // Middle layer: normal size, 75% opacity, no filter
+                depthScale = 1.00
+                opacity    = 0.75
+                filter     = undefined
+                zIndex     = 40 + Math.round((z - 34) * 0.9)
+              } else {
+                // Front layer: slightly larger, full opacity, subtle shadow
+                depthScale = 1.10
+                opacity    = 1.00
+                filter     = 'drop-shadow(0 3px 10px rgba(0,0,0,0.52))'
+                zIndex     = 70 + Math.round((z - 67) * 0.9)
+              }
+
+              const size = `${o.r * 2 * yPerspective * depthScale}%`
               return (
                 <div
                   key={i}
                   className="ornament-pin"
                   title={o.label}
                   style={{
-                    left:    `${o.x}%`,
-                    top:     `${o.y}%`,
-                    width:   size,
+                    left:   `${o.x}%`,
+                    top:    `${o.y}%`,
+                    width:  size,
                     opacity,
-                    zIndex:  Math.round(z),
-                    filter:  `drop-shadow(0 ${shadowOffset}px ${shadowBlur}px rgba(0,0,0,${shadowAlpha}))`,
+                    zIndex,
+                    filter,
                   }}
                 >
                   <OrnamentShape shape={o.shape} color={o.color} />
