@@ -12,86 +12,122 @@ const DETECT_PROMPT = `Analyze this image and return ONLY a JSON object with the
 
 function buildOverlayPrompt(b) {
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
-  const top = clamp(b.treeTop,     0,  60)
-  const bot = clamp(b.treeBottom,  40, 100)
+  const top = clamp(b.treeTop,     0,  55)
+  const bot = clamp(b.treeBottom,  45, 100)
   const lft = clamp(b.treeLeft,    0,  48)
   const rgt = clamp(b.treeRight,   52, 100)
   const cx  = clamp(b.treeCenterX, 10, 90)
 
-  const h  = bot - top        // tree height in image %
-  const hw = (rgt - lft) / 2  // half-width at base in image %
+  const h  = bot - top
+  const hw = (rgt - lft) / 2
 
-  // Zone y bounds
-  const u1 = Math.round(top + h * 0.10)
-  const u2 = Math.round(top + h * 0.33)
-  const m2 = Math.round(top + h * 0.63)
-  const l2 = Math.round(top + h * 0.87)
+  // Zone y boundaries: top 30% / middle 40% / bottom 30%
+  const tipY  = Math.round(top + h * 0.05)   // avoid the very tip
+  const topEnd = Math.round(top + h * 0.30)
+  const midEnd = Math.round(top + h * 0.70)
+  const baseY  = Math.round(top + h * 0.94)  // avoid the very base
 
-  // x bounds at mid-point of each zone (triangular taper, 0.80 pad keeps off edge)
-  const xb = (frac, pad = 0.80) => {
+  // x constraints per zone — tree tapers toward top (triangular silhouette)
+  const xRange = (frac, pad = 0.83) => {
     const spread = Math.round(hw * frac * pad)
     return { xl: Math.round(cx - spread), xr: Math.round(cx + spread) }
   }
-  const { xl: uxl, xr: uxr } = xb(0.22)
-  const { xl: mxl, xr: mxr } = xb(0.50)
-  const { xl: lxl, xr: lxr } = xb(0.78)
+  const { xl: txl, xr: txr } = xRange(0.24)   // top zone: narrow
+  const { xl: mxl, xr: mxr } = xRange(0.62)   // middle zone: wide
+  const { xl: lxl, xr: lxr } = xRange(0.88)   // lower zone: widest
 
-  // r scales with tree size (hw gives a sense of how large the tree is in-frame)
-  const rBase = Math.max(1.4, Math.min(2.8, hw * 0.13))
-  const rU = rBase * 0.78, rM = rBase, rL = rBase * 1.28
+  // r sizing scaled to apparent tree size in frame
+  const rBase = Math.max(1.5, Math.min(3.0, hw * 0.13))
+  const rSm   = +(rBase * 0.54).toFixed(1)
+  const rMd   = +rBase.toFixed(1)
+  const rLg   = +(rBase * 1.52).toFixed(1)
 
-  // 70-20-10 sizing for 13 ornaments: 9 medium, 3 large, 1 small accent
-  const rSm = (rU * 0.70).toFixed(1)
-  const rMd = rM.toFixed(1)
-  const rLg = (rL * 1.25).toFixed(1)
+  return `You are a professional Christmas tree decorator with 15 years of editorial experience. Study this specific photo — note the tree's actual colors, shape, density, and any existing decorations — before placing ornaments.
 
-  return `You are a professional Christmas tree decorator. Study this photo and place exactly 13 ornaments using pro decorating rules.
+Output ONLY a valid JSON array. No markdown, no explanation, no code fences. Start with [ and end with ].
 
-Output ONLY a valid JSON array — no markdown, no explanation, no code fences. Start with [ and end with ].
+═══ TREE BOUNDARIES (hard walls — no ornament may exceed these) ═══
+Top zone:    y=${tipY}–${topEnd}%,   x=${txl}–${txr}%   (narrow — tree tapers here)
+Middle zone: y=${topEnd}–${midEnd}%, x=${mxl}–${mxr}%   (widest, most prominent zone)
+Lower zone:  y=${midEnd}–${baseY}%,  x=${lxl}–${lxr}%   (wide, anchoring zone)
 
-DETECTED TREE BOUNDS (from computer vision analysis of this exact photo):
-- Upper zone  y=${u1}–${u2}%  x=${uxl}–${uxr}%
-- Middle zone y=${u2}–${m2}%  x=${mxl}–${mxr}%
-- Lower zone  y=${m2}–${l2}%  x=${lxl}–${lxr}%
-These are hard walls. Any ornament outside its zone's x or y range renders off the tree.
+═══ EXACTLY 20 ORNAMENTS — zone assignments ═══
+Top zone (3 ornaments):
+  - 1 small filler  r=${rSm}  z=20–45
+  - 2 medium        r=${rMd}  z=40–65
 
-SIZE DISTRIBUTION — 70/20/10 professional rule:
-- 9 MEDIUM ornaments  r=${rMd}  — distributed across all zones, heaviest in middle
-- 3 LARGE ornaments   r=${rLg}  — lower zone only, they anchor the base visually
-- 1 SMALL accent      r=${rSm}  — upper zone only, a delicate detail near the tip
+Middle zone (10 ornaments) — THIS IS THE MONEY ZONE, fill it richly:
+  - 2 small fillers r=${rSm}  z=15–40
+  - 6 medium        r=${rMd}  z=40–72
+  - 2 large anchors r=${rLg}  z=62–85
 
-SIZE BY POSITION — ornaments must taper with the tree:
-- Upper zone: use r=${rSm}–${(rU * 0.95).toFixed(1)} only (small/delicate)
-- Middle zone: use r=${(rM * 0.85).toFixed(1)}–${(rM * 1.15).toFixed(1)} (medium)
-- Lower zone: use r=${(rL * 0.90).toFixed(1)}–${rLg} (large/bold anchors)
+Lower zone (7 ornaments) — heavier than top, creates visual stability:
+  - 2 small fillers r=${rSm}  z=18–42
+  - 3 medium        r=${rMd}  z=45–70
+  - 2 large anchors r=${rLg}  z=65–90
 
-CLUSTERING RULE — professional decorators never space evenly:
-- Arrange ornaments in 2–3 visible clusters of 3 or 5 within the tree
-- Within a cluster, ornaments should be 3–9% apart in x or y
-- Leave some areas deliberately sparse — negative space makes clusters pop
-- Do NOT place ornaments at regular intervals or mirror them left-to-right
+═══ SIZE RULES ═══
+- Large ornaments (r=${rLg}): MIDDLE and LOWER zones only — never top zone
+- Bottom zone ornaments should use r values LARGER than same-zone medium (stability rule)
+- Top zone: small and medium only — large ornaments in top = top-heavy, amateur
+- Do NOT place all large ornaments in the same zone
 
-ORGANIC PLACEMENT:
-- Vary depth: some ornaments push left of center, others right — never balanced
-- Avoid placing any ornament within 3% of y=${u1} (tip) or y=${l2} (base)
-- No two ornaments may share x within ±2% AND y within ±3% of each other
+═══ DEPTH (z) — the difference between flat and professional ═══
+z=0 means buried inside tree (back). z=100 means hanging on surface tip of branch.
+- Small ornaments:  z=15–45 (buried deep — create visual fullness from front)
+- Medium ornaments: z=38–72 (mid-layer — transition pieces)
+- Large ornaments:  z=60–90 (near surface — statement focal points)
+- Darker/matte colors → lower z. Bright/glitter/reflective colors → higher z.
+- This layering is what separates professional from amateur flat decoration.
 
-Each item must use exactly this structure:
+═══ COLOR PLACEMENT — diagonal distribution required ═══
+1. Choose 3–4 complementary colors that match this tree's existing palette
+2. Each color MUST appear in ALL three zones (vertical distribution, not blocks)
+3. Primary color: place in triangular pattern across zones (e.g. upper-left, mid-right, lower-left)
+4. FORBIDDEN: same hex color in 3+ ornaments in the same zone
+5. FORBIDDEN: same color appearing in 3+ consecutive array positions
+6. Include 2–3 neutral/metallic ornaments (gold #c9a84c, silver #c0c0c0, champagne #f5e6c8) as "glue"
+7. Never place same color touching — always break with a neutral or different color between
+
+═══ CLUSTERING — odd numbers = professional ═══
+- Form exactly 2–3 clusters of 3 ornaments with tight spacing (x/y within 5–11% of each other)
+- Between clusters: leave deliberate negative space (>15% gap) — sparse areas make clusters pop
+- FORBIDDEN: uniform grid spacing, horizontal stripes (same y ±3%), left-right mirror symmetry
+- FORBIDDEN: two ornaments sharing the same y within ±2.5% (creates amateur horizontal line)
+- Slight asymmetry in x distribution (more ornaments pushed 5–10% off-center toward one side)
+
+═══ SHAPE VARIETY — use all 5 types ═══
+"ball": 7–8 total (classic foundation)
+"drop": 4 total (elegant elongated — use in middle/lower)
+"star": 3 total (statement pieces — scatter across zones)
+"snowflake": 2 total (delicate — high z near surface)
+"pinecone": 2 total (rustic texture — low z, buried deep)
+Never cluster same shapes together. Alternate shapes as you move through the tree.
+
+═══ VERIFICATION CHECKLIST (check before returning) ═══
+- Bottom zone average r > top zone average r ✓
+- No same color 3+ consecutive positions ✓
+- No two ornaments at same y ±2.5% ✓
+- All 5 shapes used ✓
+- Each color appears in 2+ different zones ✓
+- Total count = exactly 20 ✓
+
+Each ornament must use exactly this JSON structure:
 {
-  "name": "Specific searchable ornament name (e.g. 'Shiny red glass ball ornament set of 12')",
-  "label": "Short display label (e.g. 'Red Ball')",
+  "name": "Specific searchable product name for shopping (e.g. 'Shiny ruby red mercury glass ball ornament set of 6')",
+  "label": "Short display label (e.g. 'Ruby Mercury Ball')",
   "color": "#hexcolor",
   "shape": "ball",
-  "x": ${Math.round(cx)},
-  "y": ${Math.round(top + h * 0.5)},
-  "r": ${rMd},
+  "x": number,
+  "y": number,
+  "r": number,
+  "z": number,
   "walmart":     { "price": "$X–$XX" },
   "amazon":      { "price": "$X–$XX" },
   "potterybarn": { "price": "$X–$XX" }
 }
 
-shape: "ball" "drop" "star" "snowflake" "pinecone" — match the ornament type.
-Choose colors complementing this tree's palette. Return exactly 13 items.`
+Return exactly 20 items as a JSON array.`
 }
 
 const RETAILERS = [
@@ -374,7 +410,7 @@ export default function TreeAdvisor() {
             { type: 'text', text: buildOverlayPrompt(bounds) },
           ],
         }],
-        maxTokens: 3500,
+        maxTokens: 4800,
         onText: (text) => setRawOverlay(prev => prev + text),
       })
     } catch {
@@ -472,21 +508,30 @@ export default function TreeAdvisor() {
           <div className="tree-overlay-wrap">
             <img src={image.preview} alt="Your decorated tree" className="tree-overlay-img" />
             {ornaments.map((o, i) => {
-              // Perspective: ornaments shrink toward the top (smaller y = higher on tree = smaller)
-              const perspectiveScale = 0.72 + (o.y / 100) * 0.55
-              const size = `${o.r * 2 * perspectiveScale}%`
-              const shadowBlur   = Math.round(7 * perspectiveScale)
-              const shadowOffset = Math.round(2 * perspectiveScale)
+              // y-based perspective: lower on tree = larger (natural foreshortening)
+              const yScale = 0.72 + (o.y / 100) * 0.52
+              // z-based depth: deep in tree (low z) = smaller and dimmer; surface (high z) = full size
+              const z = o.z ?? 70
+              const zScale = 0.74 + (z / 100) * 0.26
+              const totalScale = yScale * zScale
+              const size = `${o.r * 2 * totalScale}%`
+              // Deeper ornaments appear slightly faded (obscured by branches)
+              const opacity = 0.58 + (z / 100) * 0.42
+              const shadowBlur   = Math.round((5 + z * 0.05) * zScale)
+              const shadowOffset = Math.round(2 * zScale)
+              const shadowAlpha  = (0.28 + zScale * 0.38).toFixed(2)
               return (
                 <div
                   key={i}
                   className="ornament-pin"
                   title={o.label}
                   style={{
-                    left:   `${o.x}%`,
-                    top:    `${o.y}%`,
-                    width:  size,
-                    filter: `drop-shadow(0 ${shadowOffset}px ${shadowBlur}px rgba(0,0,0,0.62))`,
+                    left:    `${o.x}%`,
+                    top:     `${o.y}%`,
+                    width:   size,
+                    opacity,
+                    zIndex:  Math.round(z),
+                    filter:  `drop-shadow(0 ${shadowOffset}px ${shadowBlur}px rgba(0,0,0,${shadowAlpha}))`,
                   }}
                 >
                   <OrnamentShape shape={o.shape} color={o.color} />
