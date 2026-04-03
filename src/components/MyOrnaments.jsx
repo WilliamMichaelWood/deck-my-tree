@@ -42,6 +42,74 @@ const resizePhoto = (dataUrl, maxPx = 400) => new Promise(resolve => {
 const persist = (list) => localStorage.setItem('myOrnaments', JSON.stringify(list))
 const load    = ()     => { try { return JSON.parse(localStorage.getItem('myOrnaments') || '[]') } catch { return [] } }
 
+// Extract the first number from a price string — handles ranges like "$6–$12" correctly
+const extractPrice = (priceStr) => {
+  if (!priceStr) return null
+  const m = String(priceStr).match(/[\d.]+/)
+  return m ? parseFloat(m[0]) : null
+}
+
+// ─── Ornament SVG shapes ─────────────────────────────────────
+function OrnamentSVG({ shape, color }) {
+  const c = color || '#c9a84c'
+  switch (shape) {
+    case 'drop':
+      return (
+        <svg viewBox="0 0 60 84" width="52" height="64" fill="none" aria-hidden="true">
+          <rect x="26" y="0" width="8" height="13" rx="3.5" fill="#8a6520"/>
+          <path d="M30,13 C18,13 7,27 7,45 C7,62 17,76 30,76 C43,76 53,62 53,45 C53,27 42,13 30,13 Z" fill={c}/>
+          <ellipse cx="21" cy="32" rx="6" ry="10" fill="rgba(255,255,255,0.44)" transform="rotate(-15 21 32)"/>
+        </svg>
+      )
+    case 'star':
+      return (
+        <svg viewBox="0 0 60 74" width="58" height="58" fill="none" aria-hidden="true">
+          <rect x="26" y="0" width="8" height="14" rx="3.5" fill="#8a6520"/>
+          <polygon points="30,28 35,42 49,42 38,51 42,64 30,56 18,64 22,51 11,42 25,42" fill={c}/>
+          <ellipse cx="23" cy="37" rx="4" ry="3" fill="rgba(255,255,255,0.38)" transform="rotate(-30 23 37)"/>
+        </svg>
+      )
+    case 'snowflake':
+      return (
+        <svg viewBox="0 0 60 60" width="58" height="58" fill="none" aria-hidden="true">
+          <g stroke={c} strokeWidth="4.5" strokeLinecap="round">
+            <line x1="30" y1="6"  x2="30" y2="54"/>
+            <line x1="7"  y1="19" x2="53" y2="41"/>
+            <line x1="53" y1="19" x2="7"  y2="41"/>
+            <line x1="23" y1="17" x2="37" y2="17"/>
+            <line x1="23" y1="43" x2="37" y2="43"/>
+            <line x1="12" y1="27" x2="18" y2="37"/>
+            <line x1="48" y1="27" x2="42" y2="37"/>
+            <line x1="12" y1="33" x2="18" y2="23"/>
+            <line x1="48" y1="33" x2="42" y2="23"/>
+          </g>
+        </svg>
+      )
+    case 'pinecone':
+      return (
+        <svg viewBox="0 0 60 80" width="48" height="64" fill="none" aria-hidden="true">
+          <rect x="26" y="0" width="8" height="11" rx="3.5" fill="#8a6520"/>
+          <ellipse cx="30" cy="50" rx="18" ry="26" fill={c}/>
+          <ellipse cx="30" cy="32" rx="12" ry="8"  fill={c}/>
+          <line x1="30" y1="20" x2="30" y2="74" stroke="rgba(0,0,0,0.18)" strokeWidth="1.5"/>
+          <line x1="14" y1="36" x2="46" y2="36" stroke="rgba(0,0,0,0.13)" strokeWidth="1.2"/>
+          <line x1="12" y1="46" x2="48" y2="46" stroke="rgba(0,0,0,0.13)" strokeWidth="1.2"/>
+          <line x1="14" y1="56" x2="46" y2="56" stroke="rgba(0,0,0,0.13)" strokeWidth="1.2"/>
+          <line x1="18" y1="66" x2="42" y2="66" stroke="rgba(0,0,0,0.13)" strokeWidth="1.2"/>
+          <ellipse cx="22" cy="34" rx="4" ry="2.5" fill="rgba(255,255,255,0.28)" transform="rotate(-20 22 34)"/>
+        </svg>
+      )
+    default: // ball
+      return (
+        <svg viewBox="0 0 60 72" width="58" height="58" fill="none" aria-hidden="true">
+          <rect x="26" y="0" width="8" height="13" rx="3.5" fill="#8a6520"/>
+          <circle cx="30" cy="43" r="24" fill={c}/>
+          <ellipse cx="21" cy="33" rx="7" ry="5" fill="rgba(255,255,255,0.45)" transform="rotate(-25 21 33)"/>
+        </svg>
+      )
+  }
+}
+
 // ─── Sub-components ──────────────────────────────────────────
 function OrnamentIcon() {
   return (
@@ -55,21 +123,13 @@ function OrnamentIcon() {
 }
 
 function OrnamentCard({ ornament, onDelete, onEdit }) {
-  const [showMenu, setShowMenu] = useState(false)
-  const menuRef = useRef(null)
-
-  useEffect(() => {
-    const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setShowMenu(false) }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
   const thumbColor = ornament.colorHex || ornament.color || '#c9a84c'
+  const shape = ornament.shape || 'ball'
 
   const bestPrice = ornament.retailers
     ? Object.values(ornament.retailers)
-        .map(r => parseFloat((r.price || '').replace(/[^0-9.]/g, '')))
-        .filter(Boolean)
+        .map(r => extractPrice(r.price))
+        .filter(p => p != null)
         .sort((a, b) => a - b)[0]
     : null
 
@@ -89,9 +149,11 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
       <div className="myo-card-image">
         {ornament.photo
           ? <img src={ornament.photo} alt={ornament.name} className="myo-card-thumb-photo" />
-          : <div className="myo-card-thumb-ball" style={{
-              background: `radial-gradient(circle at 32% 28%, rgba(255,255,255,0.55) 0%, ${thumbColor}dd 38%, ${thumbColor} 100%)`
-            }} />
+          : (
+            <div className="myo-card-thumb-svg">
+              <OrnamentSVG shape={shape} color={thumbColor} />
+            </div>
+          )
         }
         {ornament.rating > 0 && (
           <div className="myo-card-rating">{'★'.repeat(ornament.rating)}</div>
@@ -99,18 +161,7 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
       </div>
 
       <div className="myo-card-body">
-        <div className="myo-card-header-row">
-          <h3 className="myo-card-name">{ornament.name}</h3>
-          <div className="myo-menu-wrap" ref={menuRef}>
-            <button className="myo-btn-menu" onClick={() => setShowMenu(v => !v)}>⋯</button>
-            {showMenu && (
-              <div className="myo-context-menu">
-                <button onClick={() => { onEdit(ornament); setShowMenu(false) }}>Edit</button>
-                <button onClick={() => { onDelete(ornament.id); setShowMenu(false) }}>Delete</button>
-              </div>
-            )}
-          </div>
-        </div>
+        <h3 className="myo-card-name">{ornament.name}</h3>
 
         <div className="myo-card-tags">
           {ornament.shape    && <span className="myo-tag myo-tag-shape">{ornament.shape}</span>}
@@ -119,11 +170,15 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
         </div>
 
         {bestPrice != null && (
-          <p className="myo-best-price">Best price: <strong>${bestPrice}</strong></p>
+          <p className="myo-best-price">From <strong>${bestPrice}</strong></p>
         )}
         {ornament.notes && <p className="myo-card-notes">{ornament.notes}</p>}
 
-        <button className="myo-deck-it" onClick={handleDeckIt}>Deck it. Buy it.</button>
+        <div className="myo-card-actions">
+          <button className="myo-deck-it" onClick={handleDeckIt}>Deck it. Buy it.</button>
+          <button className="myo-btn-edit" onClick={() => onEdit(ornament)} title="Edit">✎</button>
+          <button className="myo-btn-delete" onClick={() => onDelete(ornament.id)} title="Delete">✕</button>
+        </div>
       </div>
     </div>
   )
@@ -322,7 +377,7 @@ export default function MyOrnaments() {
     if (filters.priceRange) {
       result = result.filter(o => {
         const prices = Object.values(o.retailers || {})
-          .map(r => parseFloat((r.price || '').replace(/[^0-9.]/g, ''))).filter(Boolean)
+          .map(r => extractPrice(r.price)).filter(p => p != null)
         if (!prices.length) return true
         const min = Math.min(...prices)
         if (filters.priceRange === 'Under $10')  return min < 10
@@ -340,7 +395,7 @@ export default function MyOrnaments() {
     else if (sortBy === 'price-low' || sortBy === 'price-high') {
       result.sort((a, b) => {
         const price = (o) => {
-          const vals = Object.values(o.retailers || {}).map(r => parseFloat((r.price || '').replace(/[^0-9.]/g, ''))).filter(Boolean)
+          const vals = Object.values(o.retailers || {}).map(r => extractPrice(r.price)).filter(p => p != null)
           return vals.length ? (sortBy === 'price-low' ? Math.min(...vals) : Math.max(...vals)) : (sortBy === 'price-low' ? 9999 : 0)
         }
         return sortBy === 'price-low' ? price(a) - price(b) : price(b) - price(a)

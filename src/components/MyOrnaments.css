@@ -40,6 +40,15 @@
   top: 0; left: 0;
   width: 100%; height: 100%;
 }
+.myo-card-thumb-svg {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f4f6;
+}
 .myo-card-rating {
   position: absolute;
   top: 8px; right: 8px;
@@ -60,19 +69,12 @@
   gap: 8px;
 }
 
-.myo-card-header-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 8px;
-}
 .myo-card-name {
   font-size: 13px;
   font-weight: 700;
   color: #1a2340;
-  margin: 0;
+  margin: 0 0 2px 0;
   line-height: 1.35;
-  flex: 1;
 }
 
 /* Tags */
@@ -121,16 +123,23 @@
   flex: 1;
 }
 
+/* Card actions row */
+.myo-card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  align-items: center;
+}
+
 /* Deck it button */
 .myo-deck-it {
-  margin-top: auto;
-  width: 100%;
-  padding: 9px 12px;
+  flex: 1;
+  padding: 9px 10px;
   background: #1a2340;
   color: #c9a84c;
   border: none;
   border-radius: 8px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.4px;
   cursor: pointer;
@@ -141,56 +150,35 @@
   color: #1a2340;
 }
 
-/* Context menu */
-.myo-menu-wrap {
-  position: relative;
-  flex-shrink: 0;
-}
-.myo-btn-menu {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+/* Edit / Delete icon buttons */
+.myo-btn-edit,
+.myo-btn-delete {
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid #ddd;
+  border-radius: 7px;
   background: #fff;
-  font-size: 15px;
+  font-size: 14px;
   cursor: pointer;
-  transition: border-color 0.2s, background 0.2s;
-  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #555;
+  transition: all 0.18s;
+  flex-shrink: 0;
 }
-.myo-btn-menu:hover {
-  background: #f5f5f5;
-  border-color: #999;
-}
-.myo-context-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  background: #fff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-  z-index: 200;
-  min-width: 110px;
-  overflow: hidden;
-}
-.myo-context-menu button {
-  display: block;
-  width: 100%;
-  padding: 9px 14px;
-  border: none;
-  background: none;
-  text-align: left;
-  font-size: 13px;
+.myo-btn-edit {
   color: #1a2340;
-  cursor: pointer;
-  transition: background 0.15s;
 }
-.myo-context-menu button:hover {
-  background: #f0f3f8;
+.myo-btn-edit:hover {
+  background: #eef1f8;
+  border-color: #1a2340;
+}
+.myo-btn-delete {
+  color: #c0392b;
+}
+.myo-btn-delete:hover {
+  background: #fdecea;
+  border-color: #c0392b;
 }
 
 /* Library controls */
