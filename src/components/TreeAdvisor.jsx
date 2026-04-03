@@ -2,11 +2,22 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { streamChat } from '../lib/stream'
 import MarkdownContent from './MarkdownContent'
 
-const ANALYSIS_PROMPT = `You are a personal holiday stylist. Study this specific photo carefully before responding — look at the actual tree shape (full/sparse/narrow/wide), the real colors already on the tree, the existing ornaments and decorations visible, the tree type (real/artificial, needle type), and the lighting conditions in the room.
+const BASE_ANALYSIS_PROMPT = `You are a personal holiday stylist. Study this specific photo carefully before responding — look at the actual tree shape (full/sparse/narrow/wide), the real colors already on the tree, the existing ornaments and decorations visible, the tree type (real/artificial, needle type), and the lighting conditions in the room.
 
 Give exactly 5 bullet points about THIS tree — not a generic tree. Each bullet must reference something you can actually see in the image: name specific colors, describe the actual shape, call out existing ornaments by what they look like, note the real gaps or problem areas visible. If the tree already has decorations, your advice should build on or contrast with what is already there.
 
 Write like a stylist texting a friend — casual, direct, 1–2 complete sentences per bullet. No headers. No generic advice that could apply to any tree. Every sentence must be complete.`
+
+const getAnalysisPrompt = () => {
+  try {
+    const owned = JSON.parse(localStorage.getItem('deck-my-tree-ornaments') || '[]')
+    if (!owned.length) return BASE_ANALYSIS_PROMPT
+    const list = owned.map(o =>
+      `• ${o.name} (${o.colorDesc || o.color || 'unknown color'}, ${o.material}${o.shape ? `, ${o.shape}` : ''})`
+    ).join('\n')
+    return `${BASE_ANALYSIS_PROMPT}\n\nThe user already owns these ornaments — if any would complement what you see on this tree, mention them by name and explain why they'd work:\n${list}`
+  } catch { return BASE_ANALYSIS_PROMPT }
+}
 
 const DETECT_PROMPT = `Analyze this image and return ONLY a JSON object with the Christmas tree bounding box coordinates as percentages of the image dimensions: {"treeTop": number, "treeBottom": number, "treeLeft": number, "treeRight": number, "treeCenterX": number}. No other text, just the JSON.`
 
@@ -503,7 +514,7 @@ export default function TreeAdvisor() {
           role: 'user',
           content: [
             { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
-            { type: 'text', text: ANALYSIS_PROMPT },
+            { type: 'text', text: getAnalysisPrompt() },
           ],
         }],
         maxTokens: 1000,

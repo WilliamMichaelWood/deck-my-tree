@@ -19,30 +19,12 @@ const ANALYZE_PHOTO_PROMPT = `Analyze this Christmas ornament photo. Return ONLY
   "notes": "one brief phrase e.g. 'matte finish' or 'hand-painted detail'"
 }`
 
-const buildPrompt = (ornaments) => `You are a professional Christmas tree stylist with a gift for creating cohesive, beautiful holiday displays.
+const buildPrompt = (ornaments) => `You are a Christmas tree stylist. Give a quick take on this ornament collection — exactly 3 to 4 bullet points, one sentence each, written like you're texting a friend. Be specific: name pieces, call out what works, flag what's missing, suggest one thing to buy.
 
-Here is my ornament collection:
-${ornaments.map((o, i) => `${i + 1}. **${o.name}** — Color: ${o.colorDesc || o.color || ''}, Style: ${o.style}, Material: ${o.material}${o.shape ? `, Shape: ${o.shape}` : ''}${o.size ? `, Size: ${o.size}` : ''}${o.notes ? `, Notes: ${o.notes}` : ''}`).join('\n')}
+Collection:
+${ornaments.map(o => `• ${o.name} — ${o.colorDesc || o.color || ''}, ${o.material}${o.shape ? `, ${o.shape}` : ''}${o.size ? `, ${o.size}` : ''}`).join('\n')}
 
-Please provide a detailed analysis:
-
-## 🎨 Design Theme Analysis
-Identify the primary design theme(s) present in my collection and explain how the pieces relate.
-
-## ✅ Compatibility Check
-Which ornaments work beautifully together? Note any that clash stylistically and why.
-
-## 🌟 Collection Strengths
-What does this collection do especially well? What's its standout quality?
-
-## ⚠️ Gaps & Recommendations
-What types of ornaments are missing to complete the look? Be specific — include color, style, material, and quantity suggestions.
-
-## 🎄 Arrangement Strategy
-How should I arrange these ornaments on the tree for maximum impact? Use clock positions (12 o'clock = top, 3 = right, 6 = bottom, 9 = left) and suggest placement for specific pieces.
-
-## 💡 Pro Styling Tips
-3 expert tips to elevate this collection and make the tree look professionally decorated.`
+Reply with bullet points only — no headers, no long paragraphs, no more than 4 bullets.`
 
 const resizePhoto = (dataUrl, maxPx = 400) => new Promise(resolve => {
   const img = new Image()
@@ -63,6 +45,7 @@ export default function MyOrnaments() {
   })
   const [form,         setForm]         = useState(BLANK_FORM)
   const [photo,        setPhoto]        = useState(null)   // resized data URL for current add
+  const [editId,       setEditId]       = useState(null)   // id of ornament being edited, or null
   const [analyzing,    setAnalyzing]    = useState(false)
   const [analyzeError, setAnalyzeError] = useState('')
   const [loading,      setLoading]      = useState(false)
@@ -121,9 +104,40 @@ export default function MyOrnaments() {
     reader.readAsDataURL(file)
   }, [])
 
-  const addOrnament = () => {
+  const startEdit = (o) => {
+    setEditId(o.id)
+    setPhoto(o.photo || null)
+    setAnalyzeError('')
+    setForm({
+      name:      o.name      || '',
+      colorDesc: o.colorDesc || o.color || '',
+      colorHex:  o.colorHex  || '',
+      shape:     o.shape     || 'ball',
+      style:     o.style     || 'Classic',
+      material:  o.material  || 'Glass',
+      size:      o.size      || 'medium',
+      notes:     o.notes     || '',
+    })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const cancelEdit = () => {
+    setEditId(null)
+    setForm(BLANK_FORM)
+    setPhoto(null)
+    setAnalyzeError('')
+  }
+
+  const handleSave = () => {
     if (!form.name.trim()) return
-    setOrnaments(prev => [...prev, { ...form, photo, id: Date.now() }])
+    if (editId) {
+      setOrnaments(prev => prev.map(o =>
+        o.id === editId ? { ...o, ...form, photo: photo ?? o.photo } : o
+      ))
+      setEditId(null)
+    } else {
+      setOrnaments(prev => [...prev, { ...form, photo, id: Date.now() }])
+    }
     setForm(BLANK_FORM)
     setPhoto(null)
     setAnalyzeError('')
@@ -163,7 +177,7 @@ export default function MyOrnaments() {
       </div>
 
       <div className="form-card">
-        <h3 className="form-card-title">Add an Ornament</h3>
+        <h3 className="form-card-title">{editId ? 'Edit Ornament' : 'Add an Ornament'}</h3>
 
         {/* Photo capture buttons */}
         <div className="photo-btn-row">
@@ -251,13 +265,19 @@ export default function MyOrnaments() {
             />
           </div>
         </div>
-        <button
-          className="btn-primary btn-full"
-          onClick={addOrnament}
-          disabled={!form.name.trim() || analyzing}
-        >
-          {analyzing ? <><span className="spin">✦</span> Analyzing photo…</> : '+ Add to Collection'}
-        </button>
+        <div className="form-save-row">
+          {editId && (
+            <button className="btn-secondary" onClick={cancelEdit}>Cancel</button>
+          )}
+          <button
+            className="btn-primary"
+            style={{ flex: 1 }}
+            onClick={handleSave}
+            disabled={!form.name.trim() || analyzing}
+          >
+            {analyzing ? <><span className="spin">✦</span> Analyzing photo…</> : editId ? 'Save Changes' : '+ Add to Collection'}
+          </button>
+        </div>
       </div>
 
       {ornaments.length > 0 && (
@@ -268,8 +288,9 @@ export default function MyOrnaments() {
           </div>
           <div className="ornament-grid">
             {ornaments.map(o => (
-              <div key={o.id} className="ornament-card">
+              <div key={o.id} className={`ornament-card${editId === o.id ? ' editing' : ''}`}>
                 <button className="ornament-remove" onClick={() => removeOrnament(o.id)}>×</button>
+                <button className="ornament-edit" onClick={() => startEdit(o)}>✎</button>
                 {o.photo ? (
                   <img src={o.photo} alt={o.name} className="ornament-photo-thumb" />
                 ) : (
