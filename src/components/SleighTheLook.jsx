@@ -70,9 +70,11 @@ function getOrnamentShape(name = '') {
 }
 
 function getSearchUrl(retailer, name) {
+  if (!name) return null
   const q = encodeURIComponent(name + ' christmas ornament')
   if (retailer === 'walmart') return `https://www.walmart.com/search?q=${q}`
   if (retailer === 'amazon')  return `https://www.amazon.com/s?k=${q}`
+  return null
 }
 
 function OrnamentSVG({ shape, color }) {
@@ -146,6 +148,8 @@ function OrnamentPlaceholder({ shape, color }) {
 
 function ProductCard({ retailer, price, ornamentName, shape, color }) {
   const r = RETAILERS.find(x => x.key === retailer)
+  const url = getSearchUrl(retailer, ornamentName)
+  if (!url) return null
   return (
     <div className="product-card">
       <div className="product-retailer-badge">
@@ -155,7 +159,7 @@ function ProductCard({ retailer, price, ornamentName, shape, color }) {
       <OrnamentPlaceholder shape={shape} color={color} />
       <div className="product-price">{price ?? '—'}</div>
       <a
-        href={getSearchUrl(retailer, ornamentName)}
+        href={url}
         target="_blank"
         rel="noopener noreferrer"
         className="btn-deck-it"

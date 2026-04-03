@@ -134,14 +134,17 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
     : null
 
   const handleDeckIt = () => {
-    const withUrl = ornament.retailers
-      ? Object.values(ornament.retailers).find(r => r.url)
-      : null
-    if (withUrl) {
-      window.open(withUrl.url, '_blank')
-    } else {
-      window.open(RETAILER_SEARCH.amazon(ornament.name), '_blank')
+    // Find the first retailer that has a price and build a proper search URL for it
+    const RETAILER_ORDER = ['walmart', 'amazon', 'potterybarn']
+    for (const key of RETAILER_ORDER) {
+      const entry = ornament.retailers?.[key]
+      if (entry?.price && RETAILER_SEARCH[key]) {
+        window.open(RETAILER_SEARCH[key](ornament.name), '_blank')
+        return
+      }
     }
+    // No retailer price data — fall back to Amazon search
+    window.open(RETAILER_SEARCH.amazon(ornament.name), '_blank')
   }
 
   return (

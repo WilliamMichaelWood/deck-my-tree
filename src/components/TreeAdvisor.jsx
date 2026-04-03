@@ -428,10 +428,12 @@ function getOrnamentShape(name = '') {
 }
 
 function getSearchUrl(retailer, name) {
+  if (!name) return null
   const q = encodeURIComponent(name + ' christmas ornament')
   if (retailer === 'walmart')     return `https://www.walmart.com/search?q=${q}`
   if (retailer === 'amazon')      return `https://www.amazon.com/s?k=${q}`
   if (retailer === 'potterybarn') return `https://www.potterybarn.com/search/results.html?words=${q}`
+  return null
 }
 
 export default function TreeAdvisor() {
@@ -884,22 +886,26 @@ export default function TreeAdvisor() {
                   </div>
                 </div>
                 <div className="shop-card-retailers">
-                  {RETAILERS.map(r => (
-                    <a
-                      key={r.key}
-                      href={getSearchUrl(r.key, o.name)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-retailer"
-                    >
-                      <div className="retailer-top">
-                        <span className="retailer-dot" style={{ background: r.color }} />
-                        <span className="retailer-name" style={{ color: r.color }}>{r.label}</span>
-                        {o[r.key]?.price && <span className="retailer-price">{o[r.key].price}</span>}
-                      </div>
-                      <span className="deck-it-cta">Deck it. Buy it.</span>
-                    </a>
-                  ))}
+                  {RETAILERS.map(r => {
+                    const url = getSearchUrl(r.key, o.name)
+                    if (!url) return null
+                    return (
+                      <a
+                        key={r.key}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-retailer"
+                      >
+                        <div className="retailer-top">
+                          <span className="retailer-dot" style={{ background: r.color }} />
+                          <span className="retailer-name" style={{ color: r.color }}>{r.label}</span>
+                          {o[r.key]?.price && <span className="retailer-price">{o[r.key].price}</span>}
+                        </div>
+                        <span className="deck-it-cta">Deck it. Buy it.</span>
+                      </a>
+                    )
+                  })}
                 </div>
                 <button
                   className={`btn-save-ornament${savedIds.has(i) ? ' saved' : ''}`}
