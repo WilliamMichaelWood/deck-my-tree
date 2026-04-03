@@ -1243,6 +1243,30 @@ a { text-decoration: none; color: inherit; }
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+.btn-save-ornament {
+  display: block;
+  width: calc(100% - 24px);
+  margin: 0 12px 12px;
+  padding: 9px 12px;
+  background: transparent;
+  border: 1px solid rgba(201,168,76,0.35);
+  border-radius: 8px;
+  color: var(--gold);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.btn-save-ornament:hover:not(:disabled) {
+  background: rgba(201,168,76,0.1);
+  border-color: rgba(201,168,76,0.7);
+}
+.btn-save-ornament.saved {
+  border-color: rgba(94,203,133,0.4);
+  color: #5ecb85;
+  cursor: default;
+}
 
 /* ─── Shared Keyframes ───────────────────────────────────────── */
 @keyframes fadeIn      { from { opacity: 0 } to { opacity: 1 } }

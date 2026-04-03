@@ -395,6 +395,29 @@ const loadDecorations = () => {
   try { return JSON.parse(localStorage.getItem('decorations') || '[]') } catch { return [] }
 }
 
+function saveToMyOrnaments(o) {
+  const ornament = {
+    id:        `orn-${Date.now()}`,
+    name:      o.name,
+    color:     o.color,
+    shape:     o.shape,
+    retailers: {
+      walmart:     { price: o.walmart?.price     || '' },
+      amazon:      { price: o.amazon?.price      || '' },
+      potterybarn: { price: o.potterybarn?.price || '' },
+    },
+    rating:    0,
+    tags:      [],
+    notes:     '',
+    dateSaved: Date.now(),
+  }
+  try {
+    const existing = JSON.parse(localStorage.getItem('myOrnaments') || '[]')
+    const deduped  = [ornament, ...existing.filter(e => e.name !== ornament.name)]
+    localStorage.setItem('myOrnaments', JSON.stringify(deduped))
+  } catch { /* ignore storage errors */ }
+}
+
 function getOrnamentShape(name = '') {
   const n = name.toLowerCase()
   if (n.includes('snowflake'))                           return 'snowflake'
@@ -424,6 +447,7 @@ export default function TreeAdvisor() {
   const [overlayError,   setOverlayError]   = useState('')
   const [shareLoading,   setShareLoading]   = useState(false)
   const [recentTrees,    setRecentTrees]    = useState(() => loadDecorations())
+  const [savedIds,       setSavedIds]       = useState(new Set())
   const fileInputRef = useRef(null)
   const shopRef      = useRef(null)
   const overlayRef   = useRef(null)
@@ -877,6 +901,16 @@ export default function TreeAdvisor() {
                     </a>
                   ))}
                 </div>
+                <button
+                  className={`btn-save-ornament${savedIds.has(i) ? ' saved' : ''}`}
+                  onClick={() => {
+                    saveToMyOrnaments(o)
+                    setSavedIds(prev => new Set([...prev, i]))
+                  }}
+                  disabled={savedIds.has(i)}
+                >
+                  {savedIds.has(i) ? '✓ Saved to My Ornaments' : '+ Save to My Ornaments'}
+                </button>
               </div>
             ))}
           </div>
