@@ -152,18 +152,18 @@ Each ornament must use exactly this JSON structure:
   "y": number,
   "r": number,
   "z": number,
-  "walmart":     { "price": "$X–$XX" },
-  "amazon":      { "price": "$X–$XX" },
-  "potterybarn": { "price": "$X–$XX" }
+  "walmart": { "price": "$X–$XX" },
+  "amazon":  { "price": "$X–$XX" },
+  "target":  { "price": "$X–$XX" }
 }
 
 Return exactly 30 items as a JSON array.`
 }
 
 const RETAILERS = [
-  { key: 'walmart',     label: 'Walmart',      color: '#0071ce' },
-  { key: 'amazon',      label: 'Amazon',       color: '#ff9900' },
-  { key: 'potterybarn', label: 'Pottery Barn', color: '#8b6914' },
+  { key: 'walmart', label: 'Walmart', color: '#0071ce' },
+  { key: 'amazon',  label: 'Amazon',  color: '#ff9900' },
+  { key: 'target',  label: 'Target',  color: '#cc0000' },
 ]
 
 function BallOrnament({ color }) {
@@ -402,10 +402,11 @@ function saveToMyOrnaments(o) {
     color:     o.color,
     shape:     o.shape,
     retailers: {
-      walmart:     { price: o.walmart?.price     || '' },
-      amazon:      { price: o.amazon?.price      || '' },
-      potterybarn: { price: o.potterybarn?.price || '' },
+      walmart: { price: o.walmart?.price || '' },
+      amazon:  { price: o.amazon?.price  || '' },
+      target:  { price: o.target?.price  || '' },
     },
+    source:    'saved',
     rating:    0,
     tags:      [],
     notes:     '',
@@ -439,7 +440,7 @@ function getSearchUrl(retailer, name, shape) {
   const q = encodeURIComponent(buildQuery(name, shape))
   if (retailer === 'walmart')     return `https://www.walmart.com/search?q=${q}`
   if (retailer === 'amazon')      return `https://www.amazon.com/s?k=${q}`
-  if (retailer === 'potterybarn') return `https://www.potterybarn.com/search/results.html?words=${q}`
+  if (retailer === 'target')  return `https://www.target.com/s?searchTerm=${q}`
   return null
 }
 

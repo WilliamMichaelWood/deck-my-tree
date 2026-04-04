@@ -12,7 +12,7 @@ const BLANK_FORM  = { name: '', colorDesc: '', colorHex: '', shape: 'ball', mate
 const RETAILER_SEARCH = {
   walmart:     (q) => `https://www.walmart.com/search?q=${encodeURIComponent(q)}`,
   amazon:      (q) => `https://www.amazon.com/s?k=${encodeURIComponent(q)}`,
-  potterybarn: (q) => `https://www.potterybarn.com/search/results.html?words=${encodeURIComponent(q)}`,
+  target:      (q) => `https://www.target.com/s?searchTerm=${encodeURIComponent(q)}`,
 }
 
 // Build a rich search query from all available ornament descriptors
@@ -147,7 +147,7 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
 
   const handleDeckIt = () => {
     const q = buildSearchQuery(ornament)
-    const RETAILER_ORDER = ['walmart', 'amazon', 'potterybarn']
+    const RETAILER_ORDER = ['walmart', 'amazon', 'target']
     for (const key of RETAILER_ORDER) {
       const entry = ornament.retailers?.[key]
       if (entry?.price && RETAILER_SEARCH[key]) {
@@ -189,7 +189,9 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
         {ornament.notes && <p className="myo-card-notes">{ornament.notes}</p>}
 
         <div className="myo-card-actions">
-          <button className="myo-deck-it" onClick={handleDeckIt}>Shop Similar</button>
+          <button className="myo-deck-it" onClick={handleDeckIt}>
+            {ornament.source === 'saved' ? 'Deck it. Buy it.' : 'Shop Similar'}
+          </button>
           <button className="myo-btn-edit" onClick={() => onEdit(ornament)} title="Edit">✎</button>
           <button className="myo-btn-delete" onClick={() => onDelete(ornament.id)} title="Delete">✕</button>
         </div>
@@ -463,7 +465,7 @@ export default function MyOrnaments() {
 
   const handleSave = () => {
     if (!form.name.trim()) return
-    const entry = { ...form, photo, id: `orn-${Date.now()}`, rating: 0, tags: [], retailers: {}, dateSaved: Date.now() }
+    const entry = { ...form, photo, id: `orn-${Date.now()}`, source: 'owned', rating: 0, tags: [], retailers: {}, dateSaved: Date.now() }
     setOrnaments(prev => [entry, ...prev])
     setForm(BLANK_FORM)
     setPhoto(null)
