@@ -32,14 +32,23 @@ const RETAILERS = [
 ]
 
 const buildPrompt = ({ style, palette, budget, size, extraContext }) =>
-  `You are a professional Christmas decorator. Create a curated ornament shopping list.
+  `You are a professional Christmas decorator. Create a curated ornament shopping list of exactly 12 items using the five-type ornament system.
+
+MANDATORY TYPE DISTRIBUTION — return exactly these counts, in this order:
+1. Ball ornaments (Type 1): 5 items — the backbone. Vary finish across the 5: one each of matte, satin, glitter, mercury glass, velvet/fabric. No two identical finishes.
+2. Textural objects (Type 2): 2 items — wood, rope, woven, felt, burlap, or fabric. Must feel tactile, not shiny.
+3. Statement shapes (Type 3): 2 items — stars, animals, sculptural, novelty. Bold and specific, not generic.
+4. Reflective accents (Type 4): 2 items — metallics, glitter glass, mirror finish, or mercury glass. These are your sparkle layer.
+5. Wildcard (Type 5): 1 item — one unexpected element that makes this tree memorable. Surprise the client.
+Total: exactly 12 items. Deviation from these counts is an error.
 
 Output ONLY a valid JSON array — no markdown, no explanation, no code fences. Start with [ and end with ].
 
 Each item must use exactly this structure:
 {
-  "name": "Ornament Name",
-  "description": "One vivid sentence describing this ornament",
+  "name": "Specific searchable product name (e.g. 'Velvet burgundy ball ornament set of 6')",
+  "description": "One vivid sentence describing this ornament's look and feel",
+  "type": "ball | textural | statement | reflective | wildcard",
   "shape": "ball | drop | star | snowflake | pinecone",
   "color": "#hexcolor",
   "quantity": "X pieces",
@@ -48,9 +57,10 @@ Each item must use exactly this structure:
   "amazon":  { "price": "$X–$XX" }
 }
 
-shape must be exactly one of: ball, drop, star, snowflake, pinecone — match the actual ornament type.
-color must be a hex color that matches the ornament's primary color.
-Use a variety of shapes across the 8 items — do not make them all balls.
+Field rules:
+- type: exactly one of ball, textural, statement, reflective, wildcard
+- shape: exactly one of ball, drop, star, snowflake, pinecone — match the actual ornament shape
+- color: hex color matching the ornament's primary color
 
 Tree Style:    ${style}
 Color Palette: ${palette}
@@ -58,7 +68,7 @@ Budget:        ${budget}
 Tree Size:     ${size}
 ${extraContext ? `Notes: ${extraContext}` : ''}
 
-Return exactly 8 items. Output only the JSON array.`
+Return exactly 12 items in type order: 5 balls, 2 textural, 2 statement, 2 reflective, 1 wildcard. Output only the JSON array.`
 
 function getOrnamentShape(name = '') {
   const n = name.toLowerCase()

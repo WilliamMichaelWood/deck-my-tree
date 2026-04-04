@@ -74,100 +74,89 @@ function buildOverlayPrompt(b) {
   const { xl: mxl, xr: mxr } = xRange(0.62)   // middle zone: wide
   const { xl: lxl, xr: lxr } = xRange(0.88)   // lower zone: widest
 
-  // r sizing scaled to apparent tree size in frame
-  // rLg reduced 15% from previous (1.20 → 1.02) — anchors were too dominant
+  // r sizing — three distinct sizes for three depth zones
   const rBase = Math.max(1.5, Math.min(3.0, hw * 0.13))
-  const rSm   = +(rBase * 0.54).toFixed(1)   // small accent
-  const rMd   = +rBase.toFixed(1)             // medium standard
-  const rLg   = +(rBase * 1.02).toFixed(1)   // large anchor (15% smaller than before)
+  const rSm   = +(rBase * 0.52).toFixed(1)   // Zone A: deliberately small, buried near trunk
+  const rMd   = +(rBase * 0.88).toFixed(1)   // Zone B: standard mid-branch
+  const rLg   = +(rBase * 1.30).toFixed(1)   // Zone C: hero pieces, outer tips — visibly larger
 
-  // Per-zone x midpoints for anti-stripe stagger hints
-  const midTop = Math.round(tipY  + (topEnd - tipY)  / 2)
-  const midMid = Math.round(topEnd + (midEnd - topEnd) / 2)
-  const midLow = Math.round(midEnd + (baseY  - midEnd) / 2)
+  // Zone A x: near center (trunk depth)
+  const zaXl = Math.round(cx - hw * 0.22)
+  const zaXr = Math.round(cx + hw * 0.22)
+  // Zone B x: mid-range
+  const zbXl = Math.round(cx - hw * 0.58)
+  const zbXr = Math.round(cx + hw * 0.58)
+  // Zone C minimum distance from center (outer tips)
+  const zcMinDist = Math.round(hw * 0.48)
 
-  return `You are a professional Christmas tree decorator with 15 years of editorial experience. Study this specific photo — note the tree's actual colors, shape, density, and any existing decorations — before placing ornaments.
+  return `You are a professional Christmas tree decorator. Study this specific photo — note the tree's actual colors, shape, density, and any existing decorations — before placing ornaments.
 
 Output ONLY a valid JSON array. No markdown, no explanation, no code fences. Start with [ and end with ].
 
-═══ TREE BOUNDARIES (hard walls — no ornament may exceed these) ═══
-Top zone:    y=${tipY}–${topEnd}%,   x=${txl}–${txr}%
-Middle zone: y=${topEnd}–${midEnd}%, x=${mxl}–${mxr}%
-Lower zone:  y=${midEnd}–${baseY}%,  x=${lxl}–${lxr}%
-Approx zone centers: top y≈${midTop}, middle y≈${midMid}, lower y≈${midLow}
+═══ TREE BOUNDARIES (hard walls) ═══
+Top vertical zone:    y=${tipY}–${topEnd}%,   x=${txl}–${txr}%
+Middle vertical zone: y=${topEnd}–${midEnd}%, x=${mxl}–${mxr}%
+Lower vertical zone:  y=${midEnd}–${baseY}%,  x=${lxl}–${lxr}%
+Tree center x: ${cx}%  |  TRUNK RULE: no ornament y > ${baseY}%
 
-═══ EXACTLY 30 ORNAMENTS — SIZE DISTRIBUTION ═══
-Sizes:  18 MEDIUM r=${rMd}  |  6 LARGE r=${rLg}  |  6 SMALL r=${rSm}
+═══ EXACTLY 17 ORNAMENTS — THREE-ZONE PLACEMENT SYSTEM ═══
+Ornament placement is determined by depth zone (A/B/C). Each zone has a fixed size and x range.
 
-Zone assignments — ALL THREE ZONES MUST BE FULLY POPULATED:
-Top zone    (10 ornaments): 4 small r=${rSm}, 6 medium r=${rMd}           — fill the upper tree fully, spread across full x range
-Middle zone (12 ornaments): 1 small r=${rSm}, 8 medium r=${rMd}, 3 large r=${rLg}  — densest zone
-Lower zone  (8 ornaments):  1 small r=${rSm}, 4 medium r=${rMd}, 3 large r=${rLg}  — heaviest anchors
+──── ZONE A — Deep / Near Trunk (6 ornaments, 35%) ────
+z = 5–28   (back layer — rendered smaller, 50% opacity, darkened)
+r = ${rSm}  (small — these are intentionally subtle, shadow-creating)
+x = ${zaXl}–${zaXr}% (close to trunk/center — do not place near tree edges)
+Colors: matte and dark only — deep greens, burgundy, brown, navy, charcoal, forest
+Purpose: create visual depth and shadow richness inside the tree body
+Vertical spread: 2 in top zone, 2 in middle zone, 2 in lower zone
 
-Size rules:
-- LARGE r=${rLg}: MIDDLE and LOWER zones only — never top zone
-- Bottom zone has MORE large ornaments (3) than middle zone (2) — stability rule
-- Small accents r=${rSm}: scatter throughout ALL zones, bury deep in branches (z=8–35)
-- Slightly vary r within each size class ±0.1 for natural look
+──── ZONE B — Mid-Branch (6 ornaments, 35%) ────
+z = 35–62  (middle layer — rendered at full opacity, normal size)
+r = ${rMd}  (medium — the structural backbone of the arrangement)
+x = ${zbXl}–${zbXr}% (mid-range from center — within vertical zone x limits)
+Colors: mixed textures — glass tones, wood colors, soft metallics, satin finishes
+Purpose: bridges deep and outer zones, provides structural visual rhythm
+Vertical spread: 2 in top zone, 2 in middle zone, 2 in lower zone
 
-TRUNK RULE — CRITICAL: no ornament may have y > ${baseY}%. The tree trunk begins there.
-Any ornament at or below the trunk base looks wrong and breaks the illusion.
+──── ZONE C — Outer Tips / Hero Pieces (5 ornaments, 30%) ────
+z = 68–95  (front layer — rendered larger, full opacity, drop shadow)
+r = ${rLg}  (large — these are the ornaments people actually see and remember)
+x: must be ≥${zcMinDist}% away from center (x=${cx}%) toward tree edges — within vertical zone x limits
+Colors: your boldest and brightest — glitter, mercury glass, metallic gold/silver, vivid saturated tones
+Purpose: outer tips are what the eye lands on first — make every one count
+Vertical spread: 1 in top zone, 2 in middle zone, 2 in lower zone
 
-═══ THREE DEPTH LAYERS — assign z deliberately ═══
-z=0–33   BACK LAYER   (buried in tree — rendered 30% smaller, 50% opacity, darker)
-z=34–66  MIDDLE LAYER (mid-depth — rendered normal size, 75% opacity)
-z=67–100 FRONT LAYER  (near surface — rendered 10% larger, full opacity, shadow)
+═══ ANTI-STRIPE — diagonal scatter required ═══
+FORBIDDEN: 2 or more ornaments within ±4% of the same y value
+FORBIDDEN: any pattern that reads as a horizontal row
+REQUIRED: alternate left/right of center (cx=${cx}%) throughout — no two consecutive ornaments on the same side
+REQUIRED: vary y by ≥5% between consecutive ornaments in the same vertical zone
 
-Every zone MUST contain ornaments from ALL THREE layers:
-Top zone (10):   3 back (z=10–30), 5 middle (z=38–60), 2 front (z=70–88)
-Middle zone (12): 4 back (z=8–32),  5 middle (z=35–65), 3 front (z=68–95)
-Lower zone (8):  2 back (z=12–30),  3 middle (z=38–62), 3 front (z=70–95)
+═══ COLOR SYSTEM ═══
+Choose 3–4 colors from this tree's existing palette. Structure:
+- Base color: ~60% of ornaments
+- Secondary: ~25% of ornaments
+- Accent: ~10–15% of ornaments
+Zone A colors must be darker/matte versions. Zone C gets the boldest versions + 1–2 metallics (gold #c9a84c, silver #c0c0c0).
+FORBIDDEN: same hex color in 3+ consecutive array positions
 
-Depth + color rule: darker/matte ornaments → back layer (low z). Bright/glitter → front (high z).
+═══ SHAPE DISTRIBUTION (all 5 types required) ═══
+ball: 6  — spread across all three depth zones
+drop: 4  — prefer Zone B and C
+star: 3  — prefer Zone C (statement pieces on outer tips)
+snowflake: 2 — prefer Zone C (delicate, visible)
+pinecone:  2 — prefer Zone A (rustic, buried deep)
+FORBIDDEN: same shape in 2+ consecutive positions
 
-═══ ANTI-STRIPE — diagonal scatter is mandatory ═══
-FORBIDDEN: 3 or more ornaments within ±5% of the same y value.
-FORBIDDEN: uniform horizontal rows — this is the #1 amateur mistake.
-REQUIRED: ornaments must form diagonal visual lines when you connect them.
-Strategy: within each zone, vary y values wildly. If one ornament is at y=${midMid}%,
-the next in that zone must differ by at least 5% in y. Stagger: high-low-mid-high-low.
-Also stagger x: alternate left-of-center and right-of-center throughout.
-
-═══ COLOR PLACEMENT — diagonal distribution ═══
-1. Choose 3–4 complementary colors matching this tree's existing palette
-2. Each color MUST appear across ALL three zones (no color blocks)
-3. Primary color in triangular pattern: upper-left → mid-right → lower-left (or mirror)
-4. FORBIDDEN: same hex color 3+ consecutive positions in array
-5. FORBIDDEN: same color twice in same zone without a different color between
-6. Include 2–3 metallics (gold #c9a84c, silver #c0c0c0, champagne #f5e6c8) as "glue"
-
-═══ SHAPE VARIETY — max 30% any single type ═══
-With 30 ornaments, maximum 9 of any one shape (30% cap).
-Required distribution (all 5 types must be used):
-  "ball":      7  (classic — spread evenly across all zones)
-  "drop":      6  (elegant — mostly middle/lower)
-  "star":      6  (statement — at least one in each zone)
-  "snowflake": 6  (delicate — prefer front layer, high z)
-  "pinecone":  5  (rustic — prefer back layer, low z)
-FORBIDDEN: same shape in 2+ consecutive array positions.
-
-═══ CLUSTERING — 2–3 tight groups of 3 ═══
-- Form 2–3 clusters of 3 ornaments (x/y within 6–12% of each other)
-- Vary depth (z) within each cluster — never all same layer
-- Between clusters: deliberate negative space >15% — sparse zones make clusters pop
-- Slight x asymmetry: skew more ornaments 5–8% toward one side of center
-
-═══ VERIFICATION (check all before returning) ═══
-- Total = exactly 30 ✓
-- 18 medium, 6 large, 6 small ✓
-- Top zone has 10 ornaments, middle 12, lower 8 ✓
-- No ornament y > ${baseY}% (trunk rule) ✓
-- No shape > 9 occurrences ✓
+═══ VERIFICATION (check before returning) ═══
+- Total = exactly 17 ✓
+- Zone A: 6 ornaments, z=5–28, r=${rSm}, x=${zaXl}–${zaXr}% ✓
+- Zone B: 6 ornaments, z=35–62, r=${rMd}, x=${zbXl}–${zbXr}% ✓
+- Zone C: 5 ornaments, z=68–95, r=${rLg}, x ≥${zcMinDist}% from center ✓
+- No ornament y > ${baseY}% ✓
+- No 2+ ornaments at same y ±4% ✓
 - No same shape consecutive ✓
-- No 3+ ornaments at same y ±5% ✓
-- Each zone has back + middle + front layer ornaments ✓
-- Each color in 2+ zones ✓
-- Bottom zone (3 large) has more large ornaments than middle (3 large) ✓
+- No same color in 3+ consecutive positions ✓
 
 Each ornament must use exactly this JSON structure:
 {
@@ -184,7 +173,7 @@ Each ornament must use exactly this JSON structure:
   "target":  { "price": "$X–$XX" }
 }
 
-Return exactly 30 items as a JSON array.`
+Return exactly 17 items as a JSON array.`
 }
 
 const RETAILERS = [
