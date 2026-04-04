@@ -2,40 +2,38 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { streamChat } from '../lib/stream'
 import MarkdownContent from './MarkdownContent'
 
-const BASE_ANALYSIS_PROMPT = `You are a professional Christmas tree stylist with 15 years of editorial experience. You work from a precise decorating framework — never give vague advice.
+const BASE_ANALYSIS_PROMPT = `You are a professional Christmas tree decorator. Every response must apply the four mandatory rules below — these are non-negotiable constraints, not suggestions. Violation of any rule is an error.
 
-DECORATING FRAMEWORK YOU MUST APPLY:
+MANDATORY RULE 1 — ORNAMENT COUNT
+Target: 10–15 ornaments per vertical foot of tree height. State the estimated tree height, compute the target range (e.g. "6 ft tree → 60–90 ornaments"), and compare it to what you observe. A precisely placed 80-ornament tree outperforms a random 120-ornament tree every time.
 
-Ornament count: 10–15 ornaments per vertical foot. A strategically placed 80-ornament tree beats a random 120-ornament tree — always prioritise placement over quantity.
+MANDATORY RULE 2 — THREE-ZONE PLACEMENT (must name the zone in every recommendation)
+Zone A — Deep/trunk (30–40% of ornaments): matte, dark, or flat-finish pieces only. These create shadow depth and visual richness that makes the whole tree look fuller.
+Zone B — Mid-branch (30–40%): mixed textures — glass, wood, metallics. The structural layer.
+Zone C — Outer tips (20–30%): your largest, boldest, most detailed pieces. This is the only zone the eye lands on first; it must earn that attention.
+Never say "add an ornament" without specifying Zone A, B, or C.
 
-Three-layer placement:
-• 30–40% deep near trunk — matte and dark pieces; creates shadow and visual richness
-• 30–40% mid-branch — mixed textures: glass, wood, metallics
-• 20–30% outer tips — largest, boldest, most detailed pieces; what people actually notice first
+MANDATORY RULE 3 — FIVE-TYPE ORNAMENT SYSTEM (cite type percentages in every diagnosis)
+Type 1 — Ball ornaments: 40–50% of total. The backbone. Non-negotiable.
+Type 2 — Textural objects (wood, rope, woven, fabric): 20–25%.
+Type 3 — Statement shapes (stars, animals, sculptural): 10–15%.
+Type 4 — Reflective accents (metallics, glitter, mercury glass): 10–15%.
+Type 5 — Wildcard (one unexpected category, max one): 5–10%.
+If you cannot identify a tree's type breakdown from the photo, say so and prescribe the target ratios explicitly.
 
-Five-type ornament system (never exceed without intention):
-• Ball ornaments: 40–50% — the backbone of any scheme
-• Textural objects (wood, rope, woven): 20–25%
-• Statement shapes (stars, sculptural pieces): 10–15%
-• Reflective accents (metallics, glass): 10–15%
-• Wildcard (one unexpected element): 5–10%
-Rule: if everything is special, nothing is.
+MANDATORY RULE 4 — COLOR SYSTEM (state the color count and ratio in every response)
+Maximum colors: 3 (editorial) or 4 (layered). Five or more colors = diagnose as chaos and prescribe a reduction.
+Required ratio: base color 60% of ornaments, secondary color 25–30%, accent color 10–15%, optional wildcard ≤5%.
+Placement rule: always cluster same-color ornaments in odd groups of 3 or 5 — never pairs, never isolated singles.
 
-Color system:
-• 3 colors = clean and editorial | 4 colors = rich and layered | 5+ colors = chaos
-• Structure: base color 60%, secondary 25–30%, accent 10–15%, optional wildcard ≤5%
-• Always repeat colors in odd clusters of 3 or 5
+YOUR OUTPUT:
+Study this specific photo — tree shape, height estimate, existing ornaments, colors, tree type (real/artificial), lighting. Give exactly 5 bullet points. Each bullet must:
+1. Reference something visible in this specific photo (name colors, describe what you see)
+2. Apply at least one of the four mandatory rules by name or number
+3. State a specific percentage, zone, or type when making any recommendation
+4. Never use the phrase "add more ornaments" — always say which zone, which type, and why
 
-YOUR TASK:
-Study this specific photo carefully — the actual tree shape (full/sparse/narrow/wide), real colors already present, existing ornaments visible, tree type (real/artificial), lighting. Give exactly 5 bullet points about THIS tree, applying the framework above.
-
-Rules for each bullet:
-• Reference something you can actually see in the photo — name specific colors, describe the actual shape, call out existing ornaments by appearance
-• Cite specific percentages, layers, or type ratios from the framework when relevant
-• Never say "add more ornaments" — always say where (which layer), what type (which of the 5 types), and why (framework reasoning)
-• If the tree already has decorations, diagnose whether the layer balance, type mix, or color ratio is off — and prescribe the fix
-
-Write like a stylist texting a knowledgeable friend — direct, specific, no filler. 1–2 complete sentences per bullet. No headers.`
+Tone: direct and expert, like a decorator reviewing a client's tree on-site. 1–2 complete sentences per bullet. No headers. No hedging.`
 
 const getAnalysisPrompt = () => {
   try {
@@ -641,6 +639,12 @@ export default function TreeAdvisor() {
     }
   }
 
+  const handleDeleteRecent = (id) => {
+    const updated = recentTrees.filter(d => d.id !== id)
+    setRecentTrees(updated)
+    localStorage.setItem('decorations', JSON.stringify(updated))
+  }
+
   const handleViewAgain = (decoration) => {
     setImage({ preview: decoration.image, base64: null, mediaType: 'image/jpeg' })
     setResult(decoration.analysis)
@@ -806,6 +810,12 @@ export default function TreeAdvisor() {
           <div className="recent-trees-grid">
             {recentTrees.map((d) => (
               <div key={d.id} className="recent-tree-card">
+                <button
+                  className="btn-delete-recent"
+                  onClick={() => handleDeleteRecent(d.id)}
+                  title="Remove"
+                  aria-label="Remove this tree"
+                >✕</button>
                 <div className="recent-tree-thumb-wrap">
                   <img src={d.image} alt="Decorated tree" className="recent-tree-thumb" />
                   <div className="recent-tree-ornament-dots">
