@@ -427,9 +427,16 @@ function getOrnamentShape(name = '') {
   return 'ball'
 }
 
-function getSearchUrl(retailer, name) {
+function buildQuery(name, shape) {
+  // o.name is already a rich product description from the AI prompt
+  // Add shape only if not already mentioned in the name
+  const parts = [name, shape && !name.toLowerCase().includes(shape) ? shape : '']
+  return parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim() + ' christmas ornament'
+}
+
+function getSearchUrl(retailer, name, shape) {
   if (!name) return null
-  const q = encodeURIComponent(name + ' christmas ornament')
+  const q = encodeURIComponent(buildQuery(name, shape))
   if (retailer === 'walmart')     return `https://www.walmart.com/search?q=${q}`
   if (retailer === 'amazon')      return `https://www.amazon.com/s?k=${q}`
   if (retailer === 'potterybarn') return `https://www.potterybarn.com/search/results.html?words=${q}`
@@ -887,7 +894,7 @@ export default function TreeAdvisor() {
                 </div>
                 <div className="shop-card-retailers">
                   {RETAILERS.map(r => {
-                    const url = getSearchUrl(r.key, o.name)
+                    const url = getSearchUrl(r.key, o.name, o.shape)
                     if (!url) return null
                     return (
                       <a

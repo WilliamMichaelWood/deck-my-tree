@@ -69,9 +69,16 @@ function getOrnamentShape(name = '') {
   return 'ball'
 }
 
-function getSearchUrl(retailer, name) {
+function buildQuery(name, shape, description) {
+  // name from the AI is already rich ("Gold Mercury Glass Ball Ornament Set of 6")
+  // shape adds clarity when not already in the name; description is skipped (too long)
+  const parts = [name, shape && !name.toLowerCase().includes(shape) ? shape : '']
+  return parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim() + ' christmas ornament'
+}
+
+function getSearchUrl(retailer, name, shape, description) {
   if (!name) return null
-  const q = encodeURIComponent(name + ' christmas ornament')
+  const q = encodeURIComponent(buildQuery(name, shape, description))
   if (retailer === 'walmart') return `https://www.walmart.com/search?q=${q}`
   if (retailer === 'amazon')  return `https://www.amazon.com/s?k=${q}`
   return null
@@ -146,9 +153,9 @@ function OrnamentPlaceholder({ shape, color }) {
   )
 }
 
-function ProductCard({ retailer, price, ornamentName, shape, color }) {
+function ProductCard({ retailer, price, ornamentName, ornamentShape, ornamentDescription, color }) {
   const r = RETAILERS.find(x => x.key === retailer)
-  const url = getSearchUrl(retailer, ornamentName)
+  const url = getSearchUrl(retailer, ornamentName, ornamentShape, ornamentDescription)
   if (!url) return null
   return (
     <div className="product-card">
@@ -156,7 +163,7 @@ function ProductCard({ retailer, price, ornamentName, shape, color }) {
         <span className="retailer-dot" style={{ background: r.color }} />
         <span style={{ color: r.color }}>{r.label}</span>
       </div>
-      <OrnamentPlaceholder shape={shape} color={color} />
+      <OrnamentPlaceholder shape={ornamentShape} color={color} />
       <div className="product-price">{price ?? '—'}</div>
       <a
         href={url}
@@ -192,7 +199,8 @@ function RecommendationCard({ item, index }) {
             retailer={r.key}
             price={item[r.key]?.price}
             ornamentName={item.name}
-            shape={item.shape || getOrnamentShape(item.name)}
+            ornamentShape={item.shape || getOrnamentShape(item.name)}
+            ornamentDescription={item.description}
             color={item.color || '#c9a84c'}
           />
         ))}

@@ -10,9 +10,21 @@ const BUDGET_TAGS = ['Budget', 'Mid-range', 'Premium']
 const BLANK_FORM  = { name: '', colorDesc: '', colorHex: '', shape: 'ball', material: 'Glass', size: 'medium', notes: '' }
 
 const RETAILER_SEARCH = {
-  walmart:     (name) => `https://www.walmart.com/search?q=${encodeURIComponent(name + ' christmas ornament')}`,
-  amazon:      (name) => `https://www.amazon.com/s?k=${encodeURIComponent(name + ' christmas ornament')}`,
-  potterybarn: (name) => `https://www.potterybarn.com/search/results.html?words=${encodeURIComponent(name + ' christmas ornament')}`,
+  walmart:     (q) => `https://www.walmart.com/search?q=${encodeURIComponent(q)}`,
+  amazon:      (q) => `https://www.amazon.com/s?k=${encodeURIComponent(q)}`,
+  potterybarn: (q) => `https://www.potterybarn.com/search/results.html?words=${encodeURIComponent(q)}`,
+}
+
+// Build a rich search query from all available ornament descriptors
+function buildSearchQuery(ornament) {
+  const parts = [
+    ornament.colorDesc || '',
+    ornament.material  || '',
+    ornament.shape     || '',
+    ornament.name      || '',
+    'christmas ornament',
+  ]
+  return parts.filter(Boolean).join(' ').replace(/\s+/g, ' ').trim()
 }
 
 const ANALYZE_PHOTO_PROMPT = `Analyze this Christmas ornament photo. Return ONLY a valid JSON object — no markdown, no explanation:
@@ -134,17 +146,16 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
     : null
 
   const handleDeckIt = () => {
-    // Find the first retailer that has a price and build a proper search URL for it
+    const q = buildSearchQuery(ornament)
     const RETAILER_ORDER = ['walmart', 'amazon', 'potterybarn']
     for (const key of RETAILER_ORDER) {
       const entry = ornament.retailers?.[key]
       if (entry?.price && RETAILER_SEARCH[key]) {
-        window.open(RETAILER_SEARCH[key](ornament.name), '_blank')
+        window.open(RETAILER_SEARCH[key](q), '_blank')
         return
       }
     }
-    // No retailer price data — fall back to Amazon search
-    window.open(RETAILER_SEARCH.amazon(ornament.name), '_blank')
+    window.open(RETAILER_SEARCH.amazon(q), '_blank')
   }
 
   return (
@@ -178,7 +189,7 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
         {ornament.notes && <p className="myo-card-notes">{ornament.notes}</p>}
 
         <div className="myo-card-actions">
-          <button className="myo-deck-it" onClick={handleDeckIt}>Deck it. Buy it.</button>
+          <button className="myo-deck-it" onClick={handleDeckIt}>Shop Similar</button>
           <button className="myo-btn-edit" onClick={() => onEdit(ornament)} title="Edit">✎</button>
           <button className="myo-btn-delete" onClick={() => onDelete(ornament.id)} title="Delete">✕</button>
         </div>
