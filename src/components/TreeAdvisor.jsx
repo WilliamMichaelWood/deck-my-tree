@@ -46,134 +46,136 @@ const getAnalysisPrompt = () => {
   } catch { return BASE_ANALYSIS_PROMPT }
 }
 
-const DETECT_PROMPT = `Analyze this image and return ONLY a JSON object with the Christmas tree bounding box coordinates as percentages of the image dimensions: {"treeTop": number, "treeBottom": number, "treeLeft": number, "treeRight": number, "treeCenterX": number}. No other text, just the JSON.`
+// ── Triangle placement engine (AI-detected bounds) ────────────────────────
+// Claude vision detects the tree bounding box. We build an inset triangle from
+// those coords and generate all positions client-side — AI supplies metadata only.
 
-function buildOverlayPrompt(b) {
-  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
-  const top = clamp(b.treeTop,     0,  55)
-  const bot = clamp(b.treeBottom,  45, 100)
-  const lft = clamp(b.treeLeft,    0,  48)
-  const rgt = clamp(b.treeRight,   52, 100)
-  const cx  = clamp(b.treeCenterX, 10, 90)
+const DETECT_PROMPT = `Analyze this image and return ONLY a JSON object with the Christmas tree bounding box as image-percentage coordinates: {"treeTop":N,"treeBottom":N,"treeLeft":N,"treeRight":N,"treeCenterX":N}. No other text, just the JSON.`
 
-  const h  = bot - top
-  const hw = (rgt - lft) / 2
+// Build an inset triangle from Claude's detected bounding box
+function buildDetectedTri(b) {
+  const cl  = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
+  const top = cl(b.treeTop    ?? 10,  0,  50)
+  const bot = cl(b.treeBottom ?? 88, 50, 100)
+  const lft = cl(b.treeLeft   ??  5,  0,  45)
+  const rgt = cl(b.treeRight  ?? 95, 55, 100)
+  const cx  = cl(b.treeCenterX ?? 50, 10, 90)
 
-  // Zone y boundaries: top 30% / middle 40% / bottom 30%
-  const tipY   = Math.round(top + h * 0.05)   // avoid the very tip
-  const topEnd = Math.round(top + h * 0.30)
-  const midEnd = Math.round(top + h * 0.70)
-  const baseY  = Math.round(top + h * 0.88)  // stop well above trunk base
+  // Pull each vertex 8% toward centroid — keeps ornaments off the silhouette edge
+  const INSET = 0.08
+  const gcx = (cx  + lft + rgt) / 3
+  const gcy = (top + bot + bot) / 3
+  const pull = (vx, vy) => ({ x: vx + INSET * (gcx - vx), y: vy + INSET * (gcy - vy) })
 
-  // x constraints per zone — tree tapers toward top (triangular silhouette)
-  const xRange = (frac, pad = 0.83) => {
-    const spread = Math.round(hw * frac * pad)
-    return { xl: Math.round(cx - spread), xr: Math.round(cx + spread) }
+  return {
+    apex:  pull(cx,  top),
+    baseL: pull(lft, bot),
+    baseR: pull(rgt, bot),
   }
-  const { xl: txl, xr: txr } = xRange(0.24)   // top zone: narrow
-  const { xl: mxl, xr: mxr } = xRange(0.62)   // middle zone: wide
-  const { xl: lxl, xr: lxr } = xRange(0.88)   // lower zone: widest
-
-  // r sizing — three distinct sizes for three depth zones
-  const rBase = Math.max(1.5, Math.min(3.0, hw * 0.13))
-  const rSm   = +(rBase * 0.52).toFixed(1)   // Zone A: deliberately small, buried near trunk
-  const rMd   = +(rBase * 0.88).toFixed(1)   // Zone B: standard mid-branch
-  const rLg   = +(rBase * 1.30).toFixed(1)   // Zone C: hero pieces, outer tips — visibly larger
-
-  // Zone A x: near center (trunk depth)
-  const zaXl = Math.round(cx - hw * 0.22)
-  const zaXr = Math.round(cx + hw * 0.22)
-  // Zone B x: mid-range
-  const zbXl = Math.round(cx - hw * 0.58)
-  const zbXr = Math.round(cx + hw * 0.58)
-  // Zone C minimum distance from center (outer tips)
-  const zcMinDist = Math.round(hw * 0.48)
-
-  return `You are a professional Christmas tree decorator. Study this specific photo — note the tree's actual colors, shape, density, and any existing decorations — before placing ornaments.
-
-Output ONLY a valid JSON array. No markdown, no explanation, no code fences. Start with [ and end with ].
-
-═══ TREE BOUNDARIES (hard walls) ═══
-Top vertical zone:    y=${tipY}–${topEnd}%,   x=${txl}–${txr}%
-Middle vertical zone: y=${topEnd}–${midEnd}%, x=${mxl}–${mxr}%
-Lower vertical zone:  y=${midEnd}–${baseY}%,  x=${lxl}–${lxr}%
-Tree center x: ${cx}%  |  TRUNK RULE: no ornament y > ${baseY}%
-
-═══ EXACTLY 17 ORNAMENTS — THREE-ZONE PLACEMENT SYSTEM ═══
-Ornament placement is determined by depth zone (A/B/C). Each zone has a fixed size and x range.
-
-──── ZONE A — Deep / Near Trunk (6 ornaments, 35%) ────
-z = 5–28   (back layer — rendered smaller, 50% opacity, darkened)
-r = ${rSm}  (small — these are intentionally subtle, shadow-creating)
-x = ${zaXl}–${zaXr}% (close to trunk/center — do not place near tree edges)
-Colors: matte and dark only — deep greens, burgundy, brown, navy, charcoal, forest
-Purpose: create visual depth and shadow richness inside the tree body
-Vertical spread: 2 in top zone, 2 in middle zone, 2 in lower zone
-
-──── ZONE B — Mid-Branch (6 ornaments, 35%) ────
-z = 35–62  (middle layer — rendered at full opacity, normal size)
-r = ${rMd}  (medium — the structural backbone of the arrangement)
-x = ${zbXl}–${zbXr}% (mid-range from center — within vertical zone x limits)
-Colors: mixed textures — glass tones, wood colors, soft metallics, satin finishes
-Purpose: bridges deep and outer zones, provides structural visual rhythm
-Vertical spread: 2 in top zone, 2 in middle zone, 2 in lower zone
-
-──── ZONE C — Outer Tips / Hero Pieces (5 ornaments, 30%) ────
-z = 68–95  (front layer — rendered larger, full opacity, drop shadow)
-r = ${rLg}  (large — these are the ornaments people actually see and remember)
-x: must be ≥${zcMinDist}% away from center (x=${cx}%) toward tree edges — within vertical zone x limits
-Colors: your boldest and brightest — glitter, mercury glass, metallic gold/silver, vivid saturated tones
-Purpose: outer tips are what the eye lands on first — make every one count
-Vertical spread: 1 in top zone, 2 in middle zone, 2 in lower zone
-
-═══ ANTI-STRIPE — diagonal scatter required ═══
-FORBIDDEN: 2 or more ornaments within ±4% of the same y value
-FORBIDDEN: any pattern that reads as a horizontal row
-REQUIRED: alternate left/right of center (cx=${cx}%) throughout — no two consecutive ornaments on the same side
-REQUIRED: vary y by ≥5% between consecutive ornaments in the same vertical zone
-
-═══ COLOR SYSTEM ═══
-Choose 3–4 colors from this tree's existing palette. Structure:
-- Base color: ~60% of ornaments
-- Secondary: ~25% of ornaments
-- Accent: ~10–15% of ornaments
-Zone A colors must be darker/matte versions. Zone C gets the boldest versions + 1–2 metallics (gold #c9a84c, silver #c0c0c0).
-FORBIDDEN: same hex color in 3+ consecutive array positions
-
-═══ SHAPE DISTRIBUTION (all 5 types required) ═══
-ball: 6  — spread across all three depth zones
-drop: 4  — prefer Zone B and C
-star: 3  — prefer Zone C (statement pieces on outer tips)
-snowflake: 2 — prefer Zone C (delicate, visible)
-pinecone:  2 — prefer Zone A (rustic, buried deep)
-FORBIDDEN: same shape in 2+ consecutive positions
-
-═══ VERIFICATION (check before returning) ═══
-- Total = exactly 17 ✓
-- Zone A: 6 ornaments, z=5–28, r=${rSm}, x=${zaXl}–${zaXr}% ✓
-- Zone B: 6 ornaments, z=35–62, r=${rMd}, x=${zbXl}–${zbXr}% ✓
-- Zone C: 5 ornaments, z=68–95, r=${rLg}, x ≥${zcMinDist}% from center ✓
-- No ornament y > ${baseY}% ✓
-- No 2+ ornaments at same y ±4% ✓
-- No same shape consecutive ✓
-- No same color in 3+ consecutive positions ✓
-
-Each ornament must use exactly this JSON structure:
-{
-  "name": "Specific searchable product name (e.g. 'Shiny ruby red mercury glass ball ornament set of 6')",
-  "label": "Short display label (e.g. 'Ruby Mercury Ball')",
-  "color": "#hexcolor",
-  "shape": "ball",
-  "x": number,
-  "y": number,
-  "r": number,
-  "z": number,
-  "walmart": { "price": "$X–$XX" },
-  "amazon":  { "price": "$X–$XX" },
-  "target":  { "price": "$X–$XX" }
 }
 
-Return exactly 17 items as a JSON array.`
+// Linear interpolation: allowed x range at a given y inside the triangle
+function xRangeAtY(y, tri) {
+  const h    = tri.baseL.y - tri.apex.y
+  const frac = Math.max(0, Math.min(1, (y - tri.apex.y) / h))
+  const hw   = ((tri.baseR.x - tri.baseL.x) / 2) * frac
+  return { xMin: tri.apex.x - hw, xMax: tri.apex.x + hw }
+}
+
+// Point-in-triangle test (sign method) — final safety check
+function triSign(p1x, p1y, p2x, p2y, p3x, p3y) {
+  return (p1x - p3x) * (p2y - p3y) - (p2x - p3x) * (p1y - p3y)
+}
+function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
+  const d1 = triSign(px, py, ax, ay, bx, by)
+  const d2 = triSign(px, py, bx, by, cx, cy)
+  const d3 = triSign(px, py, cx, cy, ax, ay)
+  return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0))
+}
+
+// Cluster-based placement: 7 pre-defined cluster centers across all three zones.
+// Each cluster scatters 3–4 ornaments around it → 20–25 total, no horizontal rows.
+function generateClusteredPlacements(n, bounds) {
+  const tri   = buildDetectedTri(bounds || {})
+  const treeH = tri.baseL.y - tri.apex.y
+
+  // yF = fraction of treeH from apex; xBias = [-1,1] offset toward that side
+  // Deliberately staggered — no two clusters share the same yF or xBias sign pattern
+  const CLUSTERS = [
+    // Top third (yF 0.05–0.30): 3 ornaments each
+    { yF: 0.08, xBias: -0.52, size: 3 },
+    { yF: 0.24, xBias:  0.58, size: 3 },
+    // Middle third (yF 0.33–0.65): 4 ornaments each
+    { yF: 0.36, xBias: -0.28, size: 4 },
+    { yF: 0.50, xBias:  0.62, size: 4 },
+    { yF: 0.62, xBias: -0.58, size: 4 },
+    // Bottom third (yF 0.68–0.92): 3–4 ornaments each
+    { yF: 0.72, xBias:  0.38, size: 4 },
+    { yF: 0.88, xBias: -0.48, size: 4 },
+  ]  // default total = 26; slice(0, n) caps to AI count
+
+  const { apex, baseL, baseR } = tri
+  const positions = []
+
+  for (const cd of CLUSTERS) {
+    if (positions.length >= n) break
+
+    const cy            = tri.apex.y + cd.yF * treeH
+    const { xMin, xMax } = xRangeAtY(cy, tri)
+    const hw            = (xMax - xMin) / 2
+    const cxCenter      = tri.apex.x + hw * cd.xBias  // biased cluster center
+
+    // Scatter radius: proportional to available width, compressed vertically
+    const sr = Math.min(hw * 0.38, treeH * 0.065)
+
+    // r and z ranges by zone
+    const rMin = cd.yF < 0.33 ? 1.1 : cd.yF < 0.67 ? 1.7 : 2.2
+    const rMax = cd.yF < 0.33 ? 1.6 : cd.yF < 0.67 ? 2.3 : 2.9
+
+    for (let j = 0; j < cd.size && positions.length < n; j++) {
+      // Evenly spread angle around cluster center + small random offset
+      const angle = (j / cd.size) * Math.PI * 2 + Math.random() * 0.7
+      const dist  = sr * (0.25 + Math.random() * 0.75)
+      const rawX  = cxCenter + Math.cos(angle) * dist
+      const rawY  = cy       + Math.sin(angle) * dist * 0.55  // flatten vertically
+
+      // Clamp to triangle boundary
+      const { xMin: lo, xMax: hi } = xRangeAtY(rawY, tri)
+      const cx2 = tri.apex.x
+      const x = Math.max(lo + 0.4, Math.min(hi - 0.4, rawX))
+      const y = Math.max(tri.apex.y, Math.min(tri.baseL.y, rawY))
+
+      // PIT check — fall back to cluster center if somehow outside
+      const safeX = pointInTriangle(x, y, apex.x, apex.y, baseL.x, baseL.y, baseR.x, baseR.y)
+        ? x : cx2
+
+      const r = +(rMin + Math.random() * (rMax - rMin)).toFixed(1)
+      const z = Math.round(8 + Math.random() * 84)
+      positions.push({ x: +safeX.toFixed(1), y: +y.toFixed(1), r, z })
+    }
+  }
+
+  return positions.slice(0, n)
+}
+
+function buildOrnamentListPrompt() {
+  return `You are a professional Christmas tree decorator. Study this photo carefully — note the existing colors, style, and density.
+
+Output ONLY a valid JSON array of exactly 22 ornaments. No markdown, no code fences, no explanation. Start with [ and end with ].
+
+HARD RULES:
+- Exactly 22 items — no more, no fewer
+- Maximum 5 shape types. Use only: ball, drop, star, snowflake, pinecone
+  Suggested: ball×9, drop×4, star×3, snowflake×3, pinecone×3
+- Maximum 4 distinct hex color values total across all 22 ornaments
+  Distribution: base color×10, secondary×6, third×4, accent×2
+  Pick colors from this tree's existing palette
+- DO NOT include x, y, r, or z fields — positions are computed separately
+
+Each item must use exactly this structure:
+{"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"target":{"price":"$X–$XX"}}
+
+Return exactly 22 items as a JSON array.`
 }
 
 const RETAILERS = [
@@ -304,8 +306,11 @@ function renderOrnamentLayer(ornaments) {
     const z  = o.z ?? 55
     const yp = 0.74 + (o.y / 100) * 0.48
     let ds, op, fl, zi
-    if      (z < 34) { ds = 0.70; op = 0.50; fl = 'brightness(0.62)';                        zi = 10 + Math.round(z * 0.7) }
-    else if (z < 67) { ds = 1.00; op = 0.75; fl = undefined;                                 zi = 40 + Math.round((z - 34) * 0.9) }
+    // Back layer: 60% opacity, 15% smaller, darkened
+    if      (z < 34) { ds = 0.85; op = 0.60; fl = 'brightness(0.65)';                        zi = 10 + Math.round(z * 0.7) }
+    // Mid layer: 80% opacity, normal size
+    else if (z < 67) { ds = 1.00; op = 0.80; fl = undefined;                                 zi = 40 + Math.round((z - 34) * 0.9) }
+    // Front layer: 100% opacity, 10% larger, drop shadow
     else             { ds = 1.10; op = 1.00; fl = 'drop-shadow(0 3px 10px rgba(0,0,0,0.52))'; zi = 70 + Math.round((z - 67) * 0.9) }
     return (
       <div key={i} className="ornament-pin" title={o.label} style={{
@@ -474,11 +479,12 @@ export default function TreeAdvisor() {
   const [shareLoading,   setShareLoading]   = useState(false)
   const [recentTrees,    setRecentTrees]    = useState(() => loadDecorations())
   const [savedIds,       setSavedIds]       = useState(new Set())
-  const fileInputRef = useRef(null)
-  const shopRef      = useRef(null)
-  const overlayRef   = useRef(null)
-  const resultRef    = useRef(null)
-  const loaderRef    = useRef(null)
+  const fileInputRef   = useRef(null)
+  const shopRef        = useRef(null)
+  const overlayRef     = useRef(null)
+  const resultRef      = useRef(null)
+  const loaderRef      = useRef(null)
+  const treeBoundsRef  = useRef({})   // stores AI-detected bounding box for placement
 
   // Scroll helper — offsets for sticky header height so element isn't hidden behind it
   const smoothScrollTo = useCallback((ref, delay = 120) => {
@@ -489,17 +495,19 @@ export default function TreeAdvisor() {
     }, delay)
   }, [])
 
-  // Parse ornament JSON once overlay stream finishes, then persist
+  // Parse ornament metadata once overlay stream finishes, then assign clustered positions
   useEffect(() => {
     if (!rawOverlay || overlayLoading) return
     try {
       const start = rawOverlay.indexOf('[')
       const end   = rawOverlay.lastIndexOf(']')
       if (start === -1 || end === -1) throw new Error('No array')
-      const parsed = JSON.parse(rawOverlay.slice(start, end + 1))
-      setOrnaments(parsed)
+      const meta      = JSON.parse(rawOverlay.slice(start, end + 1)).slice(0, 25)
+      const positions = generateClusteredPlacements(meta.length, treeBoundsRef.current)
+      const placed    = meta.map((o, i) => ({ ...o, ...positions[i] }))
+      setOrnaments(placed)
       if (image && result) {
-        saveDecoration(image, parsed, result)
+        saveDecoration(image, placed, result)
         setRecentTrees(loadDecorations())
       }
     } catch {
@@ -588,37 +596,28 @@ export default function TreeAdvisor() {
     setOverlayError('')
 
     try {
-      // Step 1 — detect tree bounding box
+      // Step 1 — Claude vision detects the tree bounding box
       let detectRaw = ''
       await streamChat({
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
-            { type: 'text', text: DETECT_PROMPT },
-          ],
-        }],
+        messages: [{ role: 'user', content: [
+          { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+          { type: 'text', text: DETECT_PROMPT },
+        ]}],
         maxTokens: 200,
         onText: (t) => { detectRaw += t },
       })
-
-      // Parse bounds — fall back to full-image safe defaults on failure
-      let bounds = { treeTop: 5, treeBottom: 90, treeLeft: 10, treeRight: 90, treeCenterX: 50 }
       try {
         const s = detectRaw.indexOf('{'), e = detectRaw.lastIndexOf('}')
-        if (s !== -1 && e !== -1) bounds = { ...bounds, ...JSON.parse(detectRaw.slice(s, e + 1)) }
-      } catch { /* use defaults */ }
+        if (s !== -1 && e !== -1) treeBoundsRef.current = JSON.parse(detectRaw.slice(s, e + 1))
+      } catch { treeBoundsRef.current = {} }
 
-      // Step 2 — place ornaments using detected bounds
+      // Step 2 — get ornament metadata (no coordinates — placed client-side)
       await streamChat({
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
-            { type: 'text', text: buildOverlayPrompt(bounds) },
-          ],
-        }],
-        maxTokens: 6500,
+        messages: [{ role: 'user', content: [
+          { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+          { type: 'text', text: buildOrnamentListPrompt() },
+        ]}],
+        maxTokens: 3500,
         onText: (text) => setRawOverlay(prev => prev + text),
       })
     } catch {
