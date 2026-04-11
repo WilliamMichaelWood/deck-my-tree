@@ -30,6 +30,7 @@ const RETAILERS = [
   { key: 'walmart', label: 'Walmart', color: '#0071ce' },
   { key: 'amazon',  label: 'Amazon',  color: '#ff9900' },
   { key: 'target',  label: 'Target',  color: '#cc0000' },
+  { key: 'etsy',    label: 'Etsy',    color: '#F1641E' },
 ]
 
 const buildPrompt = ({ style, palette, budget, size, extraContext }) =>
@@ -56,7 +57,8 @@ Each item must use exactly this structure:
   "whyPerfect": "One sentence why this suits their palette and style",
   "walmart": { "price": "$X–$XX" },
   "amazon":  { "price": "$X–$XX" },
-  "target":  { "price": "$X–$XX" }
+  "target":  { "price": "$X–$XX" },
+  "etsy":    { "price": "$X–$XX" }
 }
 
 Field rules:
@@ -94,6 +96,7 @@ function getSearchUrl(retailer, name, shape, description) {
   if (retailer === 'walmart') return `https://www.walmart.com/search?q=${q}`
   if (retailer === 'amazon')  return `https://www.amazon.com/s?k=${q}`
   if (retailer === 'target')  return `https://www.target.com/s?searchTerm=${q}`
+  if (retailer === 'etsy')    return `https://www.etsy.com/search?q=${q}`
   return null
 }
 

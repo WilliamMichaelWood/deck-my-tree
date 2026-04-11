@@ -177,7 +177,7 @@ function buildOrnamentListPrompt() {
 Output format: First, your analysis and color recommendation in plain text (2–3 sentences). Then "---". Then ONLY a valid JSON array of exactly 12 ornaments. No markdown, no code fences.
 
 Each ornament:
-{"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"target":{"price":"$X–$XX"}}
+{"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"target":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}
 
 Return exactly 12 items as a JSON array after the --- divider.`
 }
@@ -186,6 +186,7 @@ const RETAILERS = [
   { key: 'walmart', label: 'Walmart', color: '#0071ce' },
   { key: 'amazon',  label: 'Amazon',  color: '#ff9900' },
   { key: 'target',  label: 'Target',  color: '#cc0000' },
+  { key: 'etsy',    label: 'Etsy',    color: '#F1641E' },
 ]
 
 function BallOrnament({ color }) {
@@ -430,6 +431,7 @@ function saveToMyOrnaments(o) {
       walmart: { price: o.walmart?.price || '' },
       amazon:  { price: o.amazon?.price  || '' },
       target:  { price: o.target?.price  || '' },
+      etsy:    { price: o.etsy?.price    || '' },
     },
     source:    'saved',
     rating:    0,
@@ -463,9 +465,10 @@ function buildQuery(name, shape) {
 function getSearchUrl(retailer, name, shape) {
   if (!name) return null
   const q = encodeURIComponent(buildQuery(name, shape))
-  if (retailer === 'walmart')     return `https://www.walmart.com/search?q=${q}`
-  if (retailer === 'amazon')      return `https://www.amazon.com/s?k=${q}`
+  if (retailer === 'walmart') return `https://www.walmart.com/search?q=${q}`
+  if (retailer === 'amazon')  return `https://www.amazon.com/s?k=${q}`
   if (retailer === 'target')  return `https://www.target.com/s?searchTerm=${q}`
+  if (retailer === 'etsy')    return `https://www.etsy.com/search?q=${q}`
   return null
 }
 
