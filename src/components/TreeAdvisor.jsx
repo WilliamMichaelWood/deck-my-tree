@@ -93,26 +93,26 @@ function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
   return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0))
 }
 
-// Cluster-based placement: 7 pre-defined cluster centers across all three zones.
-// Each cluster scatters 3–4 ornaments around it → 20–25 total, no horizontal rows.
+// Cluster-based placement: 4–5 tight clusters for dense coverage.
+// Each cluster has 2–3 ornaments very close together.
+// Optimized for 12 ornaments total (5 top, 4 middle, 3 bottom).
 function generateClusteredPlacements(n, bounds) {
   const tri   = buildDetectedTri(bounds || {})
   const treeH = tri.baseL.y - tri.apex.y
 
-  // yF = fraction of treeH from apex; xBias = [-1,1] offset toward that side
-  // Deliberately staggered — no two clusters share the same yF or xBias sign pattern
+  // Tight clusters: yF = vertical position, xBias = left/right, size = # ornaments
+  // Top: 2 small clusters × 2–3 each = 4–6 top ornaments
+  // Middle: 1 medium cluster × 3–4 = 3–4 middle ornaments
+  // Bottom: 1 large cluster × 3–4 = 3–4 base ornaments
   const CLUSTERS = [
-    // Top third (yF 0.05–0.30): 3 ornaments each
-    { yF: 0.08, xBias: -0.52, size: 3 },
-    { yF: 0.24, xBias:  0.58, size: 3 },
-    // Middle third (yF 0.33–0.65): 4 ornaments each
-    { yF: 0.36, xBias: -0.28, size: 4 },
-    { yF: 0.50, xBias:  0.62, size: 4 },
-    { yF: 0.62, xBias: -0.58, size: 4 },
-    // Bottom third (yF 0.68–0.92): 3–4 ornaments each
-    { yF: 0.72, xBias:  0.38, size: 4 },
-    { yF: 0.88, xBias: -0.48, size: 4 },
-  ]  // default total = 26; slice(0, n) caps to AI count
+    // Top third (yF 0.10–0.25): 2 clusters
+    { yF: 0.12, xBias: -0.40, size: 2, rMin: 1.0, rMax: 1.3 },
+    { yF: 0.22, xBias:  0.45, size: 2, rMin: 1.0, rMax: 1.4 },
+    // Middle third (yF 0.40–0.55): 1 cluster
+    { yF: 0.48, xBias:  0.00, size: 3, rMin: 1.5, rMax: 1.9 },
+    // Bottom third (yF 0.70–0.88): 1 large cluster
+    { yF: 0.80, xBias: -0.20, size: 3, rMin: 2.0, rMax: 2.6 },
+  ]  // total capacity = 10; will slice(0, n) for exactly n
 
   const { apex, baseL, baseR } = tri
   const positions = []
@@ -125,17 +125,13 @@ function generateClusteredPlacements(n, bounds) {
     const hw            = (xMax - xMin) / 2
     const cxCenter      = tri.apex.x + hw * cd.xBias  // biased cluster center
 
-    // Scatter radius: proportional to available width, compressed vertically
-    const sr = Math.min(hw * 0.38, treeH * 0.065)
-
-    // r and z ranges by zone
-    const rMin = cd.yF < 0.33 ? 1.1 : cd.yF < 0.67 ? 1.7 : 2.2
-    const rMax = cd.yF < 0.33 ? 1.6 : cd.yF < 0.67 ? 2.3 : 2.9
+    // TIGHT scatter radius — keep ornaments very close (dense clustering)
+    const sr = Math.min(hw * 0.15, treeH * 0.035)  // much smaller than before
 
     for (let j = 0; j < cd.size && positions.length < n; j++) {
-      // Evenly spread angle around cluster center + small random offset
-      const angle = (j / cd.size) * Math.PI * 2 + Math.random() * 0.7
-      const dist  = sr * (0.25 + Math.random() * 0.75)
+      // Tighter angular spread (less rotation jitter)
+      const angle = (j / cd.size) * Math.PI * 2 + (Math.random() - 0.5) * 0.4
+      const dist  = sr * (0.3 + Math.random() * 0.7)  // stay very close to center
       const rawX  = cxCenter + Math.cos(angle) * dist
       const rawY  = cy       + Math.sin(angle) * dist * 0.55  // flatten vertically
 
@@ -145,11 +141,11 @@ function generateClusteredPlacements(n, bounds) {
       const x = Math.max(lo + 0.4, Math.min(hi - 0.4, rawX))
       const y = Math.max(tri.apex.y, Math.min(tri.baseL.y, rawY))
 
-      // PIT check — fall back to cluster center if somehow outside
+      // PIT check — safety net
       const safeX = pointInTriangle(x, y, apex.x, apex.y, baseL.x, baseL.y, baseR.x, baseR.y)
         ? x : cx2
 
-      const r = +(rMin + Math.random() * (rMax - rMin)).toFixed(1)
+      const r = +(cd.rMin + Math.random() * (cd.rMax - cd.rMin)).toFixed(1)
       const z = Math.round(8 + Math.random() * 84)
       positions.push({ x: +safeX.toFixed(1), y: +y.toFixed(1), r, z })
     }
@@ -159,23 +155,31 @@ function generateClusteredPlacements(n, bounds) {
 }
 
 function buildOrnamentListPrompt() {
-  return `You are a professional Christmas tree decorator. Study this photo carefully — note the existing colors, style, and density.
+  return `You are a professional Christmas tree decorator analyzing a specific tree photo. Your job is to:
 
-Output ONLY a valid JSON array of exactly 22 ornaments. No markdown, no code fences, no explanation. Start with [ and end with ].
+1. ANALYZE THIS TREE:
+   - What colors are already visible? (lights, stand, existing ornaments, garland, tree type)
+   - Is it real or artificial?
+   - What's the lighting? (warm/cool)
+   - What aesthetic does it have? (traditional, modern, rustic, eclectic)
 
-HARD RULES:
-- Exactly 22 items — no more, no fewer
-- Maximum 5 shape types. Use only: ball, drop, star, snowflake, pinecone
-  Suggested: ball×9, drop×4, star×3, snowflake×3, pinecone×3
-- Maximum 4 distinct hex color values total across all 22 ornaments
-  Distribution: base color×10, secondary×6, third×4, accent×2
-  Pick colors from this tree's existing palette
-- DO NOT include x, y, r, or z fields — positions are computed separately
+2. RECOMMEND A COLOR PALETTE:
+   - Choose 3–4 hex colors that complement what you see
+   - Explain briefly WHY these colors work (e.g., "warm golds echo the yellow lights")
+   - Distribution: base color (5), secondary (4), accent (2–3)
 
-Each item must use exactly this structure:
-{"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"target":{"price":"$X–$XX"}}
+3. SUGGEST 12 ORNAMENTS:
+   - 3 shapes ONLY: ball, drop, star
+   - Sizes: small (top), medium (middle), large (bottom)
+   - Cluster in tight groups of 2–3, not scattered
+   - Use only your recommended palette
 
-Return exactly 22 items as a JSON array.`
+Output format: First, your analysis and color recommendation in plain text (2–3 sentences). Then "---". Then ONLY a valid JSON array of exactly 12 ornaments. No markdown, no code fences.
+
+Each ornament:
+{"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"target":{"price":"$X–$XX"}}
+
+Return exactly 12 items as a JSON array after the --- divider.`
 }
 
 const RETAILERS = [
@@ -495,22 +499,32 @@ export default function TreeAdvisor() {
     }, delay)
   }, [])
 
-  // Parse ornament metadata once overlay stream finishes, then assign clustered positions
+  // Parse ornament metadata once overlay stream finishes
+  // Claude returns: analysis text, then ---, then JSON array of exactly 12 ornaments
   useEffect(() => {
     if (!rawOverlay || overlayLoading) return
     try {
-      const start = rawOverlay.indexOf('[')
-      const end   = rawOverlay.lastIndexOf(']')
-      if (start === -1 || end === -1) throw new Error('No array')
-      const meta      = JSON.parse(rawOverlay.slice(start, end + 1)).slice(0, 25)
-      const positions = generateClusteredPlacements(meta.length, treeBoundsRef.current)
+      // Split on "---" to separate analysis from JSON
+      const dividerIdx = rawOverlay.indexOf('---')
+      const analysisText = dividerIdx !== -1 ? rawOverlay.substring(0, dividerIdx).trim() : ''
+      const jsonPart = dividerIdx !== -1 ? rawOverlay.substring(dividerIdx + 3) : rawOverlay
+
+      // Extract JSON array from the second half
+      const start = jsonPart.indexOf('[')
+      const end   = jsonPart.lastIndexOf(']')
+      if (start === -1 || end === -1) throw new Error('No JSON array')
+      
+      const meta      = JSON.parse(jsonPart.slice(start, end + 1))
+      const positions = generateClusteredPlacements(Math.min(meta.length, 12), treeBoundsRef.current)
       const placed    = meta.map((o, i) => ({ ...o, ...positions[i] }))
       setOrnaments(placed)
+      
       if (image && result) {
         saveDecoration(image, placed, result)
         setRecentTrees(loadDecorations())
       }
-    } catch {
+    } catch (err) {
+      console.error('Ornament parse error:', err)
       setOverlayError('Your stylist had trouble placing ornaments. Try analyzing again.')
     }
   }, [rawOverlay, overlayLoading])
@@ -617,7 +631,7 @@ export default function TreeAdvisor() {
           { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
           { type: 'text', text: buildOrnamentListPrompt() },
         ]}],
-        maxTokens: 3500,
+        maxTokens: 2000,
         onText: (text) => setRawOverlay(prev => prev + text),
       })
     } catch {
@@ -864,7 +878,7 @@ export default function TreeAdvisor() {
           <div className="ornament-legend">
             {ornaments
               .filter((o, i, arr) => arr.findIndex(x => x.shape === o.shape && x.color === o.color) === i)
-              .slice(0, 8)
+              .slice(0, 12)
               .map((o, i) => (
               <div key={i} className="legend-item">
                 <span className="legend-dot" style={{ background: o.color }} />
