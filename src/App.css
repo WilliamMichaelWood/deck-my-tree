@@ -124,15 +124,15 @@ a { text-decoration: none; color: inherit; }
   gap: 5px;
   padding: 10px 8px 12px;
   background: transparent;
-  color: #3d8c5c;
-  font-size: 0.6rem;
+  color: #7090a8;
+  font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   border-top: 2px solid transparent;
   transition: color var(--transition), border-color var(--transition);
 }
-.tab-btn:hover { color: #5ab87e; }
+.tab-btn:hover { color: #8dafc4; }
 .tab-btn.active {
   color: var(--gold);
   border-top-color: var(--gold);
@@ -280,29 +280,6 @@ a { text-decoration: none; color: inherit; }
 }
 .btn-ghost:hover { color: var(--cranberry); background: rgba(155, 28, 44, 0.1); }
 
-.btn-deck-it {
-  display: block;
-  width: 100%;
-  padding: 10px 12px;
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
-  color: #08060a;
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-align: center;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 3px 12px rgba(201, 168, 76, 0.22);
-  transition: all var(--transition);
-  text-decoration: none;
-}
-.btn-deck-it:hover {
-  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-bright) 100%);
-  box-shadow: 0 5px 20px rgba(201, 168, 76, 0.4);
-  transform: translateY(-1px);
-  color: #08060a;
-}
 
 .spin { display: inline-block; animation: spin 1s linear infinite; }
 .cursor { animation: blink 0.8s step-end infinite; color: var(--gold); }
@@ -793,55 +770,6 @@ a { text-decoration: none; color: inherit; }
   line-height: 1.5;
 }
 
-/* ─── Product Cards ──────────────────────────────────────────── */
-.product-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  background: var(--border-soft);
-  gap: 1px;
-}
-.product-card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 18px 14px;
-  background: var(--navy-mid);
-  transition: background var(--transition);
-}
-.product-card:hover { background: var(--navy-lift); }
-
-.product-retailer-badge {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-.retailer-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.product-image-placeholder {
-  width: 100%;
-  aspect-ratio: 1;
-  max-height: 110px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  position: relative;
-}
-.product-price {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--white);
-  text-align: center;
-}
 
 /* ─── Tree Overlay ───────────────────────────────────────────── */
 .magic-loader {
@@ -1261,7 +1189,7 @@ a { text-decoration: none; color: inherit; }
   font-weight: 500;
 }
 .deck-it-cta {
-  font-size: 0.65rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: var(--gold);
   letter-spacing: 0.04em;
@@ -1307,12 +1235,9 @@ a { text-decoration: none; color: inherit; }
   .palette-grid { grid-template-columns: repeat(2, 1fr); }
   .form-row-2   { grid-template-columns: 1fr; }
   .ornament-grid { grid-template-columns: 1fr 1fr; }
-  .product-image-placeholder { max-height: 120px; }
   .rec-card-header { padding: 16px 16px 14px; gap: 12px; }
   .rec-number { font-size: 1.6rem; min-width: 38px; }
   .rec-why { padding: 10px 16px; }
-  .product-card { padding: 14px 16px; }
-  .product-image-placeholder { max-height: 140px; }
 }
 @media (max-width: 380px) {
   .ornament-grid { grid-template-columns: 1fr; }
