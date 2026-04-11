@@ -166,27 +166,19 @@ function OrnamentPlaceholder({ shape, color }) {
   )
 }
 
-function ProductCard({ retailer, price, ornamentName, ornamentShape, ornamentDescription, color }) {
+function ProductCard({ retailer, price, ornamentName, ornamentShape, ornamentDescription }) {
   const r = RETAILERS.find(x => x.key === retailer)
   const url = getSearchUrl(retailer, ornamentName, ornamentShape, ornamentDescription)
   if (!url) return null
   return (
-    <div className="product-card">
-      <div className="product-retailer-badge">
+    <a href={url} target="_blank" rel="noopener noreferrer" className="btn-retailer">
+      <div className="retailer-top">
         <span className="retailer-dot" style={{ background: r.color }} />
-        <span style={{ color: r.color }}>{r.label}</span>
+        <span className="retailer-name" style={{ color: r.color }}>{r.label}</span>
+        {price && <span className="retailer-price">{price}</span>}
       </div>
-      <OrnamentPlaceholder shape={ornamentShape} color={color} />
-      <div className="product-price">{price ?? '—'}</div>
-      <a
-        href={url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="btn-deck-it"
-      >
-        Deck it. Buy it.
-      </a>
-    </div>
+      <span className="deck-it-cta">Deck it. Buy it.</span>
+    </a>
   )
 }
 
@@ -205,7 +197,7 @@ function RecommendationCard({ item, index }) {
         </div>
       </div>
       {item.whyPerfect && <p className="rec-why">✦ {item.whyPerfect}</p>}
-      <div className="product-cards-grid">
+      <div className="shop-card-retailers">
         {RETAILERS.map(r => (
           <ProductCard
             key={r.key}
