@@ -105,20 +105,20 @@ function generateClusteredPlacements(n, bounds) {
   // Middle: 1 medium cluster × 3–4 = 3–4 middle ornaments
   // Bottom: 1 large cluster × 3–4 = 3–4 base ornaments
   const CLUSTERS = [
-    // Top zone (Zone A) - small ornaments deep
-    { yF: 0.10, xBias:  0.00, size: 2, rMin: 0.8, rMax: 1.0 },
-    { yF: 0.18, xBias: -0.30, size: 2, rMin: 0.9, rMax: 1.1 },
-    { yF: 0.25, xBias:  0.35, size: 2, rMin: 0.9, rMax: 1.2 },
-    // Middle zone (Zone B) - medium ornaments
-    { yF: 0.38, xBias: -0.25, size: 3, rMin: 1.2, rMax: 1.6 },
-    { yF: 0.45, xBias:  0.30, size: 3, rMin: 1.3, rMax: 1.7 },
-    { yF: 0.55, xBias: -0.10, size: 3, rMin: 1.4, rMax: 1.8 },
-    { yF: 0.62, xBias:  0.20, size: 3, rMin: 1.4, rMax: 1.8 },
-    // Bottom zone (Zone C) - large ornaments outer
-    { yF: 0.72, xBias: -0.35, size: 3, rMin: 1.8, rMax: 2.4 },
-    { yF: 0.78, xBias:  0.30, size: 3, rMin: 1.9, rMax: 2.5 },
-    { yF: 0.85, xBias:  0.00, size: 4, rMin: 2.0, rMax: 2.8 },
-  ]  // total capacity = 28; will slice(0, n) for exactly n
+    // Top zone (Zone A) - small ornaments, paired L/R per row
+    { yF: 0.10, xBias: -0.30, size: 2, rMin: 0.8, rMax: 1.0 },
+    { yF: 0.10, xBias:  0.30, size: 2, rMin: 0.8, rMax: 1.0 },
+    { yF: 0.22, xBias: -0.40, size: 2, rMin: 0.9, rMax: 1.1 },
+    { yF: 0.22, xBias:  0.40, size: 2, rMin: 0.9, rMax: 1.1 },
+    // Middle zone (Zone B) - medium ornaments, paired L/R per row
+    { yF: 0.38, xBias: -0.35, size: 3, rMin: 1.2, rMax: 1.6 },
+    { yF: 0.38, xBias:  0.35, size: 3, rMin: 1.2, rMax: 1.6 },
+    { yF: 0.55, xBias: -0.30, size: 3, rMin: 1.3, rMax: 1.7 },
+    { yF: 0.55, xBias:  0.30, size: 3, rMin: 1.3, rMax: 1.7 },
+    // Bottom zone (Zone C) - reduced size, paired L/R
+    { yF: 0.72, xBias: -0.38, size: 3, rMin: 1.4, rMax: 1.8 },
+    { yF: 0.72, xBias:  0.38, size: 3, rMin: 1.4, rMax: 2.0 },
+  ]  // total capacity = 26; will slice(0, n) for exactly n
 
   const { apex, baseL, baseR } = tri
   const positions = []
@@ -129,7 +129,8 @@ function generateClusteredPlacements(n, bounds) {
     const cy            = tri.apex.y + cd.yF * treeH
     const { xMin, xMax } = xRangeAtY(cy, tri)
     const hw            = (xMax - xMin) / 2
-    const cxCenter      = tri.apex.x + hw * cd.xBias  // biased cluster center
+    const jitteredBias  = cd.xBias + (Math.random() - 0.5) * 0.2
+    const cxCenter      = tri.apex.x + hw * jitteredBias  // biased cluster center
 
     // TIGHT scatter radius — keep ornaments very close (dense clustering)
     const sr = Math.min(hw * 0.35, treeH * 0.08)
