@@ -170,34 +170,23 @@ function varietiesForSize(size) {
   return 10  // Medium or unset
 }
 
-function distForVarieties(n) {
-  if (n <= 6)  return '- Ball ornaments (Type 1): 3\n   - Textural objects (Type 2): 1\n   - Statement shapes (Type 3): 1\n   - Reflective accents (Type 4): 1'
-  if (n <= 8)  return '- Ball ornaments (Type 1): 4\n   - Textural objects (Type 2): 2\n   - Statement shapes (Type 3): 1\n   - Reflective accents (Type 4): 1'
-  if (n <= 10) return '- Ball ornaments (Type 1): 5\n   - Textural objects (Type 2): 2\n   - Statement shapes (Type 3): 1\n   - Reflective accents (Type 4): 1\n   - Wildcard (Type 5): 1'
-  return '- Ball ornaments (Type 1): 6\n   - Textural objects (Type 2): 2\n   - Statement shapes (Type 3): 2\n   - Reflective accents (Type 4): 1\n   - Wildcard (Type 5): 1'
-}
-
 function buildOrnamentListPrompt(varieties = 10, treeSize = '') {
   const sizeLine = treeSize ? `Tree size: ${treeSize}. ` : ''
-  return `You are a professional Christmas tree decorator analyzing a specific tree photo.
+  return `You are a professional Christmas tree decorator. Analyze this specific tree photo carefully.
 
-STEP 1 — Choose a color palette before selecting any ornaments. Analyze the room, tree, and any visible decor in the photo. Propose a specific 3-color scheme with one base color (60%), one secondary (30%), and one accent (10%). Every ornament selected must serve this palette. Do not default to red and gold unless the photo specifically suggests it.
+STEP 1 — Read the room. Look at: wall color, floor, furniture, lighting, tree type, any existing decor. Choose a 3-color palette that fits THIS specific environment. Do not default to red and gold unless the photo clearly calls for it.
 
-STEP 2 — Analyze the tree:
-   - What colors are already visible? (lights, garland, existing ornaments, tree type)
-   - Real or artificial? Warm or cool lighting? What aesthetic?
+STEP 2 — Return ONLY a valid JSON object in this exact format. No markdown, no code fences, no explanation before or after:
 
-STEP 3 — Select exactly ${varieties} ornament varieties. ${sizeLine}Each variety will be repeated across 35 placed positions on the tree, so choose distinct looks that work well in multiples — not one-of-a-kind novelties. Return exactly these type counts in this order:
-   ${distForVarieties(varieties)}
-   - 3 shapes ONLY: ball, drop, star
-   - Every ornament must use your Step 1 palette colors
+{"palette":{"base":"#hexcolor","secondary":"#hexcolor","accent":"#hexcolor","description":"one sentence explaining why these colors fit this specific room"},"ornaments":[EXACTLY ${varieties} ITEMS]}
 
-Output format: Your Step 1 palette + Step 2 analysis in plain text (3–4 sentences). Then "---". Then ONLY a valid JSON array of exactly ${varieties} ornaments. No markdown, no code fences.
-
-Each ornament:
+Each ornament must use ONLY the palette colors above:
 {"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"target":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}
 
-Return exactly ${varieties} items as a JSON array after the --- divider.`
+Type distribution for ${varieties} ornaments: ${sizeLine}
+- 50% balls, 20% drops, 20% stars, 10% wildcard shape
+- Every single ornament color must be one of the three palette hex values — no exceptions
+- Vary finish descriptions in names (matte, satin, glitter, mercury, velvet) but keep colors disciplined`
 }
 
 const RETAILERS = [
@@ -500,6 +489,7 @@ export default function TreeAdvisor() {
   const [overlayLoading, setOverlayLoading] = useState(false)
   const [rawOverlay,     setRawOverlay]     = useState('')
   const [ornaments,      setOrnaments]      = useState([])
+  const [palette,        setPalette]        = useState(null)
   const [showShop,       setShowShop]       = useState(false)
   const [overlayError,   setOverlayError]   = useState('')
   const [shareLoading,   setShareLoading]   = useState(false)
@@ -521,44 +511,55 @@ export default function TreeAdvisor() {
     }, delay)
   }, [])
 
-  // Robust JSON array extractor — finds the outermost [...] by bracket depth counting.
-  // More reliable than indexOf/lastIndexOf which breaks if AI adds trailing explanation text.
-  function extractJsonArray(text) {
-    // Prefer searching after the --- divider; fall back to full text
-    const dividerIdx = text.indexOf('---')
-    const searchIn = dividerIdx !== -1 ? text.substring(dividerIdx + 3) : text
-    console.log('[overlay] extractJsonArray: searching', searchIn.length, 'chars after divider at', dividerIdx)
-
+  // Bracket-depth scanner — finds the outermost instance of opener/closer in text.
+  function scanBalanced(text, opener, closer) {
     let i = 0
-    while (i < searchIn.length) {
-      const start = searchIn.indexOf('[', i)
+    while (i < text.length) {
+      const start = text.indexOf(opener, i)
       if (start === -1) break
       let depth = 0, j = start, inString = false, escape = false
-      while (j < searchIn.length) {
-        const ch = searchIn[j]
-        if (escape)             { escape = false }
-        else if (ch === '\\')   { escape = true }
-        else if (ch === '"')    { inString = !inString }
+      while (j < text.length) {
+        const ch = text[j]
+        if (escape)           { escape = false }
+        else if (ch === '\\') { escape = true }
+        else if (ch === '"')  { inString = !inString }
         else if (!inString) {
-          if      (ch === '[') depth++
-          else if (ch === ']') { depth--; if (depth === 0) break }
+          if      (ch === opener) depth++
+          else if (ch === closer) { depth--; if (depth === 0) break }
         }
         j++
       }
       if (depth === 0) {
         try {
-          const arr = JSON.parse(searchIn.slice(start, j + 1))
-          if (Array.isArray(arr) && arr.length > 0) {
-            console.log('[overlay] extractJsonArray: found valid array of', arr.length, 'items')
-            return arr
-          }
-        } catch (parseErr) {
-          console.warn('[overlay] extractJsonArray: parse attempt failed at offset', start, parseErr.message)
-        }
+          const parsed = JSON.parse(text.slice(start, j + 1))
+          return parsed
+        } catch {}
       }
       i = start + 1
     }
-    throw new Error('No valid JSON array found in response')
+    return null
+  }
+
+  // Extract {palette, ornaments} from new single-object response format.
+  // Falls back to bare [...] array for backward compatibility.
+  function extractOrnamentResponse(text) {
+    console.log('[overlay] extractOrnamentResponse: scanning', text.length, 'chars')
+
+    // Try outermost {...} object first
+    const obj = scanBalanced(text, '{', '}')
+    if (obj && Array.isArray(obj.ornaments) && obj.ornaments.length > 0) {
+      console.log('[overlay] found object with palette:', obj.palette, 'and', obj.ornaments.length, 'ornaments')
+      return { palette: obj.palette || null, ornaments: obj.ornaments }
+    }
+
+    // Fallback: bare [...] array (old format)
+    const arr = scanBalanced(text, '[', ']')
+    if (Array.isArray(arr) && arr.length > 0) {
+      console.log('[overlay] fallback: found bare array of', arr.length, 'items')
+      return { palette: null, ornaments: arr }
+    }
+
+    throw new Error('No valid ornament response found')
   }
 
   // Parse ornament metadata once overlay stream finishes
@@ -567,12 +568,13 @@ export default function TreeAdvisor() {
     console.log('[overlay] parse useEffect: rawOverlay length =', rawOverlay.length)
     const OVERLAY_COUNT = 35
     try {
-      const meta      = extractJsonArray(rawOverlay)
+      const { palette: pal, ornaments: meta } = extractOrnamentResponse(rawOverlay)
       console.log('[overlay] ornament metadata parsed OK —', meta.length, 'varieties')
+      setPalette(pal)
+
       const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
       console.log('[overlay] positions generated —', positions.length, 'placements, bounds:', treeBoundsRef.current)
-      // Expand varieties → 35 placed ornaments by cycling through meta
-      const placed    = positions.map((pos, i) => ({ ...meta[i % meta.length], ...pos }))
+      const placed = positions.map((pos, i) => ({ ...meta[i % meta.length], ...pos }))
       setOrnaments(placed)
 
       if (image && result) {
@@ -612,7 +614,7 @@ export default function TreeAdvisor() {
       setImage({ preview: reader.result, base64: reader.result.split(',')[1], mediaType: file.type })
       setResult('')
       setError('')
-      setOrnaments([])
+      setOrnaments([]); setPalette(null)
       setRawOverlay('')
       setOverlayError('')
       setShowShop(false)
@@ -631,7 +633,7 @@ export default function TreeAdvisor() {
     setLoading(true)
     setResult('')
     setError('')
-    setOrnaments([])
+    setOrnaments([]); setPalette(null)
     setRawOverlay('')
     setOverlayError('')
     setShowShop(false)
@@ -904,7 +906,7 @@ export default function TreeAdvisor() {
 
           {image && (
             <div className="action-row">
-              <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setRawOverlay(''); setShowShop(false) }}>
+              <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setPalette(null); setRawOverlay(''); setShowShop(false) }}>
                 Remove Photo
               </button>
               <button className="btn-primary" onClick={handleAnalyze} disabled={loading}>
@@ -978,12 +980,16 @@ export default function TreeAdvisor() {
 
           <div className="overlay-label-row">
             <span className="overlay-eyebrow">✦ Your tree, decorated</span>
-            <button className="btn-ghost-sm" onClick={() => { setOrnaments([]); setRawOverlay(''); setShowShop(false) }}>
+            <button className="btn-ghost-sm" onClick={() => { setOrnaments([]); setPalette(null); setRawOverlay(''); setShowShop(false) }}>
               Start over
             </button>
           </div>
 
           <BeforeAfterSlider image={image} ornaments={ornaments} />
+
+          {palette?.description && (
+            <p className="palette-description">✦ {palette.description}</p>
+          )}
 
           <div className="ornament-legend">
             {ornaments

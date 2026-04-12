@@ -874,6 +874,14 @@ a { text-decoration: none; color: inherit; }
 }
 .ornament-pin svg { display: block; width: 100%; height: auto; }
 
+.palette-description {
+  font-size: 0.82rem;
+  color: var(--gold);
+  font-style: italic;
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
 .ornament-legend {
   display: flex;
   flex-wrap: wrap;
