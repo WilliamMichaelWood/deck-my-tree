@@ -105,8 +105,11 @@ function generateClusteredPlacements(n, bounds) {
   // Middle: 1 medium cluster × 3–4 = 3–4 middle ornaments
   // Bottom: 1 large cluster × 3–4 = 3–4 base ornaments
   const CLUSTERS = [
-    // Zone A — Top (small, tight) — rMin/rMax unchanged
-    { yF: 0.08, xBias:  0.00, size: 3, rMin: 1.8, rMax: 2.2 },
+    // Zone A — Very top (new, tiny)
+    { yF: 0.04, xBias:  0.00, size: 2, rMin: 1.4, rMax: 1.6 },
+    { yF: 0.08, xBias: -0.15, size: 2, rMin: 1.5, rMax: 1.8 },
+    { yF: 0.08, xBias:  0.15, size: 2, rMin: 1.5, rMax: 1.8 },
+    // Zone A — Top (small, tight)
     { yF: 0.14, xBias: -0.35, size: 4, rMin: 1.8, rMax: 2.2 },
     { yF: 0.14, xBias:  0.35, size: 4, rMin: 1.8, rMax: 2.2 },
     { yF: 0.20, xBias: -0.49, size: 4, rMin: 1.9, rMax: 2.3 },
@@ -119,14 +122,15 @@ function generateClusteredPlacements(n, bounds) {
     { yF: 0.50, xBias:  0.00, size: 5, rMin: 1.8, rMax: 2.4 },
     { yF: 0.55, xBias: -0.35, size: 5, rMin: 1.8, rMax: 2.4 },
     { yF: 0.55, xBias:  0.35, size: 5, rMin: 1.8, rMax: 2.4 },
-    // Zone C — Bottom — rMax capped 2.8, rMin 2.2
-    { yF: 0.65, xBias: -0.42, size: 6, rMin: 2.2, rMax: 2.8 },
-    { yF: 0.65, xBias:  0.42, size: 6, rMin: 2.2, rMax: 2.8 },
-    { yF: 0.75, xBias: -0.28, size: 6, rMin: 2.2, rMax: 2.8 },
-    { yF: 0.75, xBias:  0.28, size: 6, rMin: 2.2, rMax: 2.8 },
-    { yF: 0.83, xBias:  0.00, size: 7, rMin: 2.2, rMax: 2.8 },
-  ]  // total capacity = 85; will slice(0, n) for exactly n
+    // Zone C — Bottom — rMax hard-capped 2.4, rMin 1.8
+    { yF: 0.65, xBias: -0.42, size: 6, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.65, xBias:  0.42, size: 6, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.75, xBias: -0.28, size: 6, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.75, xBias:  0.28, size: 6, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.83, xBias:  0.00, size: 7, rMin: 1.8, rMax: 2.4 },
+  ]  // total capacity = 91; will slice(0, n) for exactly n
 
+  const MIN_DIST = 3.5  // minimum distance between ornament centers (% units)
   const { apex, baseL, baseR } = tri
   const positions = []
 
@@ -139,27 +143,37 @@ function generateClusteredPlacements(n, bounds) {
     const jitteredBias  = cd.xBias + (Math.random() - 0.5) * 0.2
     const cxCenter      = tri.apex.x + hw * jitteredBias  // biased cluster center
 
-    // TIGHT scatter radius — keep ornaments very close (dense clustering)
     const sr = Math.min(hw * 0.50, treeH * 0.12)
 
     for (let j = 0; j < cd.size && positions.length < n; j++) {
-      // Tighter angular spread (less rotation jitter)
-      const angle = (j / cd.size) * Math.PI * 2 + (Math.random() - 0.5) * 0.4
-      const dist  = sr * (0.3 + Math.random() * 0.7)  // stay very close to center
-      const rawX  = cxCenter + Math.cos(angle) * dist
-      const rawY  = cy       + Math.sin(angle) * dist * 0.55  // flatten vertically
+      let safeX, y, r
+      let placed = false
 
-      // Clamp to triangle boundary
-      const { xMin: lo, xMax: hi } = xRangeAtY(rawY, tri)
-      const cx2 = tri.apex.x
-      const x = Math.max(lo + 0.4, Math.min(hi - 0.4, rawX))
-      const y = Math.max(tri.apex.y, Math.min(tri.baseL.y, rawY))
+      // Up to 8 attempts to find a position that respects MIN_DIST from all existing ornaments
+      for (let attempt = 0; attempt < 8; attempt++) {
+        const angle = (j / cd.size) * Math.PI * 2 + (Math.random() - 0.5) * 0.4
+        const dist  = sr * (0.3 + Math.random() * 0.7)
+        const rawX  = cxCenter + Math.cos(angle) * dist
+        const rawY  = cy       + Math.sin(angle) * dist * 0.55
 
-      // PIT check — safety net
-      const safeX = pointInTriangle(x, y, apex.x, apex.y, baseL.x, baseL.y, baseR.x, baseR.y)
-        ? x : cx2
+        const { xMin: lo, xMax: hi } = xRangeAtY(rawY, tri)
+        const cx2 = tri.apex.x
+        const cx3 = Math.max(lo + 0.4, Math.min(hi - 0.4, rawX))
+        const cy3 = Math.max(tri.apex.y, Math.min(tri.baseL.y, rawY))
+        safeX = pointInTriangle(cx3, cy3, apex.x, apex.y, baseL.x, baseL.y, baseR.x, baseR.y)
+          ? cx3 : cx2
+        y = cy3
 
-      const r = +(cd.rMin + Math.random() * (cd.rMax - cd.rMin)).toFixed(1)
+        // Check minimum distance against all already-placed ornaments
+        const tooClose = positions.some(p => {
+          const dx = p.x - safeX, dy = p.y - y
+          return Math.sqrt(dx * dx + dy * dy) < MIN_DIST
+        })
+        if (!tooClose) { placed = true; break }
+      }
+      // Accept last attempt regardless (prevents starvation at high density)
+
+      r = +(cd.rMin + Math.random() * (cd.rMax - cd.rMin)).toFixed(1)
       const z = Math.round(8 + Math.random() * 84)
       positions.push({ x: +safeX.toFixed(1), y: +y.toFixed(1), r, z })
     }
