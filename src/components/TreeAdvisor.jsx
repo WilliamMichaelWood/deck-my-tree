@@ -684,12 +684,13 @@ export default function TreeAdvisor() {
       // Step 2 — get ornament metadata (no coordinates — placed client-side)
       // If the full 28-ornament request fails, retry with 15
       const runOrnamentStream = async (count) => {
-        console.log(`[overlay] Step 2: requesting ${count} ornaments`)
+        const prompt = buildOrnamentListPrompt(count)
+        console.log(`[overlay] Step 2: requesting ${count} ornaments — full prompt:\n`, prompt)
         let accumulated = ''
         await streamChat({
           messages: [{ role: 'user', content: [
             { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
-            { type: 'text', text: buildOrnamentListPrompt(count) },
+            { type: 'text', text: prompt },
           ]}],
           maxTokens: count >= 28 ? 6000 : 3000,
           onText: (text) => { accumulated += text; setRawOverlay(prev => prev + text) },
