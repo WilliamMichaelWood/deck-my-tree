@@ -105,20 +105,27 @@ function generateClusteredPlacements(n, bounds) {
   // Middle: 1 medium cluster × 3–4 = 3–4 middle ornaments
   // Bottom: 1 large cluster × 3–4 = 3–4 base ornaments
   const CLUSTERS = [
-    // Top zone (Zone A) - small ornaments, paired L/R per row
-    { yF: 0.10, xBias: -0.30, size: 2, rMin: 0.8, rMax: 1.0 },
-    { yF: 0.10, xBias:  0.30, size: 2, rMin: 0.8, rMax: 1.0 },
-    { yF: 0.22, xBias: -0.40, size: 2, rMin: 0.9, rMax: 1.1 },
-    { yF: 0.22, xBias:  0.40, size: 2, rMin: 0.9, rMax: 1.1 },
-    // Middle zone (Zone B) - medium ornaments, paired L/R per row
-    { yF: 0.38, xBias: -0.35, size: 3, rMin: 1.2, rMax: 1.6 },
-    { yF: 0.38, xBias:  0.35, size: 3, rMin: 1.2, rMax: 1.6 },
-    { yF: 0.55, xBias: -0.30, size: 3, rMin: 1.3, rMax: 1.7 },
-    { yF: 0.55, xBias:  0.30, size: 3, rMin: 1.3, rMax: 1.7 },
-    // Bottom zone (Zone C) - reduced size, paired L/R
-    { yF: 0.72, xBias: -0.38, size: 3, rMin: 1.4, rMax: 1.8 },
-    { yF: 0.72, xBias:  0.38, size: 3, rMin: 1.4, rMax: 2.0 },
-  ]  // total capacity = 26; will slice(0, n) for exactly n
+    // Zone A — Top (small, tight)
+    { yF: 0.08, xBias:  0.00, size: 3, rMin: 1.8, rMax: 2.2 },
+    { yF: 0.14, xBias: -0.25, size: 4, rMin: 1.8, rMax: 2.2 },
+    { yF: 0.14, xBias:  0.25, size: 4, rMin: 1.8, rMax: 2.2 },
+    { yF: 0.20, xBias: -0.35, size: 4, rMin: 1.9, rMax: 2.3 },
+    { yF: 0.20, xBias:  0.35, size: 4, rMin: 1.9, rMax: 2.3 },
+    // Zone B — Middle (medium)
+    { yF: 0.30, xBias: -0.20, size: 5, rMin: 2.2, rMax: 2.8 },
+    { yF: 0.30, xBias:  0.20, size: 5, rMin: 2.2, rMax: 2.8 },
+    { yF: 0.40, xBias: -0.30, size: 5, rMin: 2.4, rMax: 3.0 },
+    { yF: 0.40, xBias:  0.30, size: 5, rMin: 2.4, rMax: 3.0 },
+    { yF: 0.50, xBias:  0.00, size: 5, rMin: 2.4, rMax: 3.0 },
+    { yF: 0.55, xBias: -0.25, size: 5, rMin: 2.6, rMax: 3.2 },
+    { yF: 0.55, xBias:  0.25, size: 5, rMin: 2.6, rMax: 3.2 },
+    // Zone C — Bottom (large)
+    { yF: 0.65, xBias: -0.30, size: 6, rMin: 2.8, rMax: 3.6 },
+    { yF: 0.65, xBias:  0.30, size: 6, rMin: 2.8, rMax: 3.6 },
+    { yF: 0.75, xBias: -0.20, size: 6, rMin: 3.0, rMax: 3.8 },
+    { yF: 0.75, xBias:  0.20, size: 6, rMin: 3.0, rMax: 3.8 },
+    { yF: 0.83, xBias:  0.00, size: 7, rMin: 3.2, rMax: 4.0 },
+  ]  // total capacity = 85; will slice(0, n) for exactly n
 
   const { apex, baseL, baseR } = tri
   const positions = []
@@ -319,11 +326,11 @@ function renderOrnamentLayer(ornaments) {
     const yp = 0.74 + (o.y / 100) * 0.48
     let ds, op, fl, zi
     // Back layer: 60% opacity, 15% smaller, darkened
-    if      (z < 34) { ds = 0.85; op = 0.60; fl = 'brightness(0.65)';                        zi = 10 + Math.round(z * 0.7) }
+    if      (z < 34) { ds = 0.85; op = 0.60; fl = 'brightness(0.65) drop-shadow(0px 2px 4px rgba(0,0,0,0.6))';  zi = 10 + Math.round(z * 0.7) }
     // Mid layer: 80% opacity, normal size
-    else if (z < 67) { ds = 1.00; op = 0.80; fl = undefined;                                 zi = 40 + Math.round((z - 34) * 0.9) }
-    // Front layer: 100% opacity, 10% larger, drop shadow
-    else             { ds = 1.10; op = 1.00; fl = 'drop-shadow(0 3px 10px rgba(0,0,0,0.52))'; zi = 70 + Math.round((z - 67) * 0.9) }
+    else if (z < 67) { ds = 1.00; op = 0.80; fl = 'drop-shadow(0px 2px 4px rgba(0,0,0,0.6))';                   zi = 40 + Math.round((z - 34) * 0.9) }
+    // Front layer: 100% opacity, 10% larger, stronger drop shadow
+    else             { ds = 1.10; op = 1.00; fl = 'drop-shadow(0px 2px 4px rgba(0,0,0,0.6))';                   zi = 70 + Math.round((z - 67) * 0.9) }
     return (
       <div key={i} className="ornament-pin" title={o.label} style={{
         left: `${o.x}%`, top: `${o.y}%`,
@@ -566,7 +573,7 @@ export default function TreeAdvisor() {
   useEffect(() => {
     if (!rawOverlay || overlayLoading) return
     console.log('[overlay] parse useEffect: rawOverlay length =', rawOverlay.length)
-    const OVERLAY_COUNT = 35
+    const OVERLAY_COUNT = 80
     try {
       const { palette: pal, ornaments: meta } = extractOrnamentResponse(rawOverlay)
       console.log('[overlay] ornament metadata parsed OK —', meta.length, 'varieties')
@@ -575,6 +582,7 @@ export default function TreeAdvisor() {
       const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
       console.log('[overlay] positions generated —', positions.length, 'placements, bounds:', treeBoundsRef.current)
       const placed = positions.map((pos, i) => ({ ...meta[i % meta.length], ...pos }))
+      console.log('[overlay] final placed array length:', placed.length)
       setOrnaments(placed)
 
       if (image && result) {
