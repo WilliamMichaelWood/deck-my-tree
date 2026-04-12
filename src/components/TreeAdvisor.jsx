@@ -161,36 +161,43 @@ function generateClusteredPlacements(n, bounds) {
   return positions.slice(0, n)
 }
 
-function buildOrnamentListPrompt(count = 28) {
-  const isReduced = count < 28
-  const dist = isReduced
-    ? `- Ball ornaments (Type 1): 7 items\n   - Textural objects (Type 2): 3 items\n   - Statement shapes (Type 3): 2 items\n   - Reflective accents (Type 4): 2 items\n   - Wildcard (Type 5): 1 item`
-    : `- Ball ornaments (Type 1): 14 items — vary finish: matte, satin, glitter, mercury glass, velvet\n   - Textural objects (Type 2): 5 items — wood, rope, woven, felt, burlap\n   - Statement shapes (Type 3): 4 items — stars, animals, sculptural, novelty\n   - Reflective accents (Type 4): 3 items — metallics, glitter glass, mirror finish\n   - Wildcard (Type 5): 2 items — unexpected elements that make the tree memorable`
-  return `You are a professional Christmas tree decorator analyzing a specific tree photo. Your job is to:
+const TREE_SIZES = ['Tabletop', 'Small', 'Medium', 'Large', 'XL']
 
-1. ANALYZE THIS TREE:
-   - What colors are already visible? (lights, stand, existing ornaments, garland, tree type)
-   - Is it real or artificial?
-   - What's the lighting? (warm/cool)
-   - What aesthetic does it have? (traditional, modern, rustic, eclectic)
+function varietiesForSize(size) {
+  if (size === 'Tabletop') return 6
+  if (size === 'Small')    return 8
+  if (size === 'Large' || size === 'XL') return 12
+  return 10  // Medium or unset
+}
 
-2. RECOMMEND A COLOR PALETTE:
-   - Choose 3–4 hex colors that complement what you see
-   - Explain briefly WHY these colors work (e.g., "warm golds echo the yellow lights")
-   - Distribution: base color (5), secondary (4), accent (2–3)
+function distForVarieties(n) {
+  if (n <= 6)  return '- Ball ornaments (Type 1): 3\n   - Textural objects (Type 2): 1\n   - Statement shapes (Type 3): 1\n   - Reflective accents (Type 4): 1'
+  if (n <= 8)  return '- Ball ornaments (Type 1): 4\n   - Textural objects (Type 2): 2\n   - Statement shapes (Type 3): 1\n   - Reflective accents (Type 4): 1'
+  if (n <= 10) return '- Ball ornaments (Type 1): 5\n   - Textural objects (Type 2): 2\n   - Statement shapes (Type 3): 1\n   - Reflective accents (Type 4): 1\n   - Wildcard (Type 5): 1'
+  return '- Ball ornaments (Type 1): 6\n   - Textural objects (Type 2): 2\n   - Statement shapes (Type 3): 2\n   - Reflective accents (Type 4): 1\n   - Wildcard (Type 5): 1'
+}
 
-3. SUGGEST ${count} ORNAMENTS using the five-type system — return exactly these counts in this order:
-   ${dist}
+function buildOrnamentListPrompt(varieties = 10, treeSize = '') {
+  const sizeLine = treeSize ? `Tree size: ${treeSize}. ` : ''
+  return `You are a professional Christmas tree decorator analyzing a specific tree photo.
+
+STEP 1 — Choose a color palette before selecting any ornaments. Analyze the room, tree, and any visible decor in the photo. Propose a specific 3-color scheme with one base color (60%), one secondary (30%), and one accent (10%). Every ornament selected must serve this palette. Do not default to red and gold unless the photo specifically suggests it.
+
+STEP 2 — Analyze the tree:
+   - What colors are already visible? (lights, garland, existing ornaments, tree type)
+   - Real or artificial? Warm or cool lighting? What aesthetic?
+
+STEP 3 — Select exactly ${varieties} ornament varieties. ${sizeLine}Each variety will be repeated across 35 placed positions on the tree, so choose distinct looks that work well in multiples — not one-of-a-kind novelties. Return exactly these type counts in this order:
+   ${distForVarieties(varieties)}
    - 3 shapes ONLY: ball, drop, star
-   - Sizes: small (top), medium (middle), large (bottom)
-   - Use only your recommended palette
+   - Every ornament must use your Step 1 palette colors
 
-Output format: First, your analysis and color recommendation in plain text (2–3 sentences). Then "---". Then ONLY a valid JSON array of exactly ${count} ornaments. No markdown, no code fences.
+Output format: Your Step 1 palette + Step 2 analysis in plain text (3–4 sentences). Then "---". Then ONLY a valid JSON array of exactly ${varieties} ornaments. No markdown, no code fences.
 
 Each ornament:
 {"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"target":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}
 
-Return exactly ${count} items as a JSON array after the --- divider.`
+Return exactly ${varieties} items as a JSON array after the --- divider.`
 }
 
 const RETAILERS = [
@@ -489,6 +496,7 @@ export default function TreeAdvisor() {
   const [result,         setResult]         = useState('')
   const [error,          setError]          = useState('')
   const [dragging,       setDragging]       = useState(false)
+  const [treeSize,       setTreeSize]       = useState('')
   const [overlayLoading, setOverlayLoading] = useState(false)
   const [rawOverlay,     setRawOverlay]     = useState('')
   const [ornaments,      setOrnaments]      = useState([])
@@ -557,12 +565,14 @@ export default function TreeAdvisor() {
   useEffect(() => {
     if (!rawOverlay || overlayLoading) return
     console.log('[overlay] parse useEffect: rawOverlay length =', rawOverlay.length)
+    const OVERLAY_COUNT = 35
     try {
       const meta      = extractJsonArray(rawOverlay)
-      console.log('[overlay] ornament metadata parsed OK —', meta.length, 'items')
-      const positions = generateClusteredPlacements(Math.min(meta.length, 28), treeBoundsRef.current)
+      console.log('[overlay] ornament metadata parsed OK —', meta.length, 'varieties')
+      const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
       console.log('[overlay] positions generated —', positions.length, 'placements, bounds:', treeBoundsRef.current)
-      const placed    = meta.map((o, i) => ({ ...o, ...positions[i] }))
+      // Expand varieties → 35 placed ornaments by cycling through meta
+      const placed    = positions.map((pos, i) => ({ ...meta[i % meta.length], ...pos }))
       setOrnaments(placed)
 
       if (image && result) {
@@ -682,33 +692,34 @@ export default function TreeAdvisor() {
         console.warn('[overlay] Step 1: bounds parse error — using defaults:', parseErr.message)
       }
 
-      // Step 2 — get ornament metadata (no coordinates — placed client-side)
-      // If the full 28-ornament request fails, retry with 15
-      const runOrnamentStream = async (count) => {
-        const prompt = buildOrnamentListPrompt(count)
-        console.log(`[overlay] Step 2: requesting ${count} ornaments — full prompt:\n`, prompt)
+      // Step 2 — get ornament varieties (no coordinates — placed client-side, expanded to 35)
+      // If the primary request fails, retry with 6 varieties (minimum)
+      const varieties = varietiesForSize(treeSize)
+      const runOrnamentStream = async (v) => {
+        const prompt = buildOrnamentListPrompt(v, treeSize)
+        console.log(`[overlay] Step 2: requesting ${v} varieties (tree: "${treeSize || 'unset'}") — full prompt:\n`, prompt)
         let accumulated = ''
         await streamChat({
           messages: [{ role: 'user', content: [
             { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
             { type: 'text', text: prompt },
           ]}],
-          maxTokens: count >= 28 ? 6000 : 3000,
+          maxTokens: 2500,
           onText: (text) => { accumulated += text; setRawOverlay(prev => prev + text) },
         })
-        console.log(`[overlay] Step 2 (count=${count}): stream complete, total chars:`, accumulated.length)
+        console.log(`[overlay] Step 2 (varieties=${v}): stream complete, total chars:`, accumulated.length)
         return accumulated
       }
 
       try {
-        await runOrnamentStream(28)
-      } catch (err28) {
-        console.warn('[overlay] Step 2 (28 ornaments) failed:', err28.message, '— retrying with 15')
+        await runOrnamentStream(varieties)
+      } catch (err) {
+        console.warn(`[overlay] Step 2 (${varieties} varieties) failed:`, err.message, '— retrying with 6')
         setRawOverlay('')   // clear partial response before retry
         try {
-          await runOrnamentStream(15)
-        } catch (err15) {
-          console.error('[overlay] Step 2 retry (15 ornaments) also failed:', err15.message)
+          await runOrnamentStream(6)
+        } catch (err6) {
+          console.error('[overlay] Step 2 retry (6 varieties) also failed:', err6.message)
           throw new Error('ornament_generation')
         }
       }
@@ -874,6 +885,21 @@ export default function TreeAdvisor() {
               onChange={(e) => processFile(e.target.files[0])}
               style={{ display: 'none' }}
             />
+          </div>
+
+          <div className="tree-size-row">
+            <span className="tree-size-label">Tree size</span>
+            <div className="tree-size-pills">
+              {TREE_SIZES.map(s => (
+                <button
+                  key={s}
+                  className={`pill-btn${treeSize === s ? ' selected' : ''}`}
+                  onClick={() => setTreeSize(s)}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
 
           {image && (

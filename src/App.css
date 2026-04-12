@@ -230,6 +230,23 @@ a { text-decoration: none; color: inherit; }
 }
 .tree-preview { width: 100%; max-height: 500px; object-fit: contain; display: block; }
 
+/* ─── Tree Size Selector ─────────────────────────────────────── */
+.tree-size-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.tree-size-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.tree-size-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+
 /* ─── Buttons ────────────────────────────────────────────────── */
 .action-row { display: flex; gap: 12px; flex-wrap: wrap; }
 
