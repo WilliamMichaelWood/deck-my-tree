@@ -130,7 +130,7 @@ function generateClusteredPlacements(n, bounds) {
     { yF: 0.83, xBias:  0.00, size: 7, rMin: 1.8, rMax: 2.4 },
   ]  // total capacity = 91; will slice(0, n) for exactly n
 
-  const MIN_DIST = 3.5  // minimum distance between ornament centers (% units)
+  const MIN_DIST = 4.5  // minimum distance between ornament centers (% units)
   const { apex, baseL, baseR } = tri
   const positions = []
 
@@ -336,98 +336,73 @@ function OrnamentShape({ shape, color }) {
 
 function renderOrnamentLayer(ornaments) {
   return ornaments.map((o, i) => {
-    const z  = o.z ?? 55
-    const yp = 0.74 + (o.y / 100) * 0.48
-    let ds, op, fl, zi
-    // Back layer: 60% opacity, 15% smaller, darkened
-    if      (z < 34) { ds = 0.85; op = 0.60; fl = 'brightness(0.65) drop-shadow(0px 2px 4px rgba(0,0,0,0.6))';  zi = 10 + Math.round(z * 0.7) }
-    // Mid layer: 80% opacity, normal size
-    else if (z < 67) { ds = 1.00; op = 0.80; fl = 'drop-shadow(0px 2px 4px rgba(0,0,0,0.6))';                   zi = 40 + Math.round((z - 34) * 0.9) }
-    // Front layer: 100% opacity, 10% larger, stronger drop shadow
-    else             { ds = 1.10; op = 1.00; fl = 'drop-shadow(0px 2px 4px rgba(0,0,0,0.6))';                   zi = 70 + Math.round((z - 67) * 0.9) }
+    // Every 4th ornament skipped — intentional human-feeling gaps
+    if (i % 4 === 3) return null
+
+    const z     = o.z ?? 55
+    const yF    = o.yF ?? 0.5
+    const shape = o.shape || 'ball'
+
+    // Zone-based depth scaling: A=60%, B=85%, C=100%
+    const zoneScale = yF < 0.35 ? 0.60 : yF < 0.65 ? 0.85 : 1.00
+    const size = o.r * 2 * zoneScale
+
+    // Depth layer opacity + z-index only (size now from zone scale)
+    let op, zi
+    if      (z < 34) { op = 0.60; zi = 10 + Math.round(z * 0.7) }
+    else if (z < 67) { op = 0.80; zi = 40 + Math.round((z - 34) * 0.9) }
+    else             { op = 1.00; zi = 70 + Math.round((z - 67) * 0.9) }
+
+    // White stroke via chained drop-shadow + main shadow; back layer darkened
+    const strokeFilter = 'drop-shadow(0 0 1.5px rgba(255,255,255,0.4)) drop-shadow(0px 3px 6px rgba(0,0,0,0.5))'
+    const svgFilter    = z < 34 ? `brightness(0.65) ${strokeFilter}` : strokeFilter
+
+    const isBallOrDrop = shape === 'ball' || shape === 'drop'
+    const glowRadius   = shape === 'drop' ? '40% 40% 55% 55%' : '50%'
+
     return (
       <div key={i} className="ornament-pin" title={o.label} style={{
         left: `${o.x}%`, top: `${o.y}%`,
-        width: `${o.r * 2 * yp * ds}%`,
-        opacity: op, zIndex: zi, filter: fl,
+        width: `${size}%`,
+        opacity: op, zIndex: zi,
       }}>
-        <OrnamentShape shape={o.shape} color={o.color} />
+        {/* Radial glow — behind SVG, color matches ornament */}
+        <div style={{
+          position: 'absolute', inset: '-20%',
+          borderRadius: glowRadius,
+          background: o.color, opacity: 0.25,
+          filter: 'blur(6px)', pointerEvents: 'none',
+        }} />
+
+        {/* Ornament SVG with stroke + shadow filter */}
+        <div style={{ position: 'relative', filter: svgFilter }}>
+          <OrnamentShape shape={shape} color={o.color} />
+        </div>
+
+        {/* Specular highlight — ball and drop only */}
+        {isBallOrDrop && (
+          <div style={{
+            position: 'absolute',
+            top:    shape === 'drop' ? '28%' : '20%',
+            left:   '22%',
+            width:  shape === 'drop' ? '22%' : '30%',
+            height: shape === 'drop' ? '30%' : '22%',
+            background: 'white', opacity: 0.25,
+            borderRadius: '50%',
+            transform: 'rotate(-20deg)',
+            filter: 'blur(2px)', pointerEvents: 'none',
+          }} />
+        )}
       </div>
     )
   })
 }
 
-function BeforeAfterSlider({ image, ornaments }) {
-  const [pct, setPct]       = useState(38)
-  const [active, setActive] = useState(false)
-  const containerRef = useRef(null)
-  const activeRef    = useRef(false)
-
-  // Animate intro slide so user discovers the interaction
-  useEffect(() => {
-    const t = setTimeout(() => setPct(50), 480)
-    return () => clearTimeout(t)
-  }, [])
-
-  const getX = (e) => e.touches ? e.touches[0].clientX : e.clientX
-
-  const onMove = useCallback((e) => {
-    if (!activeRef.current || !containerRef.current) return
-    if (e.cancelable) e.preventDefault()
-    const rect = containerRef.current.getBoundingClientRect()
-    setPct(Math.max(2, Math.min(98, ((getX(e) - rect.left) / rect.width) * 100)))
-  }, [])
-
-  const onStop = useCallback(() => { activeRef.current = false; setActive(false) }, [])
-
-  const onStart = useCallback((e) => {
-    activeRef.current = true
-    setActive(true)
-    if (e.cancelable) e.preventDefault()
-    const rect = containerRef.current?.getBoundingClientRect()
-    if (rect) setPct(Math.max(2, Math.min(98, ((getX(e) - rect.left) / rect.width) * 100)))
-  }, [])
-
-  useEffect(() => {
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup',   onStop)
-    window.addEventListener('touchmove', onMove, { passive: false })
-    window.addEventListener('touchend',  onStop)
-    return () => {
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup',   onStop)
-      window.removeEventListener('touchmove', onMove)
-      window.removeEventListener('touchend',  onStop)
-    }
-  }, [onMove, onStop])
-
-  const ease = active ? 'none' : 'clip-path 0.55s cubic-bezier(0.4,0,0.2,1)'
-  const posEase = active ? 'none' : 'left 0.55s cubic-bezier(0.4,0,0.2,1)'
-
+function StyledOverlayView({ image, ornaments }) {
   return (
-    <div ref={containerRef} className="ba-slider" onMouseDown={onStart} onTouchStart={onStart}>
-
-      {/* Before — base layer, defines container height */}
-      <div className="ba-before">
-        <img src={image.preview} alt="Before" className="ba-img" draggable={false} />
-        <span className="ba-label ba-label-before">Before</span>
-      </div>
-
-      {/* After — clipped to slider position */}
-      <div className="ba-after" style={{ clipPath: `inset(0 ${100 - pct}% 0 0)`, transition: ease }}>
-        <img src={image.preview} alt="After" className="ba-img ba-img-after" draggable={false} />
-        {renderOrnamentLayer(ornaments)}
-        <span className="ba-label ba-label-after">After ✦</span>
-      </div>
-
-      {/* Gold divider line + circular handle */}
-      <div className="ba-divider" style={{ left: `${pct}%`, transition: posEase }}>
-        <div className="ba-handle">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
-            <path d="M8 4L2 11L8 18M14 4L20 11L14 18" stroke="#0f1f35" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-      </div>
+    <div className="styled-overlay-view">
+      <img src={image.preview} alt="Your tree" className="ba-img" draggable={false} />
+      {renderOrnamentLayer(ornaments)}
     </div>
   )
 }
@@ -587,7 +562,7 @@ export default function TreeAdvisor() {
   useEffect(() => {
     if (!rawOverlay || overlayLoading) return
     console.log('[overlay] parse useEffect: rawOverlay length =', rawOverlay.length)
-    const OVERLAY_COUNT = 80
+    const OVERLAY_COUNT = 55
     try {
       const { palette: pal, ornaments: meta } = extractOrnamentResponse(rawOverlay)
       console.log('[overlay] ornament metadata parsed OK —', meta.length, 'varieties')
@@ -596,6 +571,10 @@ export default function TreeAdvisor() {
       const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
       console.log('[overlay] positions generated —', positions.length, 'placements, bounds:', treeBoundsRef.current)
       const placed = positions.map((pos, i) => {
+        // ±8% jitter applied at generation time for intentional imperfection
+        const jx = (Math.random() - 0.5) * 4  // up to ±2 pp horizontal
+        const jy = (Math.random() - 0.5) * 4  // up to ±2 pp vertical
+        pos = { ...pos, x: pos.x + jx, y: pos.y + jy }
         // Lower Zone C (yF > 0.70): only ball or drop — skip stars
         if (pos.yF > 0.70) {
           for (let k = 0; k < meta.length; k++) {
@@ -1012,13 +991,14 @@ export default function TreeAdvisor() {
         <div className="overlay-section" ref={overlayRef}>
 
           <div className="overlay-label-row">
-            <span className="overlay-eyebrow">✦ Your tree, decorated</span>
+            <span className="overlay-eyebrow">✦ YOUR STYLE DIRECTION</span>
             <button className="btn-ghost-sm" onClick={() => { setOrnaments([]); setPalette(null); setRawOverlay(''); setShowShop(false) }}>
-              Start over
+              Try Another Look
             </button>
           </div>
 
-          <BeforeAfterSlider image={image} ornaments={ornaments} />
+          <StyledOverlayView image={image} ornaments={ornaments} />
+          <p className="overlay-caption">Style preview — tap Sleigh It to shop this look</p>
 
           {palette?.description && (
             <p className="palette-description">✦ {palette.description}</p>
