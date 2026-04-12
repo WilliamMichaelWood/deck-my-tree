@@ -105,14 +105,20 @@ function generateClusteredPlacements(n, bounds) {
   // Middle: 1 medium cluster × 3–4 = 3–4 middle ornaments
   // Bottom: 1 large cluster × 3–4 = 3–4 base ornaments
   const CLUSTERS = [
-    // Top third (yF 0.10–0.25): 2 clusters
-    { yF: 0.12, xBias: -0.40, size: 2, rMin: 1.0, rMax: 1.3 },
-    { yF: 0.22, xBias:  0.45, size: 2, rMin: 1.0, rMax: 1.4 },
-    // Middle third (yF 0.40–0.55): 1 cluster
-    { yF: 0.48, xBias:  0.00, size: 3, rMin: 1.5, rMax: 1.9 },
-    // Bottom third (yF 0.70–0.88): 1 large cluster
-    { yF: 0.80, xBias: -0.20, size: 3, rMin: 2.0, rMax: 2.6 },
-  ]  // total capacity = 10; will slice(0, n) for exactly n
+    // Top zone (Zone A) - small ornaments deep
+    { yF: 0.10, xBias:  0.00, size: 2, rMin: 0.8, rMax: 1.0 },
+    { yF: 0.18, xBias: -0.30, size: 2, rMin: 0.9, rMax: 1.1 },
+    { yF: 0.25, xBias:  0.35, size: 2, rMin: 0.9, rMax: 1.2 },
+    // Middle zone (Zone B) - medium ornaments
+    { yF: 0.38, xBias: -0.25, size: 3, rMin: 1.2, rMax: 1.6 },
+    { yF: 0.45, xBias:  0.30, size: 3, rMin: 1.3, rMax: 1.7 },
+    { yF: 0.55, xBias: -0.10, size: 3, rMin: 1.4, rMax: 1.8 },
+    { yF: 0.62, xBias:  0.20, size: 3, rMin: 1.4, rMax: 1.8 },
+    // Bottom zone (Zone C) - large ornaments outer
+    { yF: 0.72, xBias: -0.35, size: 3, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.78, xBias:  0.30, size: 3, rMin: 1.9, rMax: 2.5 },
+    { yF: 0.85, xBias:  0.00, size: 4, rMin: 2.0, rMax: 2.8 },
+  ]  // total capacity = 28; will slice(0, n) for exactly n
 
   const { apex, baseL, baseR } = tri
   const positions = []
@@ -126,7 +132,7 @@ function generateClusteredPlacements(n, bounds) {
     const cxCenter      = tri.apex.x + hw * cd.xBias  // biased cluster center
 
     // TIGHT scatter radius — keep ornaments very close (dense clustering)
-    const sr = Math.min(hw * 0.15, treeH * 0.035)  // much smaller than before
+    const sr = Math.min(hw * 0.35, treeH * 0.08)
 
     for (let j = 0; j < cd.size && positions.length < n; j++) {
       // Tighter angular spread (less rotation jitter)
@@ -168,18 +174,22 @@ function buildOrnamentListPrompt() {
    - Explain briefly WHY these colors work (e.g., "warm golds echo the yellow lights")
    - Distribution: base color (5), secondary (4), accent (2–3)
 
-3. SUGGEST 12 ORNAMENTS:
+3. SUGGEST 28 ORNAMENTS using the five-type system — return exactly these counts in this order:
+   - Ball ornaments (Type 1): 14 items — vary finish: matte, satin, glitter, mercury glass, velvet
+   - Textural objects (Type 2): 5 items — wood, rope, woven, felt, burlap
+   - Statement shapes (Type 3): 4 items — stars, animals, sculptural, novelty
+   - Reflective accents (Type 4): 3 items — metallics, glitter glass, mirror finish
+   - Wildcard (Type 5): 2 items — unexpected elements that make the tree memorable
    - 3 shapes ONLY: ball, drop, star
    - Sizes: small (top), medium (middle), large (bottom)
-   - Cluster in tight groups of 2–3, not scattered
    - Use only your recommended palette
 
-Output format: First, your analysis and color recommendation in plain text (2–3 sentences). Then "---". Then ONLY a valid JSON array of exactly 12 ornaments. No markdown, no code fences.
+Output format: First, your analysis and color recommendation in plain text (2–3 sentences). Then "---". Then ONLY a valid JSON array of exactly 28 ornaments. No markdown, no code fences.
 
 Each ornament:
 {"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"target":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}
 
-Return exactly 12 items as a JSON array after the --- divider.`
+Return exactly 28 items as a JSON array after the --- divider.`
 }
 
 const RETAILERS = [
@@ -518,7 +528,7 @@ export default function TreeAdvisor() {
       if (start === -1 || end === -1) throw new Error('No JSON array')
       
       const meta      = JSON.parse(jsonPart.slice(start, end + 1))
-      const positions = generateClusteredPlacements(Math.min(meta.length, 12), treeBoundsRef.current)
+      const positions = generateClusteredPlacements(Math.min(meta.length, 28), treeBoundsRef.current)
       const placed    = meta.map((o, i) => ({ ...o, ...positions[i] }))
       setOrnaments(placed)
       
