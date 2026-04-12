@@ -1,226 +1,179 @@
 import { useState, useEffect } from 'react'
 
-// ── CSS keyframes ──────────────────────────────────────────────────────
+// ── Snowflakes — 25 elements with pseudo-random properties ────────────
+const SNOW = Array.from({ length: 25 }, (_, i) => ({
+  left:     `${(i * 37 + 11) % 97}%`,
+  size:     3 + (i % 3),                                   // 3–5 px
+  duration: `${(3 + ((i * 17) % 40) / 10).toFixed(1)}s`,  // 3.0–7.0 s
+  delay:    `${((i * 13) % 70  / 10).toFixed(1)}s`,        // 0–7 s stagger
+  opacity:  +(0.4 + ((i * 5)  % 50) / 100).toFixed(2),    // 0.40–0.85
+}))
+
+// ── Ornament dots — 18 px circles at branch-tip positions ────────────
+// Positions are % of the 200 × 215 px tree container.
+// 🎄 at 180 px is centered in the container; branch edges approximate
+// the emoji's triangular silhouette.
+const ORNAMENTS = [
+  { left: '20%', top: '36%', color: '#9b1c2c', delay: '1.2s' }, // cranberry — left, upper tier
+  { left: '78%', top: '43%', color: '#c9a84c', delay: '1.8s' }, // gold      — right, upper-mid
+  { left: '85%', top: '58%', color: '#f8f4ec', delay: '2.4s' }, // white     — right, mid tier
+  { left: '13%', top: '63%', color: '#e8a0a0', delay: '3.0s' }, // soft pink — left, lower-mid
+  { left: '86%', top: '74%', color: '#1d5c3a', delay: '3.6s' }, // forest green — right, lower
+]
+
+// ── CSS animations ────────────────────────────────────────────────────
 const CSS = `
 @keyframes treeFadeIn {
-  from { opacity: 0; transform: translateY(12px) scale(0.96); }
-  to   { opacity: 1; transform: translateY(0)    scale(1); }
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
 }
-@keyframes ornAppear {
-  0%   { opacity: 0; transform: scale(0.25); }
-  62%  { opacity: 1; transform: scale(1.18); }
-  100% { opacity: 1; transform: scale(1); }
+
+/* Ornaments: translate(-50%,-50%) keeps the dot centered on its left/top point */
+@keyframes ornFadeIn {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.3); }
+  60%  { opacity: 1; transform: translate(-50%,-50%) scale(1.18); }
+  100% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
 }
+
+/* Gold star glow pulse at 4.2 s */
 @keyframes starPulse {
-  0%   { transform: scale(1);    filter: drop-shadow(0 0 4px rgba(240,192,64,0.45)); }
-  42%  { transform: scale(1.42); filter: drop-shadow(0 0 18px #f0c040) drop-shadow(0 0 36px rgba(240,192,64,0.55)); }
-  72%  { transform: scale(1.08); filter: drop-shadow(0 0 9px #f0c040); }
-  100% { transform: scale(1);    filter: drop-shadow(0 0 4px rgba(240,192,64,0.45)); }
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.5);  box-shadow: none; }
+  18%  { opacity: 1; transform: translate(-50%,-50%) scale(1.0);  box-shadow: 0 0 8px #c9a84c; }
+  52%  { transform: translate(-50%,-50%) scale(1.42); box-shadow: 0 0 20px #c9a84c, 0 0 44px rgba(201,168,76,0.50); }
+  78%  { transform: translate(-50%,-50%) scale(1.08); box-shadow: 0 0 10px #c9a84c; }
+  100% { opacity: 1; transform: translate(-50%,-50%) scale(1.0);  box-shadow: 0 0 8px rgba(201,168,76,0.65); }
 }
+
+/* Snowflakes fade in near the top, fall, fade out at the bottom */
+@keyframes snowFall {
+  0%   { transform: translateY(-10px); opacity: 0; }
+  7%   { opacity: 1; }
+  93%  { opacity: 1; }
+  100% { transform: translateY(106vh); opacity: 0; }
+}
+
 @keyframes titleIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
 @keyframes taglineIn {
   from { opacity: 0; }
-  to   { opacity: 0.55; }
+  to   { opacity: 1; }
 }
 `
 
-// ── Ornament data ──────────────────────────────────────────────────────
-// SVG viewBox: 0 0 300 450
-// Tree tiers (tip → base):
-//   T4: (150,36) → lx=95  rx=205  y=125
-//   T3: (150,100)→ lx=65  rx=235  y=210
-//   T2: (150,168)→ lx=30  rx=270  y=300
-//   T1: (150,235)→ lx=8   rx=292  y=388
-//
-// Ornament centers computed at realistic branch-tip positions:
-//   (cx, cy, r, fill, highlightFill, delay)
-const ORN = [
-  // cranberry — right edge of T3, near base  (y=190 → rx≈219)
-  [218, 192, 10, '#9b1c2c', 'rgba(255,175,175,0.45)', '1.2s'],
-  // gold      — left edge of T2, upper-mid   (y=230 → lx≈91)
-  [90,  230, 11, '#c9a84c', 'rgba(255,248,196,0.48)', '1.8s'],
-  // white     — right edge of T1, lower      (y=350 → rx≈259)
-  [258, 350, 10, '#f8f4ec', 'rgba(255,255,255,0.60)', '2.4s'],
-  // soft pink — left edge of T3, upper       (y=160 → lx≈100)
-  [100, 162, 10, '#d4849a', 'rgba(255,208,220,0.48)', '3.0s'],
-  // forest green — left edge of T1, mid      (y=318 → lx≈70)
-  [70,  318, 11, '#1d5c3a', 'rgba(100,220,150,0.38)', '3.6s'],
-]
-
-// ── Gold star polygon ──────────────────────────────────────────────────
-// 5-pointed star: center (150,18), outer R=14, inner R=6
-// Points alternate outer/inner starting from top outer point
-const STAR = '150,4 153.5,13.2 163.3,13.7 155.7,19.9 158.2,29.3 ' +
-             '150,24 141.8,29.3 144.3,19.9 136.7,13.7 146.5,13.2'
-
-// ── Component ──────────────────────────────────────────────────────────
+// ── Component ─────────────────────────────────────────────────────────
 export default function SplashSVG({ onFinish }) {
   const [outerOpacity, setOuterOpacity] = useState(0)
 
   useEffect(() => {
     const t0 = setTimeout(() => setOuterOpacity(1),    50)   // begin fade-in
     const t1 = setTimeout(() => setOuterOpacity(0),  7000)   // begin fade-out
-    const t2 = setTimeout(onFinish,                  7900)   // unmount
+    const t2 = setTimeout(onFinish,                  7900)   // hand off to app
     return () => [t0, t1, t2].forEach(clearTimeout)
   }, [onFinish])
 
   return (
     <div style={{
       position: 'fixed', inset: 0,
+      background: '#0f1f35',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'radial-gradient(ellipse 80% 70% at 50% 38%, #0d1a2e 0%, #060c18 100%)',
       opacity: outerOpacity,
-      transition: outerOpacity === 1 ? 'opacity 0.7s ease' : 'opacity 0.9s ease',
+      transition: outerOpacity === 1 ? 'opacity 0.8s ease' : 'opacity 0.9s ease',
+      overflow: 'hidden',
       userSelect: 'none',
     }}>
       <style>{CSS}</style>
 
-      {/* Content shifted slightly above true center */}
+      {/* ── Snowflakes — z-index 0, behind tree ──────────────── */}
+      {SNOW.map((f, i) => (
+        // Outer div caps the peak opacity for this flake
+        <div key={`sw${i}`} style={{
+          position: 'absolute', left: f.left, top: 0,
+          width: f.size, height: f.size,
+          opacity: f.opacity,
+          zIndex: 0, pointerEvents: 'none',
+        }}>
+          <div style={{
+            width: '100%', height: '100%',
+            borderRadius: '50%',
+            background: '#dde8ff',
+            animation: `snowFall ${f.duration} linear ${f.delay} infinite`,
+          }} />
+        </div>
+      ))}
+
+      {/* ── Main content — z-index 1, slightly above center ──── */}
       <div style={{
+        position: 'relative', zIndex: 1,
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         transform: 'translateY(-8vh)',
       }}>
 
-        {/* ── Tree SVG ── */}
-        <svg
-          viewBox="0 0 300 450"
-          style={{
-            width: '55vw',
-            height: 'auto',
-            display: 'block',
-            overflow: 'visible',
-            flexShrink: 0,
+        {/* Tree container — 200 × 215 px holds emoji + overlays */}
+        <div style={{ position: 'relative', width: 200, height: 215 }}>
+
+          {/* 🎄 emoji */}
+          <div style={{
+            fontSize: 180,
+            lineHeight: 1,
+            textAlign: 'center',
+            width: 200,
             animation: 'treeFadeIn 0.8s ease 0.05s both',
-          }}
-          aria-hidden="true"
-        >
-          <defs>
-            {/* Tier gradients: lighter green at tip → darker at base */}
-            <linearGradient id="spGt4" gradientUnits="userSpaceOnUse" x1="0" y1="36"  x2="0" y2="125">
-              <stop offset="0%"   stopColor="#297f49"/>
-              <stop offset="100%" stopColor="#0e3319"/>
-            </linearGradient>
-            <linearGradient id="spGt3" gradientUnits="userSpaceOnUse" x1="0" y1="100" x2="0" y2="210">
-              <stop offset="0%"   stopColor="#247342"/>
-              <stop offset="100%" stopColor="#0b2d15"/>
-            </linearGradient>
-            <linearGradient id="spGt2" gradientUnits="userSpaceOnUse" x1="0" y1="168" x2="0" y2="300">
-              <stop offset="0%"   stopColor="#20673b"/>
-              <stop offset="100%" stopColor="#092512"/>
-            </linearGradient>
-            <linearGradient id="spGt1" gradientUnits="userSpaceOnUse" x1="0" y1="235" x2="0" y2="388">
-              <stop offset="0%"   stopColor="#1c5a35"/>
-              <stop offset="100%" stopColor="#071d0e"/>
-            </linearGradient>
-            {/* Star fill */}
-            <radialGradient id="spStar" cx="38%" cy="28%" r="68%">
-              <stop offset="0%"   stopColor="#fffde8"/>
-              <stop offset="40%"  stopColor="#f0c040"/>
-              <stop offset="100%" stopColor="#9c7200"/>
-            </radialGradient>
-          </defs>
+          }}>
+            🎄
+          </div>
 
-          {/* ── TREE TIERS (back → front) ── */}
+          {/* Gold glow dot over the star at the tree's peak — pulses at 4.2 s */}
+          <div style={{
+            position: 'absolute',
+            left: '50%', top: '7%',
+            width: 22, height: 22,
+            borderRadius: '50%',
+            background: 'rgba(201,168,76,0.55)',
+            animation: 'starPulse 0.85s cubic-bezier(0.34,1.2,0.64,1) 4.2s both',
+          }} />
 
-          {/* Tier 1 — base, widest */}
-          <polygon points="150,235 8,388 292,388"   fill="url(#spGt1)"/>
-          {/* inner centre shadow for depth */}
-          <polygon points="150,235 82,388 218,388"  fill="#000" opacity="0.07"/>
-
-          {/* Tier 2 */}
-          <polygon points="150,168 30,300 270,300"  fill="url(#spGt2)"/>
-          <polygon points="150,168 97,300 203,300"  fill="#000" opacity="0.07"/>
-
-          {/* Tier 3 */}
-          <polygon points="150,100 65,210 235,210"  fill="url(#spGt3)"/>
-          <polygon points="150,100 111,210 189,210" fill="#000" opacity="0.08"/>
-
-          {/* Tier 4 — topmost */}
-          <polygon points="150,36 95,125 205,125"   fill="url(#spGt4)"/>
-          <polygon points="150,36 126,125 174,125"  fill="#000" opacity="0.09"/>
-
-          {/* ── TRUNK ── */}
-          <rect x="133" y="388" width="34" height="44" rx="4" fill="#1e0a04"/>
-          <rect x="137" y="388" width="22" height="44" rx="2" fill="#3a1508" opacity="0.75"/>
-
-          {/* ── ORNAMENTS ── */}
-          {ORN.map(([cx, cy, r, fill, hl, delay], i) => (
-            <g key={i} style={{
-              transformBox: 'fill-box',
-              transformOrigin: 'center',
-              animation: `ornAppear 0.5s cubic-bezier(0.34,1.56,0.64,1) ${delay} both`,
-            }}>
-              {/* Cap */}
-              <rect
-                x={cx - 2.5} y={cy - r - 7}
-                width="5" height="7" rx="1.5"
-                fill="#8b6914" opacity="0.9"
-              />
-              {/* Ball with glow */}
-              <circle
-                cx={cx} cy={cy} r={r} fill={fill}
-                style={{ filter: `drop-shadow(0 2px 5px rgba(0,0,0,0.55)) drop-shadow(0 0 ${Math.round(r * 0.75)}px ${fill})` }}
-              />
-              {/* Specular highlight */}
-              <ellipse
-                cx={cx - r * 0.28} cy={cy - r * 0.28}
-                rx={r * 0.36} ry={r * 0.24}
-                fill={hl}
-                transform={`rotate(-20,${cx - r * 0.28},${cy - r * 0.28})`}
-              />
-            </g>
+          {/* Ornament dots — appear one by one on the branches */}
+          {ORNAMENTS.map((o, i) => (
+            <div key={i} style={{
+              position: 'absolute',
+              left: o.left, top: o.top,
+              width: 18, height: 18,
+              borderRadius: '50%',
+              background: o.color,
+              boxShadow: `0 2px 8px rgba(0,0,0,0.45), 0 0 8px ${o.color}`,
+              animation: `ornFadeIn 0.4s cubic-bezier(0.34,1.56,0.64,1) ${o.delay} both`,
+            }} />
           ))}
+        </div>
 
-          {/* ── GOLD STAR ── */}
-          {/* The star is always visible (fades in with the tree).
-              At 4.2s the starPulse animation runs: scale up + gold glow. */}
-          <g style={{
-            transformBox: 'fill-box',
-            transformOrigin: 'center',
-            animation: 'starPulse 0.9s ease 4.2s both',
-            filter: 'drop-shadow(0 0 4px rgba(240,192,64,0.4))',
-          }}>
-            <polygon points={STAR} fill="url(#spStar)"/>
-            {/* Bright hot centre */}
-            <circle cx="150" cy="18" r="3.5" fill="#fffef0" opacity="0.88"/>
-          </g>
-
-          {/* Ground shadow */}
-          <ellipse cx="150" cy="436" rx="52" ry="7" fill="#020a04" opacity="0.55"/>
-        </svg>
-
-        {/* ── Title ── fades in at 5.0s */}
+        {/* Title — Playfair Display loaded in index.html, gold */}
         <div style={{
-          marginTop: 20,
-          textAlign: 'center',
-          pointerEvents: 'none',
+          marginTop: 22,
+          color: '#c9a84c',
+          fontFamily: '"Playfair Display", Georgia, serif',
+          fontSize: 'clamp(22px, 6vw, 32px)',
+          fontWeight: 400,
+          letterSpacing: '0.13em',
+          opacity: 0,
+          animation: 'titleIn 0.6s ease 5.0s both',
         }}>
-          <div style={{
-            color: '#e4d4a8',
-            fontSize: 'clamp(15px, 4vw, 22px)',
-            fontWeight: 300,
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            opacity: 0,
-            animation: 'titleIn 0.6s ease 5.0s both',
-          }}>
-            Deck My Tree
-          </div>
-          {/* ── Tagline ── fades in at 5.8s */}
-          <div style={{
-            color: 'rgba(200,185,145,0.55)',
-            fontSize: 'clamp(9px, 2.5vw, 12px)',
-            letterSpacing: '0.26em',
-            marginTop: 6,
-            textTransform: 'uppercase',
-            opacity: 0,
-            animation: 'taglineIn 0.7s ease 5.8s both',
-          }}>
-            Your Holiday Stylist
-          </div>
+          Deck My Tree
+        </div>
+
+        {/* Tagline */}
+        <div style={{
+          marginTop: 9,
+          color: 'rgba(228,212,168,0.62)',
+          fontSize: 'clamp(10px, 2.8vw, 12px)',
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          opacity: 0,
+          animation: 'taglineIn 0.7s ease 5.8s both',
+        }}>
+          Your Personal Holiday Stylist
         </div>
 
       </div>
