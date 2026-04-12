@@ -114,19 +114,19 @@ function generateClusteredPlacements(n, bounds) {
     { yF: 0.14, xBias:  0.35, size: 4, rMin: 1.8, rMax: 2.2 },
     { yF: 0.20, xBias: -0.49, size: 4, rMin: 1.9, rMax: 2.3 },
     { yF: 0.20, xBias:  0.49, size: 4, rMin: 1.9, rMax: 2.3 },
-    // Zone B — Middle — rMax capped 2.4, rMin 1.8
-    { yF: 0.30, xBias: -0.28, size: 5, rMin: 1.8, rMax: 2.4 },
-    { yF: 0.30, xBias:  0.28, size: 5, rMin: 1.8, rMax: 2.4 },
-    { yF: 0.40, xBias: -0.42, size: 5, rMin: 1.8, rMax: 2.4 },
-    { yF: 0.40, xBias:  0.42, size: 5, rMin: 1.8, rMax: 2.4 },
+    // Zone B — Middle — rMax capped 2.4, rMin 1.8; xBias ×1.15
+    { yF: 0.30, xBias: -0.32, size: 5, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.30, xBias:  0.32, size: 5, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.40, xBias: -0.48, size: 5, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.40, xBias:  0.48, size: 5, rMin: 1.8, rMax: 2.4 },
     { yF: 0.50, xBias:  0.00, size: 5, rMin: 1.8, rMax: 2.4 },
-    { yF: 0.55, xBias: -0.35, size: 5, rMin: 1.8, rMax: 2.4 },
-    { yF: 0.55, xBias:  0.35, size: 5, rMin: 1.8, rMax: 2.4 },
-    // Zone C — Bottom — rMax hard-capped 2.4, rMin 1.8
-    { yF: 0.65, xBias: -0.42, size: 6, rMin: 1.8, rMax: 2.4 },
-    { yF: 0.65, xBias:  0.42, size: 6, rMin: 1.8, rMax: 2.4 },
-    { yF: 0.75, xBias: -0.28, size: 6, rMin: 1.8, rMax: 2.4 },
-    { yF: 0.75, xBias:  0.28, size: 6, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.55, xBias: -0.40, size: 5, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.55, xBias:  0.40, size: 5, rMin: 1.8, rMax: 2.4 },
+    // Zone C — Bottom — rMax hard-capped 2.4, rMin 1.8; xBias ×1.15
+    { yF: 0.65, xBias: -0.48, size: 6, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.65, xBias:  0.48, size: 6, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.75, xBias: -0.32, size: 6, rMin: 1.8, rMax: 2.4 },
+    { yF: 0.75, xBias:  0.32, size: 6, rMin: 1.8, rMax: 2.4 },
     { yF: 0.83, xBias:  0.00, size: 7, rMin: 1.8, rMax: 2.4 },
   ]  // total capacity = 91; will slice(0, n) for exactly n
 
@@ -175,7 +175,7 @@ function generateClusteredPlacements(n, bounds) {
 
       r = +(cd.rMin + Math.random() * (cd.rMax - cd.rMin)).toFixed(1)
       const z = Math.round(8 + Math.random() * 84)
-      positions.push({ x: +safeX.toFixed(1), y: +y.toFixed(1), r, z })
+      positions.push({ x: +safeX.toFixed(1), y: +y.toFixed(1), r, z, yF: cd.yF })
     }
   }
 
@@ -595,7 +595,18 @@ export default function TreeAdvisor() {
 
       const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
       console.log('[overlay] positions generated —', positions.length, 'placements, bounds:', treeBoundsRef.current)
-      const placed = positions.map((pos, i) => ({ ...meta[i % meta.length], ...pos }))
+      const placed = positions.map((pos, i) => {
+        // Lower Zone C (yF > 0.70): only ball or drop — skip stars
+        if (pos.yF > 0.70) {
+          for (let k = 0; k < meta.length; k++) {
+            const candidate = meta[(i + k) % meta.length]
+            if (candidate.shape === 'ball' || candidate.shape === 'drop') {
+              return { ...candidate, ...pos }
+            }
+          }
+        }
+        return { ...meta[i % meta.length], ...pos }
+      })
       console.log('[overlay] final placed array length:', placed.length)
       setOrnaments(placed)
 
