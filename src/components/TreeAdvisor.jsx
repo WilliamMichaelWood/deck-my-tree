@@ -160,7 +160,11 @@ function generateClusteredPlacements(n, bounds) {
   return positions.slice(0, n)
 }
 
-function buildOrnamentListPrompt() {
+function buildOrnamentListPrompt(count = 28) {
+  const isReduced = count < 28
+  const dist = isReduced
+    ? `- Ball ornaments (Type 1): 7 items\n   - Textural objects (Type 2): 3 items\n   - Statement shapes (Type 3): 2 items\n   - Reflective accents (Type 4): 2 items\n   - Wildcard (Type 5): 1 item`
+    : `- Ball ornaments (Type 1): 14 items — vary finish: matte, satin, glitter, mercury glass, velvet\n   - Textural objects (Type 2): 5 items — wood, rope, woven, felt, burlap\n   - Statement shapes (Type 3): 4 items — stars, animals, sculptural, novelty\n   - Reflective accents (Type 4): 3 items — metallics, glitter glass, mirror finish\n   - Wildcard (Type 5): 2 items — unexpected elements that make the tree memorable`
   return `You are a professional Christmas tree decorator analyzing a specific tree photo. Your job is to:
 
 1. ANALYZE THIS TREE:
@@ -174,22 +178,18 @@ function buildOrnamentListPrompt() {
    - Explain briefly WHY these colors work (e.g., "warm golds echo the yellow lights")
    - Distribution: base color (5), secondary (4), accent (2–3)
 
-3. SUGGEST 28 ORNAMENTS using the five-type system — return exactly these counts in this order:
-   - Ball ornaments (Type 1): 14 items — vary finish: matte, satin, glitter, mercury glass, velvet
-   - Textural objects (Type 2): 5 items — wood, rope, woven, felt, burlap
-   - Statement shapes (Type 3): 4 items — stars, animals, sculptural, novelty
-   - Reflective accents (Type 4): 3 items — metallics, glitter glass, mirror finish
-   - Wildcard (Type 5): 2 items — unexpected elements that make the tree memorable
+3. SUGGEST ${count} ORNAMENTS using the five-type system — return exactly these counts in this order:
+   ${dist}
    - 3 shapes ONLY: ball, drop, star
    - Sizes: small (top), medium (middle), large (bottom)
    - Use only your recommended palette
 
-Output format: First, your analysis and color recommendation in plain text (2–3 sentences). Then "---". Then ONLY a valid JSON array of exactly 28 ornaments. No markdown, no code fences.
+Output format: First, your analysis and color recommendation in plain text (2–3 sentences). Then "---". Then ONLY a valid JSON array of exactly ${count} ornaments. No markdown, no code fences.
 
 Each ornament:
 {"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"target":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}
 
-Return exactly 28 items as a JSON array after the --- divider.`
+Return exactly ${count} items as a JSON array after the --- divider.`
 }
 
 const RETAILERS = [
@@ -512,33 +512,65 @@ export default function TreeAdvisor() {
     }, delay)
   }, [])
 
+  // Robust JSON array extractor — finds the outermost [...] by bracket depth counting.
+  // More reliable than indexOf/lastIndexOf which breaks if AI adds trailing explanation text.
+  function extractJsonArray(text) {
+    // Prefer searching after the --- divider; fall back to full text
+    const dividerIdx = text.indexOf('---')
+    const searchIn = dividerIdx !== -1 ? text.substring(dividerIdx + 3) : text
+    console.log('[overlay] extractJsonArray: searching', searchIn.length, 'chars after divider at', dividerIdx)
+
+    let i = 0
+    while (i < searchIn.length) {
+      const start = searchIn.indexOf('[', i)
+      if (start === -1) break
+      let depth = 0, j = start, inString = false, escape = false
+      while (j < searchIn.length) {
+        const ch = searchIn[j]
+        if (escape)             { escape = false }
+        else if (ch === '\\')   { escape = true }
+        else if (ch === '"')    { inString = !inString }
+        else if (!inString) {
+          if      (ch === '[') depth++
+          else if (ch === ']') { depth--; if (depth === 0) break }
+        }
+        j++
+      }
+      if (depth === 0) {
+        try {
+          const arr = JSON.parse(searchIn.slice(start, j + 1))
+          if (Array.isArray(arr) && arr.length > 0) {
+            console.log('[overlay] extractJsonArray: found valid array of', arr.length, 'items')
+            return arr
+          }
+        } catch (parseErr) {
+          console.warn('[overlay] extractJsonArray: parse attempt failed at offset', start, parseErr.message)
+        }
+      }
+      i = start + 1
+    }
+    throw new Error('No valid JSON array found in response')
+  }
+
   // Parse ornament metadata once overlay stream finishes
-  // Claude returns: analysis text, then ---, then JSON array of exactly 12 ornaments
   useEffect(() => {
     if (!rawOverlay || overlayLoading) return
+    console.log('[overlay] parse useEffect: rawOverlay length =', rawOverlay.length)
     try {
-      // Split on "---" to separate analysis from JSON
-      const dividerIdx = rawOverlay.indexOf('---')
-      const analysisText = dividerIdx !== -1 ? rawOverlay.substring(0, dividerIdx).trim() : ''
-      const jsonPart = dividerIdx !== -1 ? rawOverlay.substring(dividerIdx + 3) : rawOverlay
-
-      // Extract JSON array from the second half
-      const start = jsonPart.indexOf('[')
-      const end   = jsonPart.lastIndexOf(']')
-      if (start === -1 || end === -1) throw new Error('No JSON array')
-      
-      const meta      = JSON.parse(jsonPart.slice(start, end + 1))
+      const meta      = extractJsonArray(rawOverlay)
+      console.log('[overlay] ornament metadata parsed OK —', meta.length, 'items')
       const positions = generateClusteredPlacements(Math.min(meta.length, 28), treeBoundsRef.current)
+      console.log('[overlay] positions generated —', positions.length, 'placements, bounds:', treeBoundsRef.current)
       const placed    = meta.map((o, i) => ({ ...o, ...positions[i] }))
       setOrnaments(placed)
-      
+
       if (image && result) {
         saveDecoration(image, placed, result)
         setRecentTrees(loadDecorations())
       }
     } catch (err) {
-      console.error('Ornament parse error:', err)
-      setOverlayError('Your stylist had trouble placing ornaments. Try analyzing again.')
+      console.error('[overlay] ornament parse failed:', err, '\nRaw response (first 500):', rawOverlay.slice(0, 500))
+      setOverlayError('Ornament generation succeeded but the response couldn\'t be parsed. Please try again.')
     }
   }, [rawOverlay, overlayLoading])
 
@@ -624,6 +656,7 @@ export default function TreeAdvisor() {
 
     try {
       // Step 1 — Claude vision detects the tree bounding box
+      console.log('[overlay] Step 1: starting tree bounds detection')
       let detectRaw = ''
       await streamChat({
         messages: [{ role: 'user', content: [
@@ -633,22 +666,58 @@ export default function TreeAdvisor() {
         maxTokens: 200,
         onText: (t) => { detectRaw += t },
       })
+      console.log('[overlay] Step 1 raw response:', detectRaw)
       try {
         const s = detectRaw.indexOf('{'), e = detectRaw.lastIndexOf('}')
-        if (s !== -1 && e !== -1) treeBoundsRef.current = JSON.parse(detectRaw.slice(s, e + 1))
-      } catch { treeBoundsRef.current = {} }
+        if (s !== -1 && e !== -1) {
+          treeBoundsRef.current = JSON.parse(detectRaw.slice(s, e + 1))
+          console.log('[overlay] Step 1 bounds parsed OK:', treeBoundsRef.current)
+        } else {
+          treeBoundsRef.current = {}
+          console.warn('[overlay] Step 1: no JSON object found in detection response — using defaults')
+        }
+      } catch (parseErr) {
+        treeBoundsRef.current = {}
+        console.warn('[overlay] Step 1: bounds parse error — using defaults:', parseErr.message)
+      }
 
       // Step 2 — get ornament metadata (no coordinates — placed client-side)
-      await streamChat({
-        messages: [{ role: 'user', content: [
-          { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
-          { type: 'text', text: buildOrnamentListPrompt() },
-        ]}],
-        maxTokens: 2000,
-        onText: (text) => setRawOverlay(prev => prev + text),
-      })
-    } catch {
-      setOverlayError('Your stylist had trouble placing ornaments. Try analyzing again.')
+      // If the full 28-ornament request fails, retry with 15
+      const runOrnamentStream = async (count) => {
+        console.log(`[overlay] Step 2: requesting ${count} ornaments`)
+        let accumulated = ''
+        await streamChat({
+          messages: [{ role: 'user', content: [
+            { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+            { type: 'text', text: buildOrnamentListPrompt(count) },
+          ]}],
+          maxTokens: count >= 28 ? 6000 : 3000,
+          onText: (text) => { accumulated += text; setRawOverlay(prev => prev + text) },
+        })
+        console.log(`[overlay] Step 2 (count=${count}): stream complete, total chars:`, accumulated.length)
+        return accumulated
+      }
+
+      try {
+        await runOrnamentStream(28)
+      } catch (err28) {
+        console.warn('[overlay] Step 2 (28 ornaments) failed:', err28.message, '— retrying with 15')
+        setRawOverlay('')   // clear partial response before retry
+        try {
+          await runOrnamentStream(15)
+        } catch (err15) {
+          console.error('[overlay] Step 2 retry (15 ornaments) also failed:', err15.message)
+          throw new Error('ornament_generation')
+        }
+      }
+    } catch (err) {
+      console.error('[overlay] handleDetectAndDecorate error:', err)
+      const msg = err.message === 'ornament_generation'
+        ? 'Ornament generation failed. Please try again in a moment.'
+        : /detect|bounds/i.test(err.message)
+          ? 'Tree detection failed. Please try a clearer photo.'
+          : 'Decoration failed. Please try again.'
+      setOverlayError(msg)
     } finally {
       setOverlayLoading(false)
     }
