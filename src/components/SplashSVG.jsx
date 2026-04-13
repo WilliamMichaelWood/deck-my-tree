@@ -75,12 +75,20 @@ const CSS = `
   to   { opacity: 1; }
 }
 
-/* Radial glow at the 🎄 star — invisible until 4.2 s, then pulses and holds */
-@keyframes starGlow {
-  0%   { opacity: 0;   transform: scale(0.55); }
-  45%  { opacity: 1;   transform: scale(1.35); }
-  75%  { opacity: 0.9; transform: scale(0.92); }
-  100% { opacity: 1;   transform: scale(1); }
+/* Phase 1 (4.2s–4.6s): rapid opacity flicker — star coming to life */
+@keyframes starTwinkle {
+  0%   { opacity: 0.3; }
+  20%  { opacity: 0.8; }
+  40%  { opacity: 0.3; }
+  60%  { opacity: 0.8; }
+  80%  { opacity: 0.3; }
+  100% { opacity: 0.9; }
+}
+
+/* Phase 2 (4.6s–5.0s): bloom — grow and reach full brightness */
+@keyframes starBloom {
+  from { opacity: 0.9; transform: scale(1);   }
+  to   { opacity: 1.0; transform: scale(1.5); }
 }
 
 @keyframes snowFall {
@@ -171,9 +179,9 @@ export default function SplashSVG({ onFinish }) {
             <div style={{
               width: 60, height: 60,
               borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(201,168,76,0.85) 0%, rgba(201,168,76,0.3) 40%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(255,220,100,0.95) 0%, rgba(201,168,76,0.6) 40%, transparent 70%)',
               opacity: 0,
-              animation: 'starGlow 0.85s cubic-bezier(0.34,1.2,0.64,1) 4.2s both',
+              animation: 'starTwinkle 0.4s linear 4.2s forwards, starBloom 0.4s ease-out 4.6s forwards',
             }} />
           </div>
 
@@ -233,7 +241,7 @@ export default function SplashSVG({ onFinish }) {
           letterSpacing: '0.13em',
           whiteSpace: 'nowrap',
           opacity: 0,
-          animation: 'titleIn 0.6s ease 5.0s both',
+          animation: 'titleIn 0.6s ease 5.4s both',
         }}>
           Deck My Tree
         </div>
