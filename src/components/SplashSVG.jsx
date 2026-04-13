@@ -10,53 +10,54 @@ const SNOW = Array.from({ length: 25 }, (_, i) => ({
 }))
 
 // ── String light strands ──────────────────────────────────────────────────────
-// SVG viewBox: 0 0 280 270.  🎄 emoji (260 px) starts at y = 0.
-// Strand heights at 45 / 60 / 75 % of 260 px → y = 117 / 156 / 195
-// x-extents trimmed to the emoji's triangular silhouette.
-// Bulb y from catenary: y(x) = y0 + sag × (1 − ((x − 140) / hw)²)
+// SVG viewBox: 0 0 340 330.  🎄 emoji (320 px) starts at y = 0.
+// Container centre x = 170.  Scale factor vs old 260 px: 320/260 = 16/13 ≈ 1.231.
+// Strand heights at 45 / 60 / 75 % of 320 px → y = 144 / 192 / 240
+// x-extents (hw) and sag scaled by same factor.
+// Bulb y from catenary: y(x) = y0 + sag × (1 − ((x − 170) / hw)²)
 //
 // Delays: 1.0 s / 1.8 s / 2.4 s   Bulb stagger: 0.15 s left→right
 const STRANDS = [
   {
-    path: 'M95,117 Q140,135 185,117',      // sag 18 px, hw 45
+    path: 'M115,144 Q170,166 225,144',     // sag 22 px, hw 55
     lineDelay: '1.0s',
     baseDelay: 1.0,
     bulbs: [
-      { cx:  95, cy: 117, color: '#fffde7' },
-      { cx: 113, cy: 129, color: '#9b1c2c' },
-      { cx: 131, cy: 134, color: '#c9a84c' },
-      { cx: 149, cy: 134, color: '#fffde7' },
-      { cx: 167, cy: 129, color: '#9b1c2c' },
-      { cx: 185, cy: 117, color: '#c9a84c' },
+      { cx: 115, cy: 144, color: '#fffde7' },
+      { cx: 137, cy: 158, color: '#9b1c2c' },
+      { cx: 159, cy: 165, color: '#c9a84c' },
+      { cx: 181, cy: 165, color: '#fffde7' },
+      { cx: 203, cy: 158, color: '#9b1c2c' },
+      { cx: 225, cy: 144, color: '#c9a84c' },
     ],
   },
   {
-    path: 'M78,156 Q140,176 202,156',      // sag 20 px, hw 62
+    path: 'M94,192 Q170,217 246,192',      // sag 25 px, hw 76
     lineDelay: '1.8s',
     baseDelay: 1.8,
     bulbs: [
-      { cx:  78, cy: 156, color: '#c9a84c' },
-      { cx:  99, cy: 167, color: '#fffde7' },
-      { cx: 119, cy: 174, color: '#9b1c2c' },
-      { cx: 140, cy: 176, color: '#c9a84c' },
-      { cx: 161, cy: 174, color: '#fffde7' },
-      { cx: 181, cy: 167, color: '#9b1c2c' },
-      { cx: 202, cy: 156, color: '#c9a84c' },
+      { cx:  94, cy: 192, color: '#c9a84c' },
+      { cx: 119, cy: 206, color: '#fffde7' },
+      { cx: 145, cy: 214, color: '#9b1c2c' },
+      { cx: 170, cy: 217, color: '#c9a84c' },
+      { cx: 195, cy: 214, color: '#fffde7' },
+      { cx: 221, cy: 206, color: '#9b1c2c' },
+      { cx: 246, cy: 192, color: '#c9a84c' },
     ],
   },
   {
-    path: 'M62,195 Q140,217 218,195',      // sag 22 px, hw 78
+    path: 'M74,240 Q170,267 266,240',      // sag 27 px, hw 96
     lineDelay: '2.4s',
     baseDelay: 2.4,
     bulbs: [
-      { cx:  62, cy: 195, color: '#9b1c2c' },
-      { cx:  84, cy: 206, color: '#c9a84c' },
-      { cx: 107, cy: 213, color: '#fffde7' },
-      { cx: 129, cy: 217, color: '#9b1c2c' },
-      { cx: 151, cy: 217, color: '#c9a84c' },
-      { cx: 173, cy: 213, color: '#fffde7' },
-      { cx: 196, cy: 206, color: '#9b1c2c' },
-      { cx: 218, cy: 195, color: '#c9a84c' },
+      { cx:  74, cy: 240, color: '#9b1c2c' },
+      { cx: 101, cy: 253, color: '#c9a84c' },
+      { cx: 129, cy: 262, color: '#fffde7' },
+      { cx: 156, cy: 266, color: '#9b1c2c' },
+      { cx: 184, cy: 266, color: '#c9a84c' },
+      { cx: 211, cy: 262, color: '#fffde7' },
+      { cx: 239, cy: 253, color: '#9b1c2c' },
+      { cx: 266, cy: 240, color: '#c9a84c' },
     ],
   },
 ]
@@ -190,17 +191,17 @@ export default function SplashSVG({ onFinish }) {
         </div>
       ))}
 
-      {/* ── Tree block — top edge at 35 % from viewport top ── */}
+      {/* ── Tree block — top edge at 30 % from viewport top ── */}
       <div style={{
         position: 'absolute',
-        top: '35%', left: '50%',
+        top: '30%', left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 1,
         display: 'flex', flexDirection: 'column', alignItems: 'center',
       }}>
 
-        {/* Tree container: 280 × 270 px */}
-        <div style={{ position: 'relative', width: 280, height: 270 }}>
+        {/* Tree container: 340 × 330 px (320 px emoji + breathing room) */}
+        <div style={{ position: 'relative', width: 340, height: 330 }}>
 
           {/* ── Tree wrapper ─────────────────────────────────────────────────
               Handles the initial fade-in (treeFadeIn) and the brightness ramp
@@ -209,7 +210,7 @@ export default function SplashSVG({ onFinish }) {
               glow are siblings, not children, so they are unaffected.          */}
           <div style={{
             position: 'relative',
-            width: 280, height: 270,
+            width: 340, height: 330,
             zIndex: 1,
             animation: 'treeFadeIn 0.8s ease-out 0s both, treeBrighten 2.8s ease-in 1.0s both',
           }}>
@@ -218,8 +219,8 @@ export default function SplashSVG({ onFinish }) {
                 pineFadeOut backwards fill (before 4.0 s) holds opacity: 1. */}
             <div style={{
               position: 'absolute', top: 0, left: 0,
-              fontSize: 260, lineHeight: 1,
-              textAlign: 'center', width: 280,
+              fontSize: 320, lineHeight: 1,
+              textAlign: 'center', width: 340,
               animation: 'pineFadeOut 0.3s ease-in-out 4.0s both',
             }}>
               🌲
@@ -229,8 +230,8 @@ export default function SplashSVG({ onFinish }) {
                 xmasFadeIn backwards fill (before 4.0 s) holds opacity: 0.     */}
             <div style={{
               position: 'absolute', top: 0, left: 0,
-              fontSize: 260, lineHeight: 1,
-              textAlign: 'center', width: 280,
+              fontSize: 320, lineHeight: 1,
+              textAlign: 'center', width: 340,
               opacity: 0,
               animation: 'xmasFadeIn 0.3s ease-in-out 4.0s both',
             }}>
@@ -241,10 +242,10 @@ export default function SplashSVG({ onFinish }) {
 
           {/* ── SVG string light overlay ── */}
           <svg
-            viewBox="0 0 280 270"
+            viewBox="0 0 340 330"
             style={{
               position: 'absolute', top: 0, left: 0,
-              width: 280, height: 270,
+              width: 340, height: 330,
               overflow: 'visible', pointerEvents: 'none',
               zIndex: 2,
             }}
@@ -283,23 +284,41 @@ export default function SplashSVG({ onFinish }) {
             ))}
           </svg>
 
-          {/* ── Star glow overlay ──────────────────────────────────────────────
-              90 px radial gradient centred on the 🎄's star (y ≈ 21 px).
-              Invisible until t=4.8 s — the star hasn't ignited during 🌲 phase.
-              Single starGlow animation covers beacon + hold + twinkle.         */}
+          {/* ── Star glow + ray lines ──────────────────────────────────────────
+              Centred on the 🎄's star (y ≈ 8 % of 320 px ≈ 26 px from top).
+              SVG with overflow:visible hosts both:
+                • 55 px diameter tight radial glow (crisp, not foggy)
+                • 4 cardinal ray lines, each 20 px, gold at 60 % opacity
+              Both appear together via starGlow animation at t=4.8 s.           */}
           <div style={{
             position: 'absolute',
-            left: '50%', top: 21,
+            left: '50%', top: 26,
             transform: 'translate(-50%, -50%)',
             zIndex: 3, pointerEvents: 'none',
           }}>
-            <div style={{
-              width: 90, height: 90,
-              borderRadius: '50%',
-              background: 'radial-gradient(circle, rgba(255,220,100,0.95) 0%, rgba(201,168,76,0.6) 40%, transparent 70%)',
-              opacity: 0,
-              animation: 'starGlow 1.6s linear 4.8s both',
-            }} />
+            <svg
+              width="55" height="55"
+              viewBox="-27.5 -27.5 55 55"
+              overflow="visible"
+              aria-hidden="true"
+              style={{ opacity: 0, animation: 'starGlow 1.6s linear 4.8s both' }}
+            >
+              <defs>
+                <radialGradient id="starGrad" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%"   stopColor="#ffeb96" stopOpacity="1.0" />
+                  <stop offset="25%"  stopColor="#c9a84c" stopOpacity="0.8" />
+                  <stop offset="60%"  stopColor="#c9a84c" stopOpacity="0.2" />
+                  <stop offset="100%" stopColor="#c9a84c" stopOpacity="0"   />
+                </radialGradient>
+              </defs>
+              {/* Tight glow circle: 55 px diameter */}
+              <circle cx="0" cy="0" r="27.5" fill="url(#starGrad)" />
+              {/* Cardinal rays — start at 15 px from centre, extend 20 px outward */}
+              <line x1="0"   y1="-15" x2="0"   y2="-35" stroke="#c9a84c" strokeWidth="1" strokeOpacity="0.6" strokeLinecap="round" />
+              <line x1="0"   y1="15"  x2="0"   y2="35"  stroke="#c9a84c" strokeWidth="1" strokeOpacity="0.6" strokeLinecap="round" />
+              <line x1="-15" y1="0"   x2="-35" y2="0"   stroke="#c9a84c" strokeWidth="1" strokeOpacity="0.6" strokeLinecap="round" />
+              <line x1="15"  y1="0"   x2="35"  y2="0"   stroke="#c9a84c" strokeWidth="1" strokeOpacity="0.6" strokeLinecap="round" />
+            </svg>
           </div>
 
         </div>{/* end tree container */}
