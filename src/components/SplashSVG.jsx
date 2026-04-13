@@ -11,15 +11,11 @@ const SNOW = Array.from({ length: 25 }, (_, i) => ({
 
 // ── String light strands ──────────────────────────────────────────────────────
 // SVG viewBox: 0 0 280 270.  🎄 emoji (260 px) starts at y = 0.
-// Strand heights at 45 / 60 / 75 % of 260 px:
-//   Strand 1: y = 117   Strand 2: y = 156   Strand 3: y = 195
+// Strand heights at 45 / 60 / 75 % of 260 px → y = 117 / 156 / 195
+// x-extents trimmed to the emoji's triangular silhouette.
+// Bulb y from catenary: y(x) = y0 + sag × (1 − ((x − 140) / hw)²)
 //
-// Strand x-extents trimmed to stay inside the emoji's triangular silhouette:
-//   y=117 → x 95–185    y=156 → x 78–202    y=195 → x 62–218
-//
-// Bulb y from catenary:  y(x) = y0 + sag × (1 − ((x − 140) / hw)²)
-// Delays updated to tell the decorating story: 1.0 s / 1.8 s / 2.4 s
-// Bulb stagger: 0.15 s (gives a measured left-to-right reveal)
+// Delays: 1.0 s / 1.8 s / 2.4 s   Bulb stagger: 0.15 s left→right
 const STRANDS = [
   {
     path: 'M95,117 Q140,135 185,117',      // sag 18 px, hw 45
@@ -65,38 +61,37 @@ const STRANDS = [
   },
 ]
 
-// ── Ornament dots — 5 brand-color dots, scale-pop from 4.0 s ─────────────────
-// Positions inside the 280 × 270 tree container, within the emoji's silhouette.
-// Each dot is centred on (left, top) via translate(-50%, -50%) in the animation.
-const ORNAMENTS = [
-  { left: 108, top:  90, color: '#9b1c2c', delay: 4.0 },  // cranberry
-  { left: 178, top: 105, color: '#c9a84c', delay: 4.5 },  // gold
-  { left: 115, top: 155, color: '#fffde7', delay: 5.0 },  // cream / white
-  { left: 175, top: 160, color: '#1d5c3a', delay: 5.5 },  // forest green
-  { left: 138, top: 200, color: '#c4607a', delay: 6.0 },  // pink
-]
-
 // ── CSS animations ────────────────────────────────────────────────────────────
 const CSS = `
 
-/* ── Tree appearance ── */
-
-/* Emoji fades in over 0.8 s */
+/* ── Tree wrapper ─────────────────────────────────────────────────────────────
+   treeFadeIn  — opacity 0 → 1 over 0.8 s (whole wrapper including both emojis)
+   treeBrighten — filter brightness 0.75 → 1.0 over 2.8 s starting at 1.0 s;
+                  backwards fill holds brightness(0.75) during the fade-in.    */
 @keyframes treeFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
-/* Emoji brightens from dim (0.7) to full as lights come on.
-   Starts at 0.8 s (after fade-in), runs 3.0 s → reaches 1.0 at t=3.8 s,
-   timed so full brightness lands as the star beacon ignites. */
 @keyframes treeBrighten {
-  from { filter: brightness(0.70); }
+  from { filter: brightness(0.75); }
   to   { filter: brightness(1.00); }
 }
 
-/* ── String lights ── */
+/* ── Emoji crossfade at 4.0 s ─────────────────────────────────────────────────
+   🌲 fades out as 🎄 fades in — the ornaments "appear" via the emoji swap.
+   Both use fill-mode: both so:
+     pineFadeOut backwards fill = opacity 1 (pine visible before 4.0 s)
+     xmasFadeIn  backwards fill = opacity 0 (xmas hidden before 4.0 s)        */
+@keyframes pineFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes xmasFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 
+/* ── String lights ── */
 @keyframes drawStrand {
   from { stroke-dashoffset: 1; }
   to   { stroke-dashoffset: 0; }
@@ -106,31 +101,24 @@ const CSS = `
   to   { opacity: 1; }
 }
 
-/* ── Star glow — single animation covering beacon + hold + twinkle ──
-   Delay 3.2 s, duration 3.1 s (runs until t = 6.3 s).
-   Keyframe % = (t − 3.2) / 3.1:
-     0 %  = t 3.2 s — starts at 0
-    19 %  = t 3.8 s — beacon fully on (0.6 s ease-out ramp)
-    74 %  = t 5.5 s — holds steady; twinkle sequence begins
-    81 %  = t 5.7 s — first flicker down
-    87 %  = t 5.9 s — flicker up
-    94 %  = t 6.1 s — flicker down again
-   100 %  = t 6.3 s — settles at full brightness            */
+/* ── Star glow — beacon (4.8–5.4 s) + hold + twinkle (5.6–6.4 s) ────────────
+   Single animation: duration 1.6 s, delay 4.8 s.
+   Keyframe % = (t − 4.8) / 1.6:
+      0 % = t 4.8 s — starts at 0
+     38 % = t 5.4 s — beacon fully on (ease-out ramp)
+     50 % = t 5.6 s — hold; twinkle sequence begins
+     63 % = t 5.8 s — first flicker down
+     75 % = t 6.0 s — flicker up
+     88 % = t 6.2 s — flicker down again
+    100 % = t 6.4 s — settles at full glow                                     */
 @keyframes starGlow {
   0%   { opacity: 0;   animation-timing-function: ease-out; }
-  19%  { opacity: 1;   animation-timing-function: linear;   }
-  74%  { opacity: 1;   }
-  81%  { opacity: 0.4; }
-  87%  { opacity: 0.9; }
-  94%  { opacity: 0.4; }
+  38%  { opacity: 1;   animation-timing-function: linear;   }
+  50%  { opacity: 1;   }
+  63%  { opacity: 0.4; }
+  75%  { opacity: 0.9; }
+  88%  { opacity: 0.4; }
   100% { opacity: 1.0; }
-}
-
-/* ── Ornament dots — spring pop ── */
-@keyframes ornPop {
-  0%   { opacity: 0; transform: translate(-50%,-50%) scale(0);   }
-  55%  { opacity: 1; transform: translate(-50%,-50%) scale(1.2); }
-  100% { opacity: 1; transform: translate(-50%,-50%) scale(1.0); }
 }
 
 /* ── Snow ── */
@@ -153,30 +141,26 @@ const CSS = `
 `
 
 // ── Component ─────────────────────────────────────────────────────────────────
-// Full animation timeline:
-//   0.0 s  🎄 emoji fades in (0.8 s); tree at brightness 0.7; snow running
+// Full animation timeline (9.4 s total):
+//   0.0 s  🌲 fades in over 0.8 s at brightness(0.75); snow runs throughout
 //   1.0 s  Strand 1 wire draws; bulbs light left→right, 0.15 s stagger
-//   1.8 s  Strand 2 wire draws + bulbs
-//   2.4 s  Strand 3 wire draws + bulbs
-//   3.2 s  Star beacon ignites — smooth ramp to full glow over 0.6 s
-//   3.8 s  Tree reaches full brightness (treeBrighten completes)
-//   4.0 s  Ornament 1 pops (cranberry)
-//   4.5 s  Ornament 2 pops (gold)
-//   5.0 s  Ornament 3 pops (white)
-//   5.5 s  Ornament 4 pops (forest green) + star twinkle begins
-//   6.0 s  Ornament 5 pops (pink)
-//   6.2 s  "Deck My Tree" fades in
-//   6.3 s  Star settles at full glow
-//   7.0 s  "Your Personal Holiday Stylist" fades in
-//   8.2 s  Full screen fades out (0.9 s)
-//   9.1 s  onFinish → reveals app
+//   1.8 s  Strand 2 same; tree brightness climbing toward 1.0
+//   2.4 s  Strand 3 same
+//   ~3.7 s  All strands fully lit; natural pause before the swap
+//   4.0 s  🌲 → 🎄 crossfade over 0.3 s — ornaments appear via emoji swap
+//   4.8 s  Star beacon ignites — ease-out ramp to full glow over 0.6 s (90 px)
+//   5.6 s  Star twinkles: 0.9 → 0.4 → 0.9 → 0.4 → 1.0 over 0.8 s
+//   6.4 s  "Deck My Tree" fades in
+//   7.2 s  "Your Personal Holiday Stylist" fades in
+//   8.5 s  Full screen fades out (0.9 s)
+//   9.4 s  onFinish → reveals app
 export default function SplashSVG({ onFinish }) {
   const [outerOpacity, setOuterOpacity] = useState(0)
 
   useEffect(() => {
     const t0 = setTimeout(() => setOuterOpacity(1),   10)   // appear almost instantly
-    const t1 = setTimeout(() => setOuterOpacity(0), 8200)   // start fade-out
-    const t2 = setTimeout(onFinish,                9100)    // hand off to app
+    const t1 = setTimeout(() => setOuterOpacity(0), 8500)   // start fade-out
+    const t2 = setTimeout(onFinish,                 9400)   // hand off to app
     return () => [t0, t1, t2].forEach(clearTimeout)
   }, [onFinish])
 
@@ -218,20 +202,41 @@ export default function SplashSVG({ onFinish }) {
         {/* Tree container: 280 × 270 px */}
         <div style={{ position: 'relative', width: 280, height: 270 }}>
 
-          {/* 🎄 emoji
-              Two animations:
-              1. treeFadeIn  — opacity 0→1 over 0.8 s starting at t=0
-              2. treeBrighten — filter brightness 0.7→1.0 over 3.0 s starting at t=0.8 s
-              The backwards-fill of treeBrighten keeps the emoji dim during its own
-              fade-in, so the tree appears dark-but-present before lights come on. */}
+          {/* ── Tree wrapper ─────────────────────────────────────────────────
+              Handles the initial fade-in (treeFadeIn) and the brightness ramp
+              (treeBrighten). Both emojis live inside so brightness is shared.
+              The filter property creates a new stacking context — SVG and star
+              glow are siblings, not children, so they are unaffected.          */}
           <div style={{
-            fontSize: 260, lineHeight: 1,
-            textAlign: 'center', width: 280,
-            position: 'relative', zIndex: 1,
-            opacity: 0,
-            animation: 'treeFadeIn 0.8s ease-out 0s both, treeBrighten 3.0s ease-in 0.8s both',
+            position: 'relative',
+            width: 280, height: 270,
+            zIndex: 1,
+            animation: 'treeFadeIn 0.8s ease-out 0s both, treeBrighten 2.8s ease-in 1.0s both',
           }}>
-            🎄
+
+            {/* 🌲 — bare pine, visible from start, fades out at t=4.0 s.
+                pineFadeOut backwards fill (before 4.0 s) holds opacity: 1. */}
+            <div style={{
+              position: 'absolute', top: 0, left: 0,
+              fontSize: 260, lineHeight: 1,
+              textAlign: 'center', width: 280,
+              animation: 'pineFadeOut 0.3s ease-in-out 4.0s both',
+            }}>
+              🌲
+            </div>
+
+            {/* 🎄 — decorated tree, invisible until t=4.0 s crossfade.
+                xmasFadeIn backwards fill (before 4.0 s) holds opacity: 0.     */}
+            <div style={{
+              position: 'absolute', top: 0, left: 0,
+              fontSize: 260, lineHeight: 1,
+              textAlign: 'center', width: 280,
+              opacity: 0,
+              animation: 'xmasFadeIn 0.3s ease-in-out 4.0s both',
+            }}>
+              🎄
+            </div>
+
           </div>
 
           {/* ── SVG string light overlay ── */}
@@ -278,47 +283,28 @@ export default function SplashSVG({ onFinish }) {
             ))}
           </svg>
 
-          {/* ── Ornament dots — 5 brand colours, pop in from 4.0 s ──
-              zIndex 3 puts them above the string light SVG but below the star glow. */}
-          {ORNAMENTS.map((o, i) => (
-            <div
-              key={`o${i}`}
-              style={{
-                position: 'absolute',
-                left: o.left, top: o.top,
-                width: 13, height: 13,
-                borderRadius: '50%',
-                background: o.color,
-                boxShadow: `0 0 5px ${o.color}, 0 0 11px ${o.color}99`,
-                opacity: 0,
-                zIndex: 3,
-                pointerEvents: 'none',
-                animation: `ornPop 0.4s cubic-bezier(0.34,1.3,0.64,1) ${o.delay}s both`,
-              }}
-            />
-          ))}
-
-          {/* ── Star glow overlay ──
-              90 px radial gradient centred on the 🎄's built-in star (y ≈ 21 px).
-              Single starGlow animation: beacon 3.2–3.8 s, hold, then twinkle 5.5–6.3 s. */}
+          {/* ── Star glow overlay ──────────────────────────────────────────────
+              90 px radial gradient centred on the 🎄's star (y ≈ 21 px).
+              Invisible until t=4.8 s — the star hasn't ignited during 🌲 phase.
+              Single starGlow animation covers beacon + hold + twinkle.         */}
           <div style={{
             position: 'absolute',
             left: '50%', top: 21,
             transform: 'translate(-50%, -50%)',
-            zIndex: 4, pointerEvents: 'none',
+            zIndex: 3, pointerEvents: 'none',
           }}>
             <div style={{
               width: 90, height: 90,
               borderRadius: '50%',
               background: 'radial-gradient(circle, rgba(255,220,100,0.95) 0%, rgba(201,168,76,0.6) 40%, transparent 70%)',
               opacity: 0,
-              animation: 'starGlow 3.1s linear 3.2s both',
+              animation: 'starGlow 1.6s linear 4.8s both',
             }} />
           </div>
 
         </div>{/* end tree container */}
 
-        {/* Title — appears after star has bloomed (6.2 s) */}
+        {/* Title — after star has settled (6.4 s) */}
         <div style={{
           marginTop: 22,
           color: '#c9a84c',
@@ -328,7 +314,7 @@ export default function SplashSVG({ onFinish }) {
           letterSpacing: '0.13em',
           whiteSpace: 'nowrap',
           opacity: 0,
-          animation: 'titleIn 0.6s ease 6.2s both',
+          animation: 'titleIn 0.6s ease 6.4s both',
         }}>
           Deck My Tree
         </div>
@@ -342,7 +328,7 @@ export default function SplashSVG({ onFinish }) {
           textTransform: 'uppercase',
           whiteSpace: 'nowrap',
           opacity: 0,
-          animation: 'taglineIn 0.7s ease 7.0s both',
+          animation: 'taglineIn 0.7s ease 7.2s both',
         }}>
           Your Personal Holiday Stylist
         </div>
