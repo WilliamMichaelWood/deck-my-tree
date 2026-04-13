@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { streamChat } from '../lib/stream'
 import MarkdownContent from './MarkdownContent'
+import SleighLoader from './SleighLoader'
 
 const BASE_ANALYSIS_PROMPT = `You are a professional Christmas tree decorator. Every response must apply the four mandatory rules below — these are non-negotiable constraints, not suggestions. Violation of any rule is an error.
 
@@ -291,38 +292,6 @@ function PineconeOrnament({ color }) {
   )
 }
 
-const LOADER_STEPS = [
-  '✨ Your stylist is studying your tree…',
-  '🎄 Selecting the perfect ornaments…',
-  '✦ Placing them just for you…',
-]
-
-function MagicLoader() {
-  const [step,   setStep]   = useState(0)
-  const [fading, setFading] = useState(false)
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setFading(true)
-      setTimeout(() => {
-        setStep(s => (s + 1) % LOADER_STEPS.length)
-        setFading(false)
-      }, 380)
-    }, 2200)
-    return () => clearInterval(timer)
-  }, [])
-
-  const progress = Math.round(((step + 1) / LOADER_STEPS.length) * 100)
-
-  return (
-    <div className="magic-loader">
-      <p className={`magic-message${fading ? ' fading' : ''}`}>{LOADER_STEPS[step]}</p>
-      <div className="magic-progress-track">
-        <div className="magic-progress-fill" style={{ width: `${progress}%` }} />
-      </div>
-    </div>
-  )
-}
 
 function OrnamentShape({ shape, color }) {
   switch (shape) {
@@ -491,11 +460,11 @@ export default function TreeAdvisor() {
   const [shareLoading,   setShareLoading]   = useState(false)
   const [recentTrees,    setRecentTrees]    = useState(() => loadDecorations())
   const [savedIds,       setSavedIds]       = useState(new Set())
+  const [showLoader,     setShowLoader]     = useState(false)
   const fileInputRef   = useRef(null)
   const shopRef        = useRef(null)
   const overlayRef     = useRef(null)
   const resultRef      = useRef(null)
-  const loaderRef      = useRef(null)
   const treeBoundsRef  = useRef({})   // stores AI-detected bounding box for placement
 
   // Scroll helper — offsets for sticky header height so element isn't hidden behind it
@@ -606,15 +575,16 @@ export default function TreeAdvisor() {
     }
   }, [loading, result])
 
-  // Scroll to MagicLoader the moment overlay loading starts
+  // Show the full-screen loader whenever the overlay API call begins
   useEffect(() => {
-    if (overlayLoading) smoothScrollTo(loaderRef, 80)
+    if (overlayLoading) setShowLoader(true)
   }, [overlayLoading])
 
-  // Scroll to decorated tree the moment ornaments are ready
-  useEffect(() => {
-    if (ornaments.length > 0) smoothScrollTo(overlayRef, 150)
-  }, [ornaments.length])
+  // Called by SleighLoader after its exit animation finishes
+  const handleLoaderDone = useCallback(() => {
+    setShowLoader(false)
+    smoothScrollTo(overlayRef, 120)
+  }, [smoothScrollTo])
 
   const processFile = (file) => {
     if (!file?.type.startsWith('image/')) {
@@ -981,13 +951,15 @@ export default function TreeAdvisor() {
         </div>
       )}
 
-      {/* Overlay loading state */}
-      {overlayLoading && <div ref={loaderRef}><MagicLoader /></div>}
+      {/* Full-screen loader — visible while overlay API call runs + during exit animation */}
+      {showLoader && (
+        <SleighLoader isLoading={overlayLoading} onExitComplete={handleLoaderDone} />
+      )}
 
       {overlayError && <div className="error-card">⚠️ {overlayError}</div>}
 
-      {/* Decorated tree overlay */}
-      {ornaments.length > 0 && image && (
+      {/* Decorated tree overlay — revealed only after loader exit animation completes */}
+      {ornaments.length > 0 && image && !showLoader && (
         <div className="overlay-section" ref={overlayRef}>
 
           <div className="overlay-label-row">
