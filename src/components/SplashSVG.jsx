@@ -10,102 +10,85 @@ const SNOW = Array.from({ length: 25 }, (_, i) => ({
 }))
 
 // ── String light strands ───────────────────────────────────────────────
-// SVG coordinate system: 280 × 300 px container.
-// 🎄 emoji (260 px) starts at y = 20 inside the container (marginTop: 20).
-// Strand heights at 45 / 60 / 75 % of emoji height (260 px) + 20 px offset:
-//   Strand 1: y = 20 + 0.45*260 = 137
-//   Strand 2: y = 20 + 0.60*260 = 176
-//   Strand 3: y = 20 + 0.75*260 = 215
+// SVG viewBox: 0 0 280 270.
+// 🎄 emoji (260 px) starts at y = 0.
+// Strand heights at 45 / 60 / 75 % of 260 px:
+//   Strand 1: y = 117   Strand 2: y = 156   Strand 3: y = 195
 //
-// Tree left/right edges at those heights (emoji centred in 280 px wide container):
-//   y=137 → x: 75–205   y=176 → x: 52–228   y=215 → x: 30–250
+// Strand x-extents trimmed to stay inside the emoji's triangular silhouette:
+//   y=117 → x 95–185    y=156 → x 78–202    y=195 → x 62–218
 //
-// Bulb y-values computed from catenary: y(x) = y0 + sag*(1 - ((x-cx)/hw)²)
-// where cx = 140 (horizontal centre), hw = half-width, sag = droop in px.
+// Bulb y from catenary:  y(x) = y0 + sag × (1 − ((x − 140) / hw)²)
 const STRANDS = [
   {
-    path: 'M75,137 Q140,158 205,137',       // cx=140, sag=21, hw=65
+    path: 'M95,117 Q140,135 185,117',      // sag 18 px, hw 45
     lineDelay: '1.5s',
     baseDelay: 1.5,
     bulbs: [
-      { cx:  75, cy: 137, color: '#fffde7' },
-      { cx: 101, cy: 150, color: '#9b1c2c' },
-      { cx: 127, cy: 157, color: '#c9a84c' },
-      { cx: 153, cy: 157, color: '#fffde7' },
-      { cx: 179, cy: 150, color: '#9b1c2c' },
-      { cx: 205, cy: 137, color: '#c9a84c' },
+      { cx:  95, cy: 117, color: '#fffde7' },
+      { cx: 113, cy: 129, color: '#9b1c2c' },
+      { cx: 131, cy: 134, color: '#c9a84c' },
+      { cx: 149, cy: 134, color: '#fffde7' },
+      { cx: 167, cy: 129, color: '#9b1c2c' },
+      { cx: 185, cy: 117, color: '#c9a84c' },
     ],
   },
   {
-    path: 'M52,176 Q140,200 228,176',       // cx=140, sag=24, hw=88
+    path: 'M78,156 Q140,176 202,156',      // sag 20 px, hw 62
     lineDelay: '2.5s',
     baseDelay: 2.5,
     bulbs: [
-      { cx:  52, cy: 176, color: '#c9a84c' },
-      { cx:  81, cy: 189, color: '#fffde7' },
-      { cx: 110, cy: 197, color: '#9b1c2c' },
-      { cx: 140, cy: 200, color: '#c9a84c' },
-      { cx: 170, cy: 197, color: '#fffde7' },
-      { cx: 199, cy: 189, color: '#9b1c2c' },
-      { cx: 228, cy: 176, color: '#c9a84c' },
+      { cx:  78, cy: 156, color: '#c9a84c' },
+      { cx:  99, cy: 167, color: '#fffde7' },
+      { cx: 119, cy: 174, color: '#9b1c2c' },
+      { cx: 140, cy: 176, color: '#c9a84c' },
+      { cx: 161, cy: 174, color: '#fffde7' },
+      { cx: 181, cy: 167, color: '#9b1c2c' },
+      { cx: 202, cy: 156, color: '#c9a84c' },
     ],
   },
   {
-    path: 'M30,215 Q140,240 250,215',       // cx=140, sag=25, hw=110
+    path: 'M62,195 Q140,217 218,195',      // sag 22 px, hw 78
     lineDelay: '3.2s',
     baseDelay: 3.2,
     bulbs: [
-      { cx:  30, cy: 215, color: '#9b1c2c' },
-      { cx:  61, cy: 227, color: '#c9a84c' },
-      { cx:  93, cy: 235, color: '#fffde7' },
-      { cx: 124, cy: 240, color: '#9b1c2c' },
-      { cx: 155, cy: 240, color: '#c9a84c' },
-      { cx: 187, cy: 235, color: '#fffde7' },
-      { cx: 218, cy: 228, color: '#9b1c2c' },
-      { cx: 250, cy: 215, color: '#c9a84c' },
+      { cx:  62, cy: 195, color: '#9b1c2c' },
+      { cx:  84, cy: 206, color: '#c9a84c' },
+      { cx: 107, cy: 213, color: '#fffde7' },
+      { cx: 129, cy: 217, color: '#9b1c2c' },
+      { cx: 151, cy: 217, color: '#c9a84c' },
+      { cx: 173, cy: 213, color: '#fffde7' },
+      { cx: 196, cy: 206, color: '#9b1c2c' },
+      { cx: 218, cy: 195, color: '#c9a84c' },
     ],
   },
 ]
 
 // ── CSS animations ────────────────────────────────────────────────────
 const CSS = `
-/* Strand wire draws left → right via stroke-dashoffset on a normalised path */
 @keyframes drawStrand {
   from { stroke-dashoffset: 1; }
   to   { stroke-dashoffset: 0; }
 }
-
-/* Each bulb fades in */
 @keyframes bulbOn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-/* Star: starts dim, ignites at 4.2 s, glow is held permanently */
-@keyframes starIgnite {
-  0%   { opacity: 0.35;
-         filter: drop-shadow(0 0 3px rgba(201,168,76,0.30)); }
-  40%  { opacity: 1;
-         transform: scale(1.25);
-         filter: drop-shadow(0 0 25px #c9a84c)
-                 drop-shadow(0 0 55px rgba(201,168,76,0.45)); }
-  75%  { transform: scale(0.96);
-         filter: drop-shadow(0 0 18px #c9a84c)
-                 drop-shadow(0 0 42px rgba(201,168,76,0.38)); }
-  100% { opacity: 1;
-         transform: scale(1);
-         filter: drop-shadow(0 0 22px #c9a84c)
-                 drop-shadow(0 0 50px rgba(201,168,76,0.42)); }
+/* Radial glow at the 🎄 star — invisible until 4.2 s, then pulses and holds */
+@keyframes starGlow {
+  0%   { opacity: 0;   transform: scale(0.55); }
+  45%  { opacity: 1;   transform: scale(1.35); }
+  75%  { opacity: 0.9; transform: scale(0.92); }
+  100% { opacity: 1;   transform: scale(1); }
 }
 
-/* Snow */
 @keyframes snowFall {
   0%   { transform: translateY(-10px); opacity: 0; }
   7%   { opacity: 1; }
   93%  { opacity: 1; }
   100% { transform: translateY(106vh); opacity: 0; }
 }
-
 @keyframes titleIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -121,9 +104,9 @@ export default function SplashSVG({ onFinish }) {
   const [outerOpacity, setOuterOpacity] = useState(0)
 
   useEffect(() => {
-    const t0 = setTimeout(() => setOuterOpacity(1),    50)   // fade in
-    const t1 = setTimeout(() => setOuterOpacity(0),  7000)   // fade out
-    const t2 = setTimeout(onFinish,                  7900)   // hand off
+    const t0 = setTimeout(() => setOuterOpacity(1),    50)
+    const t1 = setTimeout(() => setOuterOpacity(0),  7000)
+    const t2 = setTimeout(onFinish,                  7900)
     return () => [t0, t1, t2].forEach(clearTimeout)
   }, [onFinish])
 
@@ -162,50 +145,44 @@ export default function SplashSVG({ onFinish }) {
         display: 'flex', flexDirection: 'column', alignItems: 'center',
       }}>
 
-        {/* Tree container: 280 × 300 px */}
-        <div style={{ position: 'relative', width: 280, height: 300 }}>
+        {/* Tree container: 280 × 270 px */}
+        <div style={{ position: 'relative', width: 280, height: 270 }}>
 
-          {/* ⭐ star — centred at the tree's peak; ignites at 4.2 s */}
-          {/* Outer div handles horizontal centering; inner div handles animation */}
-          <div style={{
-            position: 'absolute',
-            top: 0, left: '50%',
-            transform: 'translate(-50%, -40%)',  // float above the container top
-            zIndex: 3,
-          }}>
-            <div style={{
-              fontSize: 48, lineHeight: 1,
-              opacity: 0.35,
-              filter: 'drop-shadow(0 0 3px rgba(201,168,76,0.30))',
-              transformOrigin: 'center',
-              animation: 'starIgnite 0.9s cubic-bezier(0.34,1.2,0.64,1) 4.2s both',
-            }}>
-              ⭐
-            </div>
-          </div>
-
-          {/* 🎄 emoji — 260 px, 20 px top margin to leave room for star */}
+          {/* 🎄 emoji — 260 px, no extra margin (star handled by glow overlay) */}
           <div style={{
             fontSize: 260, lineHeight: 1,
             textAlign: 'center', width: 280,
-            marginTop: 20,
-            zIndex: 1, position: 'relative',
+            position: 'relative', zIndex: 1,
           }}>
             🎄
           </div>
 
+          {/* ── Star glow overlay ──────────────────────────────────
+              Radial gradient circle (60 px) centred on the 🎄's built-in star.
+              The star sits at roughly 8 % of the 260 px emoji height = y ≈ 21 px.
+              Outer div handles centering; inner div runs the animation.
+              opacity 0 before 4.2 s (fill-mode both), holds glow afterwards. */}
+          <div style={{
+            position: 'absolute',
+            left: '50%', top: 21,
+            transform: 'translate(-50%, -50%)',
+            zIndex: 3, pointerEvents: 'none',
+          }}>
+            <div style={{
+              width: 60, height: 60,
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(201,168,76,0.85) 0%, rgba(201,168,76,0.3) 40%, transparent 70%)',
+              opacity: 0,
+              animation: 'starGlow 0.85s cubic-bezier(0.34,1.2,0.64,1) 4.2s both',
+            }} />
+          </div>
+
           {/* ── SVG string light overlay ─────────────────────────── */}
-          {/*
-            viewBox matches container exactly (280 × 300).
-            Each strand uses pathLength="1" so strokeDashoffset 1→0
-            draws the wire from left to right regardless of actual path length.
-            Bulbs (r=4, 8 px diameter) light up in sequence after the wire.
-          */}
           <svg
-            viewBox="0 0 280 300"
+            viewBox="0 0 280 270"
             style={{
               position: 'absolute', top: 0, left: 0,
-              width: 280, height: 300,
+              width: 280, height: 270,
               overflow: 'visible', pointerEvents: 'none',
               zIndex: 2,
             }}
@@ -213,8 +190,7 @@ export default function SplashSVG({ onFinish }) {
           >
             {STRANDS.map((strand, si) => (
               <g key={`s${si}`}>
-
-                {/* Wire */}
+                {/* Wire draws left → right */}
                 <path
                   d={strand.path}
                   stroke="#8B6914"
@@ -228,7 +204,6 @@ export default function SplashSVG({ onFinish }) {
                     animation: `drawStrand 0.55s linear ${strand.lineDelay} both`,
                   }}
                 />
-
                 {/* Bulbs light up left → right, 0.1 s apart */}
                 {strand.bulbs.map((b, bi) => (
                   <circle
@@ -242,14 +217,13 @@ export default function SplashSVG({ onFinish }) {
                     }}
                   />
                 ))}
-
               </g>
             ))}
           </svg>
 
         </div>{/* end tree container */}
 
-        {/* ── Title — Playfair Display, gold ────────────────────── */}
+        {/* Title */}
         <div style={{
           marginTop: 22,
           color: '#c9a84c',
@@ -264,7 +238,7 @@ export default function SplashSVG({ onFinish }) {
           Deck My Tree
         </div>
 
-        {/* ── Tagline ────────────────────────────────────────────── */}
+        {/* Tagline */}
         <div style={{
           marginTop: 9,
           color: 'rgba(228,212,168,0.60)',
@@ -278,8 +252,7 @@ export default function SplashSVG({ onFinish }) {
           Your Personal Holiday Stylist
         </div>
 
-      </div>{/* end tree block */}
-
+      </div>
     </div>
   )
 }
