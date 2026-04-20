@@ -250,6 +250,7 @@ export default function SleighTheLook() {
     setRawResult('')
     setProducts([])
     setError('')
+    const startTime = Date.now()
     try {
       await streamChat({
         messages: [{ role: 'user', content: buildPrompt({ style, palette, budget, size, extraContext }) }],
@@ -258,6 +259,10 @@ export default function SleighTheLook() {
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again in a moment.')
     } finally {
+      // Keep modal visible for at least 3 s so users actually see it
+      const elapsed = Date.now() - startTime
+      const remaining = 3000 - elapsed
+      if (remaining > 0) await new Promise(r => setTimeout(r, remaining))
       setLoading(false)
     }
   }
