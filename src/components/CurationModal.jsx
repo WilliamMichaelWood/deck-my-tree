@@ -40,6 +40,7 @@ const CSS = `
 // ── Props ─────────────────────────────────────────────────────────────────────
 // visible — boolean; modal renders (and blocks interaction) while true
 export default function CurationModal({ visible }) {
+  console.log('CurationModal mounted/rendered, visible prop:', visible)
   const [msgIdx, setMsgIdx] = useState(0)
   const [msgKey, setMsgKey] = useState(0)
 

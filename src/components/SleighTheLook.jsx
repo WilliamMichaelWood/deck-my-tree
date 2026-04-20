@@ -245,8 +245,10 @@ export default function SleighTheLook() {
   }, [rawResult, loading])
 
   const handleGenerate = async () => {
+    console.log('handleGenerate called')
     if (!canGenerate) return
     setLoading(true)
+    console.log('loading set to true')
     setRawResult('')
     setProducts([])
     setError('')
@@ -259,6 +261,7 @@ export default function SleighTheLook() {
     } catch (err) {
       setError(err.message || 'Something went wrong. Please try again in a moment.')
     } finally {
+      console.log('finally block, setting loading to false')
       // Keep modal visible for at least 3 s so users actually see it
       const elapsed = Date.now() - startTime
       const remaining = 3000 - elapsed
@@ -268,6 +271,8 @@ export default function SleighTheLook() {
   }
 
   const reset = () => { setProducts([]); setRawResult(''); setError('') }
+
+  console.log('Rendering SleighTheLook, loading state:', loading)
 
   return (
     <div className="tab-content">
