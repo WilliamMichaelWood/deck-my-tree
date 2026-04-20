@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { streamChat } from '../lib/stream'
+import CurationModal from './CurationModal'
 
 const TREE_STYLES = [
   { id: 'classic',      label: 'Classic',      icon: '🎄' },
@@ -366,17 +367,9 @@ export default function SleighTheLook() {
         </button>
       </div>
 
-      {error && <div className="error-card">⚠️ {error}</div>}
+      <CurationModal visible={loading} />
 
-      {loading && !products.length && (
-        <div className="curation-loading">
-          <span className="spin">✦</span>
-          <div>
-            <p className="loading-title">Your stylist is curating…</p>
-            <p className="loading-sub">Sourcing ornaments across Walmart, Amazon &amp; Target</p>
-          </div>
-        </div>
-      )}
+      {error && <div className="error-card">⚠️ {error}</div>}
 
       {products.length > 0 && (
         <div className="recommendations-list">
