@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { streamChat } from '../lib/stream'
 import MarkdownContent from './MarkdownContent'
-import SleighLoader from './SleighLoader'
+import CurationModal from './CurationModal'
 
 const BASE_ANALYSIS_PROMPT = `You are a professional Christmas tree decorator. Every response must apply the four mandatory rules below — these are non-negotiable constraints, not suggestions. Violation of any rule is an error.
 
@@ -460,7 +460,6 @@ export default function TreeAdvisor() {
   const [shareLoading,   setShareLoading]   = useState(false)
   const [recentTrees,    setRecentTrees]    = useState(() => loadDecorations())
   const [savedIds,       setSavedIds]       = useState(new Set())
-  const [showLoader,     setShowLoader]     = useState(false)
   const fileInputRef   = useRef(null)
   const shopRef        = useRef(null)
   const overlayRef     = useRef(null)
@@ -575,16 +574,13 @@ export default function TreeAdvisor() {
     }
   }, [loading, result])
 
-  // Show the full-screen loader whenever the overlay API call begins
+  // Scroll to the decorated tree after the modal dismisses
   useEffect(() => {
-    if (overlayLoading) setShowLoader(true)
+    if (!overlayLoading && ornaments.length > 0) {
+      const t = setTimeout(() => smoothScrollTo(overlayRef, 120), 100)
+      return () => clearTimeout(t)
+    }
   }, [overlayLoading])
-
-  // Called by SleighLoader after its exit animation finishes
-  const handleLoaderDone = useCallback(() => {
-    setShowLoader(false)
-    smoothScrollTo(overlayRef, 120)
-  }, [smoothScrollTo])
 
   const processFile = (file) => {
     if (!file?.type.startsWith('image/')) {
@@ -951,15 +947,12 @@ export default function TreeAdvisor() {
         </div>
       )}
 
-      {/* Full-screen loader — visible while overlay API call runs + during exit animation */}
-      {showLoader && (
-        <SleighLoader isLoading={overlayLoading} onExitComplete={handleLoaderDone} />
-      )}
+      <CurationModal visible={overlayLoading} />
 
       {overlayError && <div className="error-card">⚠️ {overlayError}</div>}
 
-      {/* Decorated tree overlay — revealed only after loader exit animation completes */}
-      {ornaments.length > 0 && image && !showLoader && (
+      {/* Decorated tree overlay — revealed after the modal dismisses */}
+      {ornaments.length > 0 && image && !overlayLoading && (
         <div className="overlay-section" ref={overlayRef}>
 
           <div className="overlay-label-row">
