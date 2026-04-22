@@ -203,7 +203,7 @@ STEP 2 — Return ONLY a valid JSON object in this exact format. No markdown, no
 {"palette":{"base":"#hexcolor","secondary":"#hexcolor","accent":"#hexcolor","description":"one sentence explaining why these colors fit this specific room"},"ornaments":[EXACTLY ${varieties} ITEMS]}
 
 Each ornament must use ONLY the palette colors above:
-{"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"target":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}
+{"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}
 
 Type distribution for ${varieties} ornaments: ${sizeLine}
 - 50% balls, 20% drops, 20% stars, 10% wildcard shape
@@ -214,7 +214,6 @@ Type distribution for ${varieties} ornaments: ${sizeLine}
 const RETAILERS = [
   { key: 'walmart', label: 'Walmart', color: '#0071ce' },
   { key: 'amazon',  label: 'Amazon',  color: '#ff9900' },
-  { key: 'target',  label: 'Target',  color: '#cc0000' },
   { key: 'etsy',    label: 'Etsy',    color: '#F1641E' },
 ]
 
@@ -402,7 +401,6 @@ function saveToMyOrnaments(o) {
     retailers: {
       walmart: { price: o.walmart?.price || '' },
       amazon:  { price: o.amazon?.price  || '' },
-      target:  { price: o.target?.price  || '' },
       etsy:    { price: o.etsy?.price    || '' },
     },
     source:    'saved',
@@ -439,8 +437,7 @@ function getSearchUrl(retailer, name, shape) {
   const q = encodeURIComponent(buildQuery(name, shape))
   if (retailer === 'walmart') return `https://www.walmart.com/search?q=${q}`
   if (retailer === 'amazon')  return `https://www.amazon.com/s?k=${q}`
-  if (retailer === 'target')  return `https://www.target.com/s?searchTerm=${q}`
-  if (retailer === 'etsy')    return `https://www.etsy.com/search?q=${q}`
+if (retailer === 'etsy')    return `https://www.etsy.com/search?q=${q}`
   return null
 }
 

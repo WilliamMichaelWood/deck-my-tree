@@ -1198,7 +1198,7 @@ a { text-decoration: none; color: inherit; }
 }
 .shop-card-retailers {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   border-top: 1px solid var(--border-soft);
   background: var(--navy-lift);
 }

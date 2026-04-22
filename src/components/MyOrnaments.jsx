@@ -10,9 +10,9 @@ const BUDGET_TAGS = ['Budget', 'Mid-range', 'Premium']
 const BLANK_FORM  = { name: '', colorDesc: '', colorHex: '', shape: 'ball', material: 'Glass', size: 'medium', notes: '' }
 
 const RETAILER_SEARCH = {
-  walmart:     (q) => `https://www.walmart.com/search?q=${encodeURIComponent(q)}`,
-  amazon:      (q) => `https://www.amazon.com/s?k=${encodeURIComponent(q)}`,
-  target:      (q) => `https://www.target.com/s?searchTerm=${encodeURIComponent(q)}`,
+  walmart: (q) => `https://www.walmart.com/search?q=${encodeURIComponent(q)}`,
+  amazon:  (q) => `https://www.amazon.com/s?k=${encodeURIComponent(q)}`,
+  etsy:    (q) => `https://www.etsy.com/search?q=${encodeURIComponent(q)}`,
 }
 
 // Build a rich search query from all available ornament descriptors
@@ -147,7 +147,7 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
 
   const handleDeckIt = () => {
     const q = buildSearchQuery(ornament)
-    const RETAILER_ORDER = ['walmart', 'amazon', 'target']
+    const RETAILER_ORDER = ['walmart', 'amazon', 'etsy']
     for (const key of RETAILER_ORDER) {
       const entry = ornament.retailers?.[key]
       if (entry?.price && RETAILER_SEARCH[key]) {

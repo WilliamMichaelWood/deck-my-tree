@@ -30,7 +30,6 @@ const SIZES   = ['Tabletop (under 3ft)', 'Small (3–5ft)', 'Medium (6–7ft)', 
 const RETAILERS = [
   { key: 'walmart', label: 'Walmart', color: '#0071ce' },
   { key: 'amazon',  label: 'Amazon',  color: '#ff9900' },
-  { key: 'target',  label: 'Target',  color: '#cc0000' },
   { key: 'etsy',    label: 'Etsy',    color: '#F1641E' },
 ]
 
@@ -58,7 +57,6 @@ Each item must use exactly this structure:
   "whyPerfect": "One sentence why this suits their palette and style",
   "walmart": { "price": "$X–$XX" },
   "amazon":  { "price": "$X–$XX" },
-  "target":  { "price": "$X–$XX" },
   "etsy":    { "price": "$X–$XX" }
 }
 
@@ -96,8 +94,7 @@ function getSearchUrl(retailer, name, shape, description) {
   const q = encodeURIComponent(buildQuery(name, shape, description))
   if (retailer === 'walmart') return `https://www.walmart.com/search?q=${q}`
   if (retailer === 'amazon')  return `https://www.amazon.com/s?k=${q}`
-  if (retailer === 'target')  return `https://www.target.com/s?searchTerm=${q}`
-  if (retailer === 'etsy')    return `https://www.etsy.com/search?q=${q}`
+if (retailer === 'etsy')    return `https://www.etsy.com/search?q=${q}`
   return null
 }
 
@@ -273,7 +270,7 @@ export default function SleighTheLook() {
     <div className="tab-content">
       <div className="section-header">
         <h2><svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '8px', marginBottom: '3px' }}><path d="M11,0.5 L12.8,9.2 L21.5,11 L12.8,12.8 L11,21.5 L9.2,12.8 L0.5,11 L9.2,9.2 Z" fill="#c9a84c"/><circle cx="17.5" cy="4.5" r="1" fill="#c9a84c" opacity="0.5"/><circle cx="4.5" cy="17.5" r="1" fill="#c9a84c" opacity="0.5"/><circle cx="17.5" cy="17.5" r="1" fill="#c9a84c" opacity="0.38"/><circle cx="4.5" cy="4.5" r="1" fill="#c9a84c" opacity="0.38"/></svg>Sleigh the Look</h2>
-        <p>Tell your stylist about your tree and they'll curate a personalized ornament shopping list — shoppable on Walmart, Amazon, and Target.</p>
+        <p>Tell your stylist about your tree and they'll curate a personalized ornament shopping list — shoppable on Walmart, Amazon, and Etsy.</p>
       </div>
 
       <div className="shop-form">
