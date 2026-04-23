@@ -4,7 +4,7 @@ import MarkdownContent from './MarkdownContent'
 
 const TREE_STYLES = [
   { id: 'classic', label: 'Classic', icon: '🎄' },
-  { id: 'modern', label: 'Modern', icon: '◆' },
+  { id: 'modern', label: 'Modern', icon: <svg width="20" height="20" viewBox="0 0 20 20" style={{display:'block'}}><polygon points="10,2 17.3,6 17.3,14 10,18 2.7,14 2.7,6" fill="none" stroke="#5c606e" strokeWidth="1.8"/></svg> },
   { id: 'rustic', label: 'Rustic', icon: '🪵' },
   { id: 'whimsical', label: 'Whimsical', icon: '🦄' },
   { id: 'elegant', label: 'Elegant', icon: '✦' },

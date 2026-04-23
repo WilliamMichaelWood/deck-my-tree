@@ -963,7 +963,7 @@ export default function TreeAdvisor() {
           <p className="overlay-caption">Style preview — tap Sleigh It to shop this look</p>
 
           {palette?.description && (
-            <p className="palette-description">✦ {palette.description}</p>
+            <p className="palette-description">{palette.description}</p>
           )}
 
           <div className="ornament-legend">
@@ -992,7 +992,7 @@ export default function TreeAdvisor() {
                 {shareLoading ? <><span className="spin">✦</span> Preparing…</> : '✦ Share Image'}
               </button>
               <button className="btn-share" onClick={handleShareLink}>
-                ✦ Share Link
+                Share Link
               </button>
             </div>
           </div>
