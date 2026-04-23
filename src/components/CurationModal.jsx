@@ -1,17 +1,17 @@
 import { useState, useEffect, useMemo } from 'react'
 
 const MESSAGES = [
-  'Growing your vision…',
-  'Ornaments taking shape…',
-  'Tree coming alive…',
-  'Almost there…',
+  'Your stylist is selecting…',
+  'Weaving the magic…',
+  'Enchanting your tree…',
+  'Almost ready to sleigh…',
 ]
 
-// ── Falling sparkle particles (gold-tinted) ───────────────────────────────────
-const PARTICLE_COUNT = 22
+// ── Snow particles (behind everything) ───────────────────────────────────────
+const SNOW_COUNT = 22
 
-function useParticles() {
-  return useMemo(() => Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
+function useSnow() {
+  return useMemo(() => Array.from({ length: SNOW_COUNT }, (_, i) => ({
     id:       i,
     left:     Math.random() * 100,
     size:     Math.random() * 3 + 2,
@@ -21,120 +21,66 @@ function useParticles() {
   })), [])
 }
 
-// ── Growing-tree animation timing (3.5 s loop) ────────────────────────────────
-// All keyframe percentages are derived from the target wall-clock times:
-//   Phase 1 — central ornament :  0.0–0.3 s  (  0 –  9 %)
-//   Phase 2 — tier-1 branches  :  0.4–0.8 s  ( 11 – 23 %)
-//   Phase 3 — tier-1 ornaments :  0.9–1.3 s  ( 26 – 37 %)
-//   Phase 4 — tier-2 branches  :  1.4–1.8 s  ( 40 – 51 %)
-//   Phase 5 — tier-2 ornaments :  1.9–2.3 s  ( 54 – 66 %)
-//   Phase 6 — star              :  2.4–2.8 s  ( 69 – 80 %)
-//   Phase 7 — radial glow       :  2.9–3.5 s  ( 83 –100 %)
+// ── Orbiting sparkles ─────────────────────────────────────────────────────────
+const SPARKLE_COUNT  = 12
+const ORBIT_RADIUS   = 60   // px from centre
+const ORBIT_DUR      = 4    // seconds per revolution
 
-const DUR = '3.5s'
+function useSparkles() {
+  return useMemo(() => Array.from({ length: SPARKLE_COUNT }, (_, i) => ({
+    id:          i,
+    // Negative delay staggers each sparkle evenly around the ring at t=0
+    orbitDelay:  -((i / SPARKLE_COUNT) * ORBIT_DUR),
+    glowDelay:   -(Math.random() * 2),
+    glowDuration: 1.4 + Math.random() * 1.2,
+  })), [])
+}
 
+// ── CSS ───────────────────────────────────────────────────────────────────────
 const CSS = `
-/* Phase 1 — central ornament */
-@keyframes cmOrn0 {
-  0%   { opacity: 0; transform: scale(0);   }
-  9%   { opacity: 1; transform: scale(1.1); }
-  12%  { opacity: 1; transform: scale(1);   }
-  94%  { opacity: 1; transform: scale(1);   }
-  100% { opacity: 0; transform: scale(0);   }
+/* Ornament spin — rotates the whole group around the ball centre */
+@keyframes cmOrnSpin {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
 }
 
-/* Phase 2 — tier-1 branches */
-@keyframes cmBranch1 {
-  0%   { stroke-dashoffset: 70; opacity: 0; }
-  11%  { stroke-dashoffset: 70; opacity: 0; }
-  13%  { stroke-dashoffset: 70; opacity: 1; }
-  23%  { stroke-dashoffset: 0;  opacity: 1; }
-  94%  { stroke-dashoffset: 0;  opacity: 1; }
-  100% { stroke-dashoffset: 70; opacity: 0; }
+/* Colour shift — hue-rotate cycles gold→emerald→cranberry→gold */
+/* Gold #c9a84c ≈ hue 43°; Emerald #0d4a2a ≈ hue 148° (+105°);  */
+/* Cranberry #9b1c2c ≈ hue 350° (+307°)                           */
+@keyframes cmOrnColor {
+  0%   { filter: hue-rotate(0deg);   }
+  33%  { filter: hue-rotate(105deg); }
+  66%  { filter: hue-rotate(307deg); }
+  100% { filter: hue-rotate(360deg); }
 }
 
-/* Phase 3 — tier-1 ornaments */
-@keyframes cmOrn1 {
-  0%   { opacity: 0; transform: scale(0);   }
-  26%  { opacity: 0; transform: scale(0);   }
-  33%  { opacity: 1; transform: scale(1.1); }
-  37%  { opacity: 1; transform: scale(1);   }
-  94%  { opacity: 1; transform: scale(1);   }
-  100% { opacity: 0; transform: scale(0);   }
-}
-
-/* Phase 4 — tier-2 branches */
-@keyframes cmBranch2 {
-  0%   { stroke-dashoffset: 90; opacity: 0; }
-  40%  { stroke-dashoffset: 90; opacity: 0; }
-  42%  { stroke-dashoffset: 90; opacity: 1; }
-  51%  { stroke-dashoffset: 0;  opacity: 1; }
-  94%  { stroke-dashoffset: 0;  opacity: 1; }
-  100% { stroke-dashoffset: 90; opacity: 0; }
-}
-
-/* Phase 5 — tier-2 ornaments, staggered in three waves */
-@keyframes cmOrn2a {
-  0%   { opacity: 0; transform: scale(0);   }
-  54%  { opacity: 0; transform: scale(0);   }
-  61%  { opacity: 1; transform: scale(1.1); }
-  65%  { opacity: 1; transform: scale(1);   }
-  94%  { opacity: 1; transform: scale(1);   }
-  100% { opacity: 0; transform: scale(0);   }
-}
-@keyframes cmOrn2b {
-  0%   { opacity: 0; transform: scale(0);   }
-  57%  { opacity: 0; transform: scale(0);   }
-  65%  { opacity: 1; transform: scale(1.1); }
-  69%  { opacity: 1; transform: scale(1);   }
-  94%  { opacity: 1; transform: scale(1);   }
-  100% { opacity: 0; transform: scale(0);   }
-}
-@keyframes cmOrn2c {
-  0%   { opacity: 0; transform: scale(0);   }
-  61%  { opacity: 0; transform: scale(0);   }
-  69%  { opacity: 1; transform: scale(1.1); }
-  73%  { opacity: 1; transform: scale(1);   }
-  94%  { opacity: 1; transform: scale(1);   }
-  100% { opacity: 0; transform: scale(0);   }
-}
-
-/* Phase 6 — gold star */
-@keyframes cmStar {
-  0%   { opacity: 0; transform: scale(0);   }
-  69%  { opacity: 0; transform: scale(0);   }
-  74%  { opacity: 1; transform: scale(1.3); }
-  80%  { opacity: 1; transform: scale(1);   }
-  94%  { opacity: 1; transform: scale(1);   }
-  100% { opacity: 0; transform: scale(0);   }
-}
-
-/* Phase 7 — radial glow pulse */
+/* Glow pulse — applied to the outer group so it wraps the hue-rotated content */
 @keyframes cmGlowPulse {
-  0%, 83% { opacity: 0;   }
-  89%      { opacity: 1;   }
-  94%      { opacity: 0.6; }
-  100%     { opacity: 0;   }
+  0%, 100% { filter: drop-shadow(0 0  6px rgba(212,168,67,0.45)); }
+  50%       { filter: drop-shadow(0 0 18px rgba(212,168,67,0.80)); }
 }
 
-/* Trunk fades in alongside tier-1 ornaments */
-@keyframes cmTrunk {
-  0%   { opacity: 0; }
-  26%  { opacity: 0; }
-  37%  { opacity: 0.75; }
-  94%  { opacity: 0.75; }
-  100% { opacity: 0; }
+/* Orbit — sparkle travels a 60 px circular path; counter-rotate keeps ✦ upright */
+@keyframes cmOrbit {
+  from { transform: rotate(0deg)   translateY(-${ORBIT_RADIUS}px) rotate(0deg);    }
+  to   { transform: rotate(360deg) translateY(-${ORBIT_RADIUS}px) rotate(-360deg); }
 }
 
-/* Falling sparkle particles */
-@keyframes cmSparkle {
-  0%   { transform: translateY(-10px) scale(0.8); opacity: 0; }
+/* Sparkle opacity throb */
+@keyframes cmSparkleGlow {
+  0%, 100% { opacity: 0.25; }
+  50%       { opacity: 0.90; }
+}
+
+/* Falling snow */
+@keyframes cmSnow {
+  0%   { transform: translateY(-10px) scale(0.8); opacity: 0;   }
   10%  { opacity: 1; }
   90%  { opacity: 0.6; }
   100% { transform: translateY(100vh) scale(1.2); opacity: 0; }
 }
 
-/* Cycling copy */
+/* Copy fade */
 @keyframes cmMsgIn {
   from { opacity: 0; }
   15%  { opacity: 1; }
@@ -143,144 +89,55 @@ const CSS = `
 }
 `
 
-// ── Reusable ornament group ───────────────────────────────────────────────────
-// Scales/fades around the circle centre (cx, cy) via explicit transformOrigin.
-function Ornament({ cx, cy, r, gradId, capH = 6, anim }) {
-  const capY = cy - r - capH + 1
-  return (
-    <g style={{ animation: anim, transformOrigin: `${cx}px ${cy}px` }}>
-      {/* Cap */}
-      <rect x={cx - 2} y={capY} width={4} height={capH} rx={1.5} fill="#c9a84c" />
-      {/* Body */}
-      <circle cx={cx} cy={cy} r={r} fill={`url(#${gradId})`} />
-      {/* Specular highlight */}
-      <ellipse
-        cx={cx - r * 0.28}  cy={cy - r * 0.32}
-        rx={r * 0.38}       ry={r * 0.26}
-        fill="rgba(255,255,255,0.45)"
-        transform={`rotate(-20 ${cx - r * 0.28} ${cy - r * 0.32})`}
-      />
-    </g>
-  )
-}
+// Replace the template-literal radius with the actual number at module load
+const LIVE_CSS = CSS.replace(/\$\{ORBIT_RADIUS\}/g, ORBIT_RADIUS)
 
-// ── Growing tree SVG ──────────────────────────────────────────────────────────
-// viewBox 0 0 140 140 matches the 140 × 140 gold-circle container.
-// All tree elements sit within the r=66 circle (centre 70,70).
-//
-// Layout (y increases downward):
-//   Star          : tip at (70, 12) — within r=58 from centre
-//   Central ornament : cy=46, r=12
-//   Tier-1 branches  : (70,46) → (40,72) and (100,72)
-//   Tier-1 ornaments : (40,72) and (100,72)
-//   Trunk segment    : (70,58) → (70,78)
-//   Tier-2 branches  : (70,78) → (28,102) and (112,102)
-//   Tier-2 ornaments : 5 ornaments spread across lower portion
-//   Trunk base       : rect at (64,116)
-function GrowingTree() {
-  const a = (kf) => `${kf} ${DUR} ease infinite`
-
+// ── Spinning ornament SVG ─────────────────────────────────────────────────────
+// Ball centred at (70, 70), r=32. Cap at top (67–73, 24–38).
+// Outer <g> carries the pulsing glow (filter: drop-shadow).
+// Inner <g> carries spin + colour shift on separate animation layers.
+function SpinningOrnament() {
   return (
-    <svg viewBox="0 0 140 140" width="140" height="140" overflow="visible" aria-hidden="true">
+    <svg viewBox="0 0 140 140" width="140" height="140" aria-hidden="true">
       <defs>
-        <radialGradient id="cmGG" cx="35%" cy="32%" r="62%">
-          <stop offset="0%"   stopColor="#f0d870" />
-          <stop offset="55%"  stopColor="#d4a843" />
-          <stop offset="100%" stopColor="#9a7018" />
-        </radialGradient>
-        <radialGradient id="cmGC" cx="35%" cy="32%" r="62%">
-          <stop offset="0%"   stopColor="#e05060" />
-          <stop offset="55%"  stopColor="#9b1c2c" />
-          <stop offset="100%" stopColor="#5e0e18" />
-        </radialGradient>
-        <radialGradient id="cmGE" cx="35%" cy="32%" r="62%">
-          <stop offset="0%"   stopColor="#1a8050" />
-          <stop offset="55%"  stopColor="#0d4a2a" />
-          <stop offset="100%" stopColor="#072a18" />
-        </radialGradient>
-        <radialGradient id="cmGW" cx="35%" cy="32%" r="62%">
-          <stop offset="0%"   stopColor="#ffffff" />
-          <stop offset="55%"  stopColor="#f0eee8" />
-          <stop offset="100%" stopColor="#c4c0b8" />
-        </radialGradient>
-        <radialGradient id="cmGN" cx="35%" cy="32%" r="62%">
-          <stop offset="0%"   stopColor="#2a4a7a" />
-          <stop offset="55%"  stopColor="#0f1f35" />
-          <stop offset="100%" stopColor="#060e1c" />
-        </radialGradient>
-        <radialGradient id="cmGlow" cx="50%" cy="58%" r="48%">
-          <stop offset="0%"   stopColor="#d4a843" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="#d4a843" stopOpacity="0"    />
+        {/* Metallic gold with highlights — gradient origin upper-left */}
+        <radialGradient id="cmGG2" cx="32%" cy="28%" r="68%">
+          <stop offset="0%"   stopColor="#f8ec80" />
+          <stop offset="35%"  stopColor="#d4a843" />
+          <stop offset="75%"  stopColor="#b88820" />
+          <stop offset="100%" stopColor="#7a5808" />
         </radialGradient>
       </defs>
 
-      {/* Phase 7 — radial glow (renders first, sits behind everything) */}
-      <circle cx="70" cy="78" r="62" fill="url(#cmGlow)"
-        style={{ animation: a('cmGlowPulse') }}
-      />
+      {/* Outer group: glow pulse only */}
+      <g style={{ animation: 'cmGlowPulse 2.5s ease-in-out infinite' }}>
 
-      {/* Trunk base rect */}
-      <rect x="64" y="116" width="12" height="10" rx="2" fill="#5c3a1e"
-        style={{ animation: a('cmTrunk') }}
-      />
+        {/* Inner group: spin + colour cycle — pivots around ball centre (70,70) */}
+        <g style={{
+          transformOrigin: '70px 70px',
+          animation: `cmOrnSpin ${ORBIT_DUR}s linear infinite, cmOrnColor 12s ease-in-out infinite`,
+        }}>
+          {/* String / cap */}
+          <rect x="67" y="24" width="6" height="14" rx="2" fill="#c9a84c" />
 
-      {/* Trunk segment connecting the two branch tiers */}
-      <line x1="70" y1="58" x2="70" y2="78"
-        stroke="#1d5c3a" strokeWidth="3" strokeLinecap="round"
-        style={{ animation: a('cmTrunk') }}
-      />
+          {/* Ball */}
+          <circle cx="70" cy="70" r="32" fill="url(#cmGG2)" />
 
-      {/* Phase 4 — tier-2 branches */}
-      <path d="M70,78 Q46,90 28,102"
-        fill="none" stroke="#1d5c3a" strokeWidth="3.5" strokeLinecap="round"
-        strokeDasharray="90" strokeDashoffset="90"
-        style={{ animation: a('cmBranch2') }}
-      />
-      <path d="M70,78 Q94,90 112,102"
-        fill="none" stroke="#1d5c3a" strokeWidth="3.5" strokeLinecap="round"
-        strokeDasharray="90" strokeDashoffset="90"
-        style={{ animation: a('cmBranch2') }}
-      />
+          {/* Primary specular highlight — large, upper-left */}
+          <ellipse
+            cx="54" cy="54" rx="13" ry="8"
+            fill="rgba(255,255,255,0.48)"
+            transform="rotate(-20 54 54)"
+          />
 
-      {/* Phase 5 — tier-2 ornaments (three staggered waves) */}
-      {/* Outer pair — cranberry / emerald */}
-      <Ornament cx={28}  cy={102} r={9} gradId="cmGC" anim={a('cmOrn2a')} />
-      <Ornament cx={112} cy={102} r={9} gradId="cmGE" anim={a('cmOrn2a')} />
-      {/* Inner pair — white / navy */}
-      <Ornament cx={48}  cy={108} r={8} gradId="cmGW" anim={a('cmOrn2b')} />
-      <Ornament cx={92}  cy={108} r={8} gradId="cmGN" anim={a('cmOrn2b')} />
-      {/* Centre bottom — gold */}
-      <Ornament cx={70}  cy={112} r={8} gradId="cmGG" anim={a('cmOrn2c')} />
-
-      {/* Phase 2 — tier-1 branches */}
-      <path d="M70,46 Q52,62 40,72"
-        fill="none" stroke="#1d5c3a" strokeWidth="2.5" strokeLinecap="round"
-        strokeDasharray="70" strokeDashoffset="70"
-        style={{ animation: a('cmBranch1') }}
-      />
-      <path d="M70,46 Q88,62 100,72"
-        fill="none" stroke="#1d5c3a" strokeWidth="2.5" strokeLinecap="round"
-        strokeDasharray="70" strokeDashoffset="70"
-        style={{ animation: a('cmBranch1') }}
-      />
-
-      {/* Phase 3 — tier-1 ornaments */}
-      <Ornament cx={40}  cy={72} r={9}  gradId="cmGC" anim={a('cmOrn1')} />
-      <Ornament cx={100} cy={72} r={9}  gradId="cmGE" anim={a('cmOrn1')} />
-
-      {/* Phase 1 — central ornament (gold, slightly larger) */}
-      <Ornament cx={70}  cy={46} r={12} gradId="cmGG" capH={8} anim={a('cmOrn0')} />
-
-      {/* Phase 6 — gold star on top */}
-      <polygon
-        points="70,12 72.4,19.3 80,19.3 74,23.8 76.4,31.1 70,26.6 63.6,31.1 66,23.8 60,19.3 67.6,19.3"
-        fill="#d4a843"
-        style={{
-          animation:     a('cmStar'),
-          transformOrigin: '70px 22px',
-          filter:        'drop-shadow(0 0 6px rgba(212,168,67,0.9))',
-        }}
-      />
+          {/* Secondary glint — small, lower-right */}
+          <ellipse
+            cx="84" cy="84" rx="5" ry="3"
+            fill="rgba(255,255,255,0.14)"
+            transform="rotate(-20 84 84)"
+          />
+        </g>
+      </g>
     </svg>
   )
 }
@@ -289,7 +146,8 @@ function GrowingTree() {
 export default function CurationModal({ visible }) {
   const [msgIdx, setMsgIdx] = useState(0)
   const [msgKey, setMsgKey] = useState(0)
-  const particles = useParticles()
+  const snow     = useSnow()
+  const sparkles = useSparkles()
 
   useEffect(() => {
     if (!visible) return
@@ -315,10 +173,10 @@ export default function CurationModal({ visible }) {
       justifyContent: 'center',
       overflow:       'hidden',
     }}>
-      <style>{CSS}</style>
+      <style>{LIVE_CSS}</style>
 
-      {/* Falling sparkle particles */}
-      {particles.map(p => (
+      {/* Falling snow — rendered first, sits behind card */}
+      {snow.map(p => (
         <div key={p.id} aria-hidden="true" style={{
           position:      'absolute',
           top:           0,
@@ -328,7 +186,7 @@ export default function CurationModal({ visible }) {
           borderRadius:  '50%',
           background:    '#d4a843',
           opacity:       p.opacity,
-          animation:     `cmSparkle ${p.duration}s ease-in ${p.delay}s infinite`,
+          animation:     `cmSnow ${p.duration}s ease-in ${p.delay}s infinite`,
           pointerEvents: 'none',
         }} />
       ))}
@@ -349,11 +207,12 @@ export default function CurationModal({ visible }) {
         zIndex:        1,
       }}>
 
-        {/* Gold circle frame + growing tree */}
+        {/* Animation container — 140×140, same footprint as the gold ring */}
         <div style={{ position: 'relative', width: 140, height: 140, flexShrink: 0 }}>
 
-          {/* Static gold circle with glow */}
-          <svg width="140" height="140" viewBox="0 0 140 140"
+          {/* Gold circle border */}
+          <svg
+            width="140" height="140" viewBox="0 0 140 140"
             style={{
               position: 'absolute', top: 0, left: 0,
               filter:   'drop-shadow(0 0 4px rgba(212,168,67,0.3))',
@@ -363,28 +222,62 @@ export default function CurationModal({ visible }) {
             <circle cx="70" cy="70" r="66" fill="none" stroke="#c9a84c" strokeWidth="3.5" />
           </svg>
 
-          {/* Growing tree — fills the same 140×140 space */}
-          <div style={{
-            position: 'absolute',
-            inset:    0,
-            display:  'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <GrowingTree />
+          {/* Spinning ornament */}
+          <div style={{ position: 'absolute', inset: 0 }}>
+            <SpinningOrnament />
           </div>
+
+          {/* Orbiting ✦ sparkles */}
+          <div style={{ position: 'absolute', inset: 0 }}>
+            {sparkles.map(s => (
+              <div
+                key={s.id}
+                aria-hidden="true"
+                style={{
+                  position:      'absolute',
+                  top:           '50%',
+                  left:          '50%',
+                  // Centre the 8×8 glyph on the orbit origin
+                  width:         8,
+                  height:        8,
+                  marginTop:     -4,
+                  marginLeft:    -4,
+                  display:       'flex',
+                  alignItems:    'center',
+                  justifyContent:'center',
+                  fontSize:      9,
+                  lineHeight:    1,
+                  color:         '#c9a84c',
+                  pointerEvents: 'none',
+                  // Two simultaneous animations: orbit path + opacity throb
+                  animation:     [
+                    `cmOrbit ${ORBIT_DUR}s linear ${s.orbitDelay}s infinite`,
+                    `cmSparkleGlow ${s.glowDuration}s ease-in-out ${s.glowDelay}s infinite`,
+                  ].join(', '),
+                }}
+              >
+                ✦
+              </div>
+            ))}
+          </div>
+
         </div>
 
         {/* Cycling copy */}
-        <p key={msgKey} style={{
-          margin:        0,
-          fontSize:      14,
-          lineHeight:    1.5,
-          color:         '#0f1f35',
-          fontFamily:    'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-          fontWeight:    500,
-          textAlign:     'center',
-          letterSpacing: '0.01em',
-          animation:     'cmMsgIn 2.5s ease both',
-        }}>
+        <p
+          key={msgKey}
+          style={{
+            margin:        0,
+            fontSize:      14,
+            lineHeight:    1.5,
+            color:         '#0f1f35',
+            fontFamily:    'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+            fontWeight:    500,
+            textAlign:     'center',
+            letterSpacing: '0.01em',
+            animation:     'cmMsgIn 2.5s ease both',
+          }}
+        >
           {MESSAGES[msgIdx]}
         </p>
 
