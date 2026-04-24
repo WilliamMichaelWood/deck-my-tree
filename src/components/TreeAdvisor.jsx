@@ -159,7 +159,7 @@ function generateClusteredPlacements(n, bounds) {
         const cy3 = Math.max(tri.apex.y, Math.min(tri.baseL.y, rawY))
         // Bug 1 fix: clamp to valid x range at this y — never fall back to apex.x
         const { xMin: lo2, xMax: hi2 } = xRangeAtY(cy3, tri)
-        const clampedX = Math.max(lo2 + 0.8, Math.min(hi2 - 0.8, rawX))
+        const clampedX = Math.max(lo2 + 1.5, Math.min(hi2 - 1.5, rawX))
         safeX = clampedX
         y     = cy3
 
@@ -479,6 +479,7 @@ export default function TreeAdvisor() {
   const [dragging,       setDragging]       = useState(false)
   const [overlayLoading, setOverlayLoading] = useState(false)
   const [ornaments,      setOrnaments]      = useState([])
+  const [varieties,      setVarieties]      = useState([])
   const [palette,        setPalette]        = useState(null)
   const [shareLoading,    setShareLoading]    = useState(false)
   const [recentTrees,     setRecentTrees]     = useState(() => loadDecorations())
@@ -566,7 +567,7 @@ export default function TreeAdvisor() {
       setImage({ preview: reader.result, base64: reader.result.split(',')[1], mediaType: file.type })
       setResult('')
       setError('')
-      setOrnaments([]); setPalette(null)
+      setOrnaments([]); setVarieties([]); setPalette(null)
     }
     reader.readAsDataURL(file)
   }
@@ -582,7 +583,7 @@ export default function TreeAdvisor() {
     setOverlayLoading(true)   // show modal immediately — everything happens behind it
     setResult('')
     setError('')
-    setOrnaments([]); setPalette(null)
+    setOrnaments([]); setVarieties([]); setPalette(null)
     treeBoundsRef.current = {}
 
     let analysisText = ''
@@ -654,6 +655,7 @@ export default function TreeAdvisor() {
         try {
           const { palette: pal, ornaments: meta } = extractOrnamentResponse(rawOrnaments)
           setPalette(pal)
+          setVarieties(meta.slice(0, 12))
 
           const heightFt = treeBoundsRef.current?.treeHeightFt
           const OVERLAY_COUNT = !heightFt ? 70 : heightFt < 4 ? 40 : heightFt < 6 ? 60 : heightFt < 8 ? 80 : 100
@@ -838,7 +840,7 @@ export default function TreeAdvisor() {
 
           {image && (
             <div className="action-row">
-              <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setPalette(null) }}>
+              <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setVarieties([]); setPalette(null) }}>
                 Remove Photo
               </button>
               <button className="btn-analyze" onClick={handleAnalyze} disabled={overlayLoading}>
@@ -897,7 +899,7 @@ export default function TreeAdvisor() {
           <div className="overlay-label-row">
             <span className="overlay-eyebrow">✦ YOUR STYLE DIRECTION</span>
             <button className="btn-ghost-sm" onClick={() => {
-              setResult(''); setOrnaments([]); setPalette(null)
+              setResult(''); setOrnaments([]); setVarieties([]); setPalette(null)
               setImage(null); setError('')
             }}>
               Try Another Look
@@ -924,11 +926,11 @@ export default function TreeAdvisor() {
             <button className="btn-share" onClick={handleShareLink}>Share Link</button>
           </div>
 
-          {/* 3 — Ornament shopping cards */}
-          {ornaments.length > 0 && (
+          {/* 3 — Ornament shopping cards (12 unique varieties only) */}
+          {varieties.length > 0 && (
             <div className="ornament-shop-section">
               <div className="ornament-shop-list">
-                {ornaments.map((o, i) => (
+                {varieties.map((o, i) => (
                   <div key={i} className="ornament-shop-card">
                     <div className="shop-card-top">
                       <div className="shop-ornament-preview">
