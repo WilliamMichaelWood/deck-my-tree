@@ -486,6 +486,7 @@ export default function TreeAdvisor() {
   const [savedIds,        setSavedIds]        = useState(new Set())
   const fileInputRef   = useRef(null)
   const overlayRef     = useRef(null)
+  const shopRef        = useRef(null)
   const treeBoundsRef  = useRef({})   // stores AI-detected bounding box for placement
 
   // Scroll helper — offsets for sticky header height so element isn't hidden behind it
@@ -923,8 +924,18 @@ export default function TreeAdvisor() {
             </div>
           )}
 
+          {/* Shop CTA */}
+          {varieties.length > 0 && (
+            <button
+              className="btn-shop-cta"
+              onClick={() => shopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+            >
+              ✦ Sleigh It — Shop the Look →
+            </button>
+          )}
+
           {/* Share row */}
-          <div className="share-row" style={{ marginTop: 16 }}>
+          <div className="share-row" style={{ marginTop: 12 }}>
             {ornaments.length > 0 && (
               <button className="btn-share" onClick={handleShare} disabled={shareLoading}>
                 {shareLoading ? <><span className="spin">✦</span> Preparing…</> : '✦ Share Image'}
@@ -935,7 +946,8 @@ export default function TreeAdvisor() {
 
           {/* 3 — Ornament shopping cards (12 unique varieties only) */}
           {varieties.length > 0 && (
-            <div className="ornament-shop-section">
+            <div className="ornament-shop-section" ref={shopRef}>
+              <h3 className="shop-section-header">✦ Shop This Look</h3>
               <div className="ornament-shop-list">
                 {varieties.map((o, i) => (
                   <div key={i} className="ornament-shop-card">
