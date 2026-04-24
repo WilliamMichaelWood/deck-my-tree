@@ -483,13 +483,16 @@ export default function TreeAdvisor() {
   const [overlayLoading, setOverlayLoading] = useState(false)
   const [ornaments,      setOrnaments]      = useState([])
   const [palette,        setPalette]        = useState(null)
-  const [showShop,       setShowShop]       = useState(false)
-  const [shareLoading,   setShareLoading]   = useState(false)
-  const [recentTrees,    setRecentTrees]    = useState(() => loadDecorations())
-  const [savedIds,       setSavedIds]       = useState(new Set())
+  const [showShop,        setShowShop]        = useState(false)
+  const [shareLoading,    setShareLoading]    = useState(false)
+  const [recentTrees,     setRecentTrees]     = useState(() => loadDecorations())
+  const [savedIds,        setSavedIds]        = useState(new Set())
+  const [paletteExpanded, setPaletteExpanded] = useState(false)
+  const [imageScrolledBy, setImageScrolledBy] = useState(false)
   const fileInputRef   = useRef(null)
   const shopRef        = useRef(null)
   const overlayRef     = useRef(null)
+  const treeImageRef   = useRef(null)
   const treeBoundsRef  = useRef({})   // stores AI-detected bounding box for placement
 
   // Scroll helper — offsets for sticky header height so element isn't hidden behind it
@@ -558,6 +561,23 @@ export default function TreeAdvisor() {
       const t = setTimeout(() => smoothScrollTo(overlayRef, 120), 100)
       return () => clearTimeout(t)
     }
+  }, [overlayLoading])
+
+  // Show sticky CTA once tree image scrolls out of view
+  useEffect(() => {
+    const el = treeImageRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => setImageScrolledBy(!entry.isIntersecting),
+      { threshold: 0.1 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [ornaments.length])  // re-attach when ornaments arrive
+
+  // Reset palette collapsed state on new analysis
+  useEffect(() => {
+    if (overlayLoading) setPaletteExpanded(false)
   }, [overlayLoading])
 
   const processFile = (file) => {
@@ -856,7 +876,7 @@ export default function TreeAdvisor() {
               <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setPalette(null); setShowShop(false) }}>
                 Remove Photo
               </button>
-              <button className="btn-primary" onClick={handleAnalyze} disabled={overlayLoading}>
+              <button className="btn-analyze" onClick={handleAnalyze} disabled={overlayLoading}>
                 ✨ Analyze My Tree
               </button>
             </div>
@@ -922,11 +942,21 @@ export default function TreeAdvisor() {
           {/* Decorated tree — only if overlay succeeded */}
           {ornaments.length > 0 && image && (
             <>
-              <StyledOverlayView image={image} ornaments={ornaments} />
+              <div ref={treeImageRef}>
+                <StyledOverlayView image={image} ornaments={ornaments} />
+              </div>
               <p className="overlay-caption">Style preview — tap Sleigh It to shop this look</p>
               {palette?.description && (
-                <p className="palette-description">{palette.description}</p>
+                <>
+                  <p className={`palette-description${paletteExpanded ? '' : ' collapsed'}`}>
+                    {palette.description}
+                  </p>
+                  <button className="palette-read-more" onClick={() => setPaletteExpanded(e => !e)}>
+                    {paletteExpanded ? 'Show less' : 'Read more'}
+                  </button>
+                </>
               )}
+              <hr className="palette-legend-divider" />
               <div className="ornament-legend">
                 {ornaments
                   .filter((o, i, arr) => arr.findIndex(x => x.shape === o.shape && x.color === o.color) === i)
@@ -953,14 +983,6 @@ export default function TreeAdvisor() {
 
           {/* Actions */}
           <div className="overlay-actions">
-            {ornaments.length > 0 && !showShop && (
-              <button className="btn-sleigh-it" onClick={handleSleighIt}>
-                Sleigh It — Shop the Look
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:'inline',verticalAlign:'middle',marginLeft:'8px'}}>
-                  <path d="M3.5 9H14.5M14.5 9L9.5 4M14.5 9L9.5 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            )}
             <div className="share-row">
               {ornaments.length > 0 && (
                 <button className="btn-share" onClick={handleShare} disabled={shareLoading}>
@@ -972,6 +994,16 @@ export default function TreeAdvisor() {
               </button>
             </div>
           </div>
+
+          {/* Sticky shop CTA — appears once tree image scrolls out of view */}
+          {ornaments.length > 0 && !showShop && imageScrolledBy && (
+            <button className="sticky-shop-cta" onClick={handleSleighIt}>
+              ✦ Sleigh It — Shop the Look
+              <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                <path d="M3.5 9H14.5M14.5 9L9.5 4M14.5 9L9.5 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          )}
 
           {/* Shopping list */}
           {showShop && ornaments.length > 0 && (
