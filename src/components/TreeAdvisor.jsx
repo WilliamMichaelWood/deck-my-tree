@@ -406,11 +406,13 @@ function StyledOverlayView({ image, ornaments }) {
   )
 }
 
-const saveDecoration = (image, ornaments, analysis) => {
+const saveDecoration = (image, ornaments, analysis, varieties, palette) => {
   const decoration = {
     id: Date.now(),
     image: image.preview,
     ornaments,
+    varieties: varieties || [],
+    palette:   palette   || null,
     analysis,
     timestamp: new Date().toISOString(),
   }
@@ -676,7 +678,7 @@ export default function TreeAdvisor() {
           setOrnaments(placed)
 
           if (image && analysisText) {
-            saveDecoration(image, placed, analysisText)
+            saveDecoration(image, placed, analysisText, meta.slice(0, 12), pal)
             setRecentTrees(loadDecorations())
           }
         } catch (err) {
@@ -702,12 +704,130 @@ export default function TreeAdvisor() {
     localStorage.setItem('decorations', JSON.stringify(updated))
   }
 
+  const handleRetry = async () => {
+    if (!image) return
+    // Build a "different palette" instruction using the previous palette colors
+    const prevColors = palette
+      ? `Avoid these previously suggested colors: ${[palette.base, palette.secondary, palette.accent].filter(Boolean).join(', ')}.`
+      : ''
+    const differentLook = `\n\nIMPORTANT: The user wants a completely different style direction. Choose a different color palette and ornament style than before. ${prevColors} Suggest something that feels like a fresh, unexpected alternative.`
+
+    setOverlayLoading(true)
+    setResult('')
+    setError('')
+    setOrnaments([]); setVarieties([]); setPalette(null)
+    treeBoundsRef.current = {}
+
+    let analysisText = ''
+    let rawOrnaments = ''
+
+    try {
+      await Promise.all([
+        // A — bounds detection (silent)
+        (async () => {
+          try {
+            let detectRaw = ''
+            await streamChat({
+              messages: [{ role: 'user', content: [
+                { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+                { type: 'text', text: DETECT_PROMPT },
+              ]}],
+              maxTokens: 200,
+              onText: (t) => { detectRaw += t },
+            })
+            const s = detectRaw.indexOf('{'), e = detectRaw.lastIndexOf('}')
+            if (s !== -1 && e !== -1) treeBoundsRef.current = JSON.parse(detectRaw.slice(s, e + 1))
+          } catch { }
+        })(),
+
+        // B — analysis with "different look" instruction
+        streamChat({
+          messages: [{ role: 'user', content: [
+            { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+            { type: 'text', text: getAnalysisPrompt() + differentLook },
+          ]}],
+          maxTokens: 1000,
+          onText: (t) => { analysisText += t },
+        }),
+
+        // C — ornament generation with different palette instruction
+        (async () => {
+          try {
+            await streamChat({
+              messages: [{ role: 'user', content: [
+                { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+                { type: 'text', text: buildOrnamentListPrompt(OVERLAY_VARIETIES) + (prevColors ? `\n\nIMPORTANT: ${prevColors} Use a completely different palette.` : '') },
+              ]}],
+              maxTokens: 2500,
+              onText: (t) => { rawOrnaments += t },
+            })
+          } catch {
+            rawOrnaments = ''
+            try {
+              await streamChat({
+                messages: [{ role: 'user', content: [
+                  { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+                  { type: 'text', text: buildOrnamentListPrompt(6) },
+                ]}],
+                maxTokens: 2500,
+                onText: (t) => { rawOrnaments += t },
+              })
+            } catch { }
+          }
+        })(),
+      ])
+
+      setResult(analysisText)
+
+      if (rawOrnaments) {
+        try {
+          const { palette: pal, ornaments: meta } = extractOrnamentResponse(rawOrnaments)
+          setPalette(pal)
+          setVarieties(meta.slice(0, 12))
+          const heightFt = treeBoundsRef.current?.treeHeightFt
+          const OVERLAY_COUNT = !heightFt ? 70 : heightFt < 4 ? 40 : heightFt < 6 ? 60 : heightFt < 8 ? 80 : 100
+          const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
+          const placed = positions.map((pos, i) => {
+            const jx = (Math.random() - 0.5) * 4
+            const jy = (Math.random() - 0.5) * 4
+            pos = { ...pos, x: pos.x + jx, y: pos.y + jy }
+            if (pos.yF > 0.70) {
+              for (let k = 0; k < meta.length; k++) {
+                const candidate = meta[(i + k) % meta.length]
+                if (candidate.shape === 'ball' || candidate.shape === 'drop') return { ...candidate, ...pos }
+              }
+            }
+            return { ...meta[i % meta.length], ...pos }
+          })
+          setOrnaments(placed)
+          if (image && analysisText) {
+            saveDecoration(image, placed, analysisText, meta.slice(0, 12), pal)
+            setRecentTrees(loadDecorations())
+          }
+        } catch (err) {
+          console.warn('[retry] ornament parse failed (silent):', err.message)
+        }
+      }
+    } catch (err) {
+      setResult(analysisText)
+      const msg = err.message || ''
+      const isNetworkError = /load failed|failed to fetch|network/i.test(msg)
+      setError(isNetworkError
+        ? 'Connection error. Please check your internet and try again.'
+        : 'Something went wrong. Please try again.')
+    } finally {
+      setOverlayLoading(false)
+    }
+  }
+
   const handleViewAgain = (decoration) => {
     setImage({ preview: decoration.image, base64: null, mediaType: 'image/jpeg' })
     setResult(decoration.analysis)
     setError('')
-    setOrnaments(decoration.ornaments)
-    setTimeout(() => overlayRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
+    setOrnaments(decoration.ornaments || [])
+    setVarieties(decoration.varieties || [])
+    setPalette(decoration.palette || null)
+    smoothScrollTo(overlayRef, 80)
   }
 
   const handleShare = useCallback(async () => {
@@ -907,12 +1027,18 @@ export default function TreeAdvisor() {
           {/* 2 — Style direction header + palette reasoning card */}
           <div className="overlay-label-row" style={{ marginTop: 20 }}>
             <span className="overlay-eyebrow">✦ YOUR STYLE DIRECTION</span>
-            <button className="btn-secondary btn-sm" onClick={() => {
-              setResult(''); setOrnaments([]); setVarieties([]); setPalette(null)
-              setImage(null); setError('')
-            }}>
-              Try Another Look
-            </button>
+            {image?.base64 ? (
+              <button className="btn-secondary btn-sm" onClick={handleRetry}>
+                Try a New Look
+              </button>
+            ) : (
+              <button className="btn-secondary btn-sm" onClick={() => {
+                setResult(''); setOrnaments([]); setVarieties([]); setPalette(null)
+                setImage(null); setError('')
+              }}>
+                New Tree
+              </button>
+            )}
           </div>
 
           {palette?.description && (

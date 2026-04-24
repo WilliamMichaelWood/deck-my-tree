@@ -234,7 +234,9 @@ a { text-decoration: none; color: inherit; }
 /* ─── Tree Size Selector ─────────────────────────────────────── */
 
 /* ─── Buttons ────────────────────────────────────────────────── */
-.action-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.action-row { display: flex; gap: 12px; width: 100%; }
+.action-row .btn-secondary,
+.action-row .btn-analyze { flex: 1; min-height: 52px; justify-content: center; }
 
 .btn-primary {
   background: linear-gradient(180deg, #c9a84c 0%, #b8943d 100%);
