@@ -236,7 +236,7 @@ a { text-decoration: none; color: inherit; }
 /* ─── Buttons ────────────────────────────────────────────────── */
 .action-row { display: flex; gap: 12px; width: 100%; }
 .action-row .btn-secondary,
-.action-row .btn-analyze { flex: 1; min-height: 52px; justify-content: center; }
+.action-row .btn-analyze { flex: 1; min-height: 52px; justify-content: center; white-space: nowrap; font-size: 0.82rem; }
 
 .btn-primary {
   background: linear-gradient(180deg, #c9a84c 0%, #b8943d 100%);
