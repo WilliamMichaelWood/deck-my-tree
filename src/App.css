@@ -752,15 +752,19 @@ a { text-decoration: none; color: inherit; }
   padding: 22px 24px 18px;
   border-bottom: 1px solid var(--border-soft);
 }
-.rec-number {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 2.2rem;
-  font-weight: 700;
-  color: var(--gold);
-  opacity: 0.3;
-  line-height: 1;
+.rec-icon-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
   flex-shrink: 0;
-  min-width: 46px;
+}
+.rec-number {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #7090a8;
+  line-height: 1;
+  letter-spacing: 0.04em;
 }
 .rec-info { flex: 1; min-width: 0; }
 .rec-name {
@@ -1159,13 +1163,17 @@ a { text-decoration: none; color: inherit; }
     0 4px 16px rgba(0,0,0,0.4);
 }
 .shop-card-info { flex: 1; min-width: 0; }
+.shop-card-num-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 4px;
+}
 .shop-card-num {
-  font-size: 0.68rem;
-  font-weight: 700;
-  color: var(--gold);
-  letter-spacing: 0.06em;
-  display: block;
-  margin-bottom: 2px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #7090a8;
+  letter-spacing: 0.04em;
 }
 .shop-card-name {
   font-size: 1rem;
@@ -1270,7 +1278,7 @@ a { text-decoration: none; color: inherit; }
   .form-row-2   { grid-template-columns: 1fr; }
   .ornament-grid { grid-template-columns: 1fr 1fr; }
   .rec-card-header { padding: 16px 16px 14px; gap: 12px; }
-  .rec-number { font-size: 1.6rem; min-width: 38px; }
+  .rec-card-header { gap: 12px; }
   .rec-why { padding: 10px 16px; }
 }
 @media (max-width: 380px) {

@@ -183,11 +183,56 @@ function ProductCard({ retailer, price, ornamentName, ornamentShape, ornamentDes
   )
 }
 
+function OrnamentTypeIcon({ shape, size = 28 }) {
+  const s = String(shape || 'ball').toLowerCase()
+  const stroke = '#c9a84c'
+  const sw = 1.5
+  if (s === 'drop') return (
+    <svg width={size} height={size} viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      <rect x="12" y="1" width="4" height="5" rx="2" fill={stroke}/>
+      <path d="M14 6 C8 6 5 13 5 18 a9 9 0 0 0 18 0 C23 13 20 6 14 6Z" stroke={stroke} strokeWidth={sw} strokeLinejoin="round"/>
+    </svg>
+  )
+  if (s === 'star') return (
+    <svg width={size} height={size} viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      <polygon points="14,3 17,10 25,10 19,15 21,23 14,18 7,23 9,15 3,10 11,10" stroke={stroke} strokeWidth={sw} strokeLinejoin="round"/>
+    </svg>
+  )
+  if (s === 'snowflake') return (
+    <svg width={size} height={size} viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      <g stroke={stroke} strokeWidth={sw} strokeLinecap="round">
+        <line x1="14" y1="3"  x2="14" y2="25"/>
+        <line x1="4"  y1="9"  x2="24" y2="19"/>
+        <line x1="24" y1="9"  x2="4"  y2="19"/>
+      </g>
+      <circle cx="14" cy="14" r="2" fill={stroke}/>
+    </svg>
+  )
+  if (s === 'pinecone') return (
+    <svg width={size} height={size} viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      <rect x="12" y="1" width="4" height="5" rx="2" fill={stroke}/>
+      <ellipse cx="14" cy="19" rx="7" ry="9" stroke={stroke} strokeWidth={sw}/>
+      <line x1="7" y1="15" x2="21" y2="15" stroke={stroke} strokeWidth="1" opacity="0.5"/>
+      <line x1="8" y1="19" x2="20" y2="19" stroke={stroke} strokeWidth="1" opacity="0.5"/>
+      <line x1="9" y1="23" x2="19" y2="23" stroke={stroke} strokeWidth="1" opacity="0.5"/>
+    </svg>
+  )
+  return (
+    <svg width={size} height={size} viewBox="0 0 28 28" fill="none" aria-hidden="true">
+      <rect x="12" y="1" width="4" height="5" rx="2" fill={stroke}/>
+      <circle cx="14" cy="20" r="9" stroke={stroke} strokeWidth={sw}/>
+    </svg>
+  )
+}
+
 function RecommendationCard({ item, index }) {
   return (
     <div className="recommendation-card">
       <div className="rec-card-header">
-        <span className="rec-number">{String(index + 1).padStart(2, '0')}</span>
+        <div className="rec-icon-col">
+          <OrnamentTypeIcon shape={item.shape || getOrnamentShape(item.name)} />
+          <span className="rec-number">{String(index + 1).padStart(2, '0')}</span>
+        </div>
         <div className="rec-info">
           <h3 className="rec-name">{item.name}</h3>
           <p className="rec-desc">{item.description}</p>
