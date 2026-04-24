@@ -898,7 +898,13 @@ export default function TreeAdvisor() {
       {result && !overlayLoading && (
         <div className="overlay-section reveal-fade" ref={overlayRef}>
 
-          <div className="overlay-label-row">
+          {/* 1 — Decorated tree image (no header above it) */}
+          {ornaments.length > 0 && image && (
+            <StyledOverlayView image={image} ornaments={ornaments} />
+          )}
+
+          {/* 2 — Style direction header + palette reasoning card */}
+          <div className="overlay-label-row" style={{ marginTop: 20 }}>
             <span className="overlay-eyebrow">✦ YOUR STYLE DIRECTION</span>
             <button className="btn-secondary btn-sm" onClick={() => {
               setResult(''); setOrnaments([]); setVarieties([]); setPalette(null)
@@ -908,18 +914,17 @@ export default function TreeAdvisor() {
             </button>
           </div>
 
-          {/* 1 — Decorated tree image */}
-          {ornaments.length > 0 && image && (
-            <StyledOverlayView image={image} ornaments={ornaments} />
-          )}
-
-          {/* 2 — Palette reasoning */}
           {palette?.description && (
-            <p className="palette-description">{palette.description}</p>
+            <div className="palette-card">
+              <span className="palette-card-label">YOUR STYLIST SAYS</span>
+              <p className="palette-description">
+                <span className="palette-flourish">✦</span> {palette.description}
+              </p>
+            </div>
           )}
 
           {/* Share row */}
-          <div className="share-row" style={{ marginTop: 14 }}>
+          <div className="share-row" style={{ marginTop: 16 }}>
             {ornaments.length > 0 && (
               <button className="btn-share" onClick={handleShare} disabled={shareLoading}>
                 {shareLoading ? <><span className="spin">✦</span> Preparing…</> : '✦ Share Image'}

@@ -923,12 +923,35 @@ a { text-decoration: none; color: inherit; }
 }
 .ornament-pin svg { display: block; width: 100%; height: auto; }
 
-.palette-description {
-  font-size: 1rem;
-  color: var(--gold);
-  font-style: italic;
-  line-height: 1.65;
+.palette-card {
+  background: rgba(201, 168, 76, 0.06);
+  border-left: 3px solid #c9a84c;
+  border-radius: 0 8px 8px 0;
+  padding: 16px 20px;
   margin-bottom: 4px;
+}
+.palette-card-label {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: #7090a8;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.palette-flourish {
+  color: #c9a84c;
+  margin-right: 2px;
+}
+.palette-description {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.1rem;
+  font-style: italic;
+  font-weight: 400;
+  color: #f8f4ec;
+  line-height: 1.75;
+  margin: 0;
   overflow: hidden;
   transition: max-height 0.3s ease;
 }
