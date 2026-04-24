@@ -483,16 +483,11 @@ export default function TreeAdvisor() {
   const [overlayLoading, setOverlayLoading] = useState(false)
   const [ornaments,      setOrnaments]      = useState([])
   const [palette,        setPalette]        = useState(null)
-  const [showShop,        setShowShop]        = useState(false)
   const [shareLoading,    setShareLoading]    = useState(false)
   const [recentTrees,     setRecentTrees]     = useState(() => loadDecorations())
   const [savedIds,        setSavedIds]        = useState(new Set())
-  const [paletteExpanded, setPaletteExpanded] = useState(false)
-  const [imageScrolledBy, setImageScrolledBy] = useState(false)
   const fileInputRef   = useRef(null)
-  const shopRef        = useRef(null)
   const overlayRef     = useRef(null)
-  const treeImageRef   = useRef(null)
   const treeBoundsRef  = useRef({})   // stores AI-detected bounding box for placement
 
   // Scroll helper — offsets for sticky header height so element isn't hidden behind it
@@ -563,22 +558,6 @@ export default function TreeAdvisor() {
     }
   }, [overlayLoading])
 
-  // Show sticky CTA once tree image scrolls out of view
-  useEffect(() => {
-    const el = treeImageRef.current
-    if (!el) return
-    const obs = new IntersectionObserver(
-      ([entry]) => setImageScrolledBy(!entry.isIntersecting),
-      { threshold: 0.1 }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [ornaments.length])  // re-attach when ornaments arrive
-
-  // Reset palette collapsed state on new analysis
-  useEffect(() => {
-    if (overlayLoading) setPaletteExpanded(false)
-  }, [overlayLoading])
 
   const processFile = (file) => {
     if (!file?.type.startsWith('image/')) {
@@ -591,9 +570,6 @@ export default function TreeAdvisor() {
       setResult('')
       setError('')
       setOrnaments([]); setPalette(null)
-      setRawOverlay('')
-      setOverlayError('')
-      setShowShop(false)
     }
     reader.readAsDataURL(file)
   }
@@ -610,7 +586,6 @@ export default function TreeAdvisor() {
     setResult('')
     setError('')
     setOrnaments([]); setPalette(null)
-    setShowShop(false)
     treeBoundsRef.current = {}
 
     let analysisText = ''
@@ -729,17 +704,9 @@ export default function TreeAdvisor() {
   const handleViewAgain = (decoration) => {
     setImage({ preview: decoration.image, base64: null, mediaType: 'image/jpeg' })
     setResult(decoration.analysis)
-    setRawOverlay('')
-    setOverlayError('')
     setError('')
-    setShowShop(false)
     setOrnaments(decoration.ornaments)
     setTimeout(() => overlayRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
-  }
-
-  const handleSleighIt = () => {
-    setShowShop(true)
-    setTimeout(() => shopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
   }
 
   const handleShare = useCallback(async () => {
@@ -873,7 +840,7 @@ export default function TreeAdvisor() {
 
           {image && (
             <div className="action-row">
-              <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setPalette(null); setShowShop(false) }}>
+              <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setPalette(null) }}>
                 Remove Photo
               </button>
               <button className="btn-analyze" onClick={handleAnalyze} disabled={overlayLoading}>
@@ -932,91 +899,36 @@ export default function TreeAdvisor() {
           <div className="overlay-label-row">
             <span className="overlay-eyebrow">✦ YOUR STYLE DIRECTION</span>
             <button className="btn-ghost-sm" onClick={() => {
-              setResult(''); setOrnaments([]); setPalette(null); setShowShop(false)
+              setResult(''); setOrnaments([]); setPalette(null)
               setImage(null); setError('')
             }}>
               Try Another Look
             </button>
           </div>
 
-          {/* Decorated tree — only if overlay succeeded */}
+          {/* 1 — Decorated tree image */}
           {ornaments.length > 0 && image && (
-            <>
-              <div ref={treeImageRef}>
-                <StyledOverlayView image={image} ornaments={ornaments} />
-              </div>
-              <p className="overlay-caption">Style preview — tap Sleigh It to shop this look</p>
-              {palette?.description && (
-                <>
-                  <p className={`palette-description${paletteExpanded ? '' : ' collapsed'}`}>
-                    {palette.description}
-                  </p>
-                  <button className="palette-read-more" onClick={() => setPaletteExpanded(e => !e)}>
-                    {paletteExpanded ? 'Show less' : 'Read more'}
-                  </button>
-                </>
-              )}
-              <hr className="palette-legend-divider" />
-              <div className="ornament-legend">
-                {ornaments
-                  .filter((o, i, arr) => arr.findIndex(x => x.shape === o.shape && x.color === o.color) === i)
-                  .slice(0, 12)
-                  .map((o, i) => (
-                    <div key={i} className="legend-item">
-                      <span className="legend-dot" style={{ background: o.color }} />
-                      <span>{o.label}</span>
-                    </div>
-                  ))}
-              </div>
-            </>
+            <StyledOverlayView image={image} ornaments={ornaments} />
           )}
 
-          {/* Styling analysis */}
-          <div className="result-card">
-            <div className="result-header">
-              <span>🎄 Your Personalized Decoration Plan</span>
-            </div>
-            <div className="result-body">
-              <MarkdownContent text={result} />
-            </div>
-          </div>
+          {/* 2 — Palette reasoning */}
+          {palette?.description && (
+            <p className="palette-description">{palette.description}</p>
+          )}
 
-          {/* Actions */}
-          <div className="overlay-actions">
-            <div className="share-row">
-              {ornaments.length > 0 && (
-                <button className="btn-share" onClick={handleShare} disabled={shareLoading}>
-                  {shareLoading ? <><span className="spin">✦</span> Preparing…</> : '✦ Share Image'}
-                </button>
-              )}
-              <button className="btn-share" onClick={handleShareLink}>
-                Share Link
+          {/* Share row */}
+          <div className="share-row" style={{ marginTop: 14 }}>
+            {ornaments.length > 0 && (
+              <button className="btn-share" onClick={handleShare} disabled={shareLoading}>
+                {shareLoading ? <><span className="spin">✦</span> Preparing…</> : '✦ Share Image'}
               </button>
-            </div>
+            )}
+            <button className="btn-share" onClick={handleShareLink}>Share Link</button>
           </div>
 
-          {/* Sticky shop CTA — appears once tree image scrolls out of view */}
-          {ornaments.length > 0 && !showShop && imageScrolledBy && (
-            <button className="sticky-shop-cta" onClick={handleSleighIt}>
-              ✦ Sleigh It — Shop the Look
-              <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-                <path d="M3.5 9H14.5M14.5 9L9.5 4M14.5 9L9.5 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-          )}
-
-          {/* Shopping list */}
-          {showShop && ornaments.length > 0 && (
-            <div className="ornament-shop-section" ref={shopRef}>
-              <div className="shop-section-header">
-                <h3>
-                  <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style={{display:'inline',verticalAlign:'middle',marginRight:'8px',marginBottom:'2px'}}>
-                    <path d="M10,1 L11.6,8.4 L19,10 L11.6,11.6 L10,19 L8.4,11.6 L1,10 L8.4,8.4 Z" fill="#c9a84c"/>
-                  </svg>
-                  Your Ornament Shopping List
-                </h3>
-                <p className="shop-section-sub">{ornaments.length} ornaments · Tap to shop on your favourite retailer</p>
-              </div>
+          {/* 3 — Ornament shopping cards */}
+          {ornaments.length > 0 && (
+            <div className="ornament-shop-section">
               <div className="ornament-shop-list">
                 {ornaments.map((o, i) => (
                   <div key={i} className="ornament-shop-card">
