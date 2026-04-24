@@ -316,6 +316,7 @@ a { text-decoration: none; color: inherit; }
   transition: background 0.18s ease, border-color 0.18s ease;
 }
 .btn-secondary:hover { background: #1c3350; border-color: rgba(201, 168, 76, 0.5); color: var(--text); }
+.btn-secondary.btn-sm { padding: 6px 14px; min-height: unset; font-size: 0.8rem; }
 
 .btn-ghost {
   background: transparent;

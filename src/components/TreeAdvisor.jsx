@@ -805,12 +805,14 @@ export default function TreeAdvisor() {
 
   return (
     <div className="tab-content">
-      <div className="section-header">
-        <h2>🌲 Tree Advisor</h2>
-        <p>Upload a photo of your Christmas tree and your stylist will craft a personalized decoration plan — then show you exactly how it could look, fully decorated.</p>
-      </div>
+      {/* Upload section — hidden once results are ready or loading */}
+      {!result && !overlayLoading && (
+        <div className="section-header">
+          <h2>🌲 Tree Advisor</h2>
+          <p>Upload a photo of your Christmas tree and your stylist will craft a personalized decoration plan — then show you exactly how it could look, fully decorated.</p>
+        </div>
+      )}
 
-      {/* Upload zone — hidden once results are ready or loading */}
       {!result && !overlayLoading && (
         <>
           <div
@@ -898,7 +900,7 @@ export default function TreeAdvisor() {
 
           <div className="overlay-label-row">
             <span className="overlay-eyebrow">✦ YOUR STYLE DIRECTION</span>
-            <button className="btn-ghost-sm" onClick={() => {
+            <button className="btn-secondary btn-sm" onClick={() => {
               setResult(''); setOrnaments([]); setVarieties([]); setPalette(null)
               setImage(null); setError('')
             }}>
