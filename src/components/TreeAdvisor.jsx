@@ -924,16 +924,6 @@ export default function TreeAdvisor() {
             </div>
           )}
 
-          {/* Shop CTA */}
-          {varieties.length > 0 && (
-            <button
-              className="btn-shop-cta"
-              onClick={() => shopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-            >
-              ✦ Sleigh It — Shop the Look →
-            </button>
-          )}
-
           {/* Share row */}
           <div className="share-row" style={{ marginTop: 12 }}>
             {ornaments.length > 0 && (
@@ -947,7 +937,7 @@ export default function TreeAdvisor() {
           {/* 3 — Ornament shopping cards (12 unique varieties only) */}
           {varieties.length > 0 && (
             <div className="ornament-shop-section" ref={shopRef}>
-              <h3 className="shop-section-header">✦ Shop This Look</h3>
+              <h3 className="shop-section-header">✦ Sleigh It — Shop the Look</h3>
               <div className="ornament-shop-list">
                 {varieties.map((o, i) => (
                   <div key={i} className="ornament-shop-card">
