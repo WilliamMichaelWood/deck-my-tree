@@ -232,21 +232,6 @@ a { text-decoration: none; color: inherit; }
 .tree-preview { width: 100%; max-height: 500px; object-fit: contain; display: block; }
 
 /* ─── Tree Size Selector ─────────────────────────────────────── */
-.tree-size-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.tree-size-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-.tree-size-pills { display: flex; gap: 6px; flex-wrap: wrap; }
 
 /* ─── Buttons ────────────────────────────────────────────────── */
 .action-row { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -362,6 +347,32 @@ a { text-decoration: none; color: inherit; }
 }
 .result-body::-webkit-scrollbar { width: 4px; }
 .result-body::-webkit-scrollbar-thumb { background: var(--navy-lift); border-radius: 4px; }
+
+/* ── Reading pause indicator ── */
+.ta-reading-pause {
+  border-top: 1px solid var(--border);
+  overflow: hidden;
+}
+.ta-reading-bar {
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #c9a84c 40%, #d4a84c 60%, transparent 100%);
+  animation: ta-progress 4s linear forwards;
+  transform-origin: left;
+}
+@keyframes ta-progress {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+.ta-reading-label {
+  display: block;
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 10px 0 11px;
+}
 
 /* ─── Markdown ───────────────────────────────────────────────── */
 .markdown { font-size: 0.91rem; color: var(--text); }

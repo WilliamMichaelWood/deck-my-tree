@@ -183,20 +183,12 @@ function generateClusteredPlacements(n, bounds) {
   return positions.slice(0, n)
 }
 
-const TREE_SIZES = ['Tabletop', 'Small', 'Medium', 'Large', 'XL']
+const OVERLAY_VARIETIES = 10
 
-function varietiesForSize(size) {
-  if (size === 'Tabletop') return 6
-  if (size === 'Small')    return 8
-  if (size === 'Large' || size === 'XL') return 12
-  return 10  // Medium or unset
-}
-
-function buildOrnamentListPrompt(varieties = 10, treeSize = '') {
-  const sizeLine = treeSize ? `Tree size: ${treeSize}. ` : ''
+function buildOrnamentListPrompt(varieties = OVERLAY_VARIETIES) {
   return `You are a professional Christmas tree decorator. Analyze this specific tree photo carefully.
 
-STEP 1 — Read the room. Look at: wall color, floor, furniture, lighting, tree type, any existing decor. Choose a 3-color palette that fits THIS specific environment. Do not default to red and gold unless the photo clearly calls for it.
+STEP 1 — Read the room. Look at: wall color, floor, furniture, lighting, tree type, any existing decor. Estimate the tree height from the photo. Choose a 3-color palette that fits THIS specific environment. Do not default to red and gold unless the photo clearly calls for it.
 
 STEP 2 — Return ONLY a valid JSON object in this exact format. No markdown, no code fences, no explanation before or after:
 
@@ -205,7 +197,7 @@ STEP 2 — Return ONLY a valid JSON object in this exact format. No markdown, no
 Each ornament must use ONLY the palette colors above:
 {"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}
 
-Type distribution for ${varieties} ornaments: ${sizeLine}
+Type distribution for ${varieties} ornaments:
 - 50% balls, 20% drops, 20% stars, 10% wildcard shape
 - Every single ornament color must be one of the three palette hex values — no exceptions
 - Vary finish descriptions in names (matte, satin, glitter, mercury, velvet) but keep colors disciplined`
@@ -489,7 +481,7 @@ export default function TreeAdvisor() {
   const [result,         setResult]         = useState('')
   const [error,          setError]          = useState('')
   const [dragging,       setDragging]       = useState(false)
-  const [treeSize,       setTreeSize]       = useState('')
+  const [pendingOverlay, setPendingOverlay] = useState(false)
   const [overlayLoading, setOverlayLoading] = useState(false)
   const [rawOverlay,     setRawOverlay]     = useState('')
   const [ornaments,      setOrnaments]      = useState([])
@@ -606,10 +598,15 @@ export default function TreeAdvisor() {
     }
   }, [rawOverlay, overlayLoading])
 
-  // Auto-trigger tree detection + ornament placement after analysis text is ready
+  // Auto-trigger: wait 4s after text streams in so user can read before modal appears
   useEffect(() => {
     if (!loading && result && image && !ornaments.length && !overlayLoading && !rawOverlay) {
-      handleDetectAndDecorate()
+      setPendingOverlay(true)
+      const timer = setTimeout(() => {
+        setPendingOverlay(false)
+        handleDetectAndDecorate()
+      }, 4000)
+      return () => { clearTimeout(timer); setPendingOverlay(false) }
     }
   }, [loading, result])
 
@@ -713,10 +710,10 @@ export default function TreeAdvisor() {
 
       // Step 2 — get ornament varieties (no coordinates — placed client-side, expanded to 35)
       // If the primary request fails, retry with 6 varieties (minimum)
-      const varieties = varietiesForSize(treeSize)
+      const varieties = OVERLAY_VARIETIES
       const runOrnamentStream = async (v) => {
-        const prompt = buildOrnamentListPrompt(v, treeSize)
-        console.log(`[overlay] Step 2: requesting ${v} varieties (tree: "${treeSize || 'unset'}") — full prompt:\n`, prompt)
+        const prompt = buildOrnamentListPrompt(v)
+        console.log(`[overlay] Step 2: requesting ${v} varieties — full prompt:\n`, prompt)
         let accumulated = ''
         await streamChat({
           messages: [{ role: 'user', content: [
@@ -906,21 +903,6 @@ export default function TreeAdvisor() {
             />
           </div>
 
-          <div className="tree-size-row">
-            <span className="tree-size-label">Tree size</span>
-            <div className="tree-size-pills">
-              {TREE_SIZES.map(s => (
-                <button
-                  key={s}
-                  className={`pill-btn${treeSize === s ? ' selected' : ''}`}
-                  onClick={() => setTreeSize(s)}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-
           {image && (
             <div className="action-row">
               <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setPalette(null); setRawOverlay(''); setShowShop(false) }}>
@@ -983,6 +965,12 @@ export default function TreeAdvisor() {
             <MarkdownContent text={result} />
             {loading && <span className="cursor">▌</span>}
           </div>
+          {pendingOverlay && (
+            <div className="ta-reading-pause">
+              <div className="ta-reading-bar" />
+              <span className="ta-reading-label">Decorating your tree…</span>
+            </div>
+          )}
         </div>
       )}
 
