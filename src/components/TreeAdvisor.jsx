@@ -477,24 +477,19 @@ if (retailer === 'etsy')    return `https://www.etsy.com/search?q=${q}`
 
 export default function TreeAdvisor() {
   const [image,          setImage]          = useState(null)
-  const [loading,        setLoading]        = useState(false)
   const [result,         setResult]         = useState('')
   const [error,          setError]          = useState('')
   const [dragging,       setDragging]       = useState(false)
-  const [pendingOverlay, setPendingOverlay] = useState(false)
   const [overlayLoading, setOverlayLoading] = useState(false)
-  const [rawOverlay,     setRawOverlay]     = useState('')
   const [ornaments,      setOrnaments]      = useState([])
   const [palette,        setPalette]        = useState(null)
   const [showShop,       setShowShop]       = useState(false)
-  const [overlayError,   setOverlayError]   = useState('')
   const [shareLoading,   setShareLoading]   = useState(false)
   const [recentTrees,    setRecentTrees]    = useState(() => loadDecorations())
   const [savedIds,       setSavedIds]       = useState(new Set())
   const fileInputRef   = useRef(null)
   const shopRef        = useRef(null)
   const overlayRef     = useRef(null)
-  const resultRef      = useRef(null)
   const treeBoundsRef  = useRef({})   // stores AI-detected bounding box for placement
 
   // Scroll helper — offsets for sticky header height so element isn't hidden behind it
@@ -557,62 +552,9 @@ export default function TreeAdvisor() {
     throw new Error('No valid ornament response found')
   }
 
-  // Parse ornament metadata once overlay stream finishes
+  // Scroll to reveal section after modal dismisses
   useEffect(() => {
-    if (!rawOverlay || overlayLoading) return
-    console.log('[overlay] parse useEffect: rawOverlay length =', rawOverlay.length)
-    const OVERLAY_COUNT = 55
-    try {
-      const { palette: pal, ornaments: meta } = extractOrnamentResponse(rawOverlay)
-      console.log('[overlay] ornament metadata parsed OK —', meta.length, 'varieties')
-      setPalette(pal)
-
-      const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
-      console.log('[overlay] positions generated —', positions.length, 'placements, bounds:', treeBoundsRef.current)
-      const placed = positions.map((pos, i) => {
-        // ±8% jitter applied at generation time for intentional imperfection
-        const jx = (Math.random() - 0.5) * 4  // up to ±2 pp horizontal
-        const jy = (Math.random() - 0.5) * 4  // up to ±2 pp vertical
-        pos = { ...pos, x: pos.x + jx, y: pos.y + jy }
-        // Lower Zone C (yF > 0.70): only ball or drop — skip stars
-        if (pos.yF > 0.70) {
-          for (let k = 0; k < meta.length; k++) {
-            const candidate = meta[(i + k) % meta.length]
-            if (candidate.shape === 'ball' || candidate.shape === 'drop') {
-              return { ...candidate, ...pos }
-            }
-          }
-        }
-        return { ...meta[i % meta.length], ...pos }
-      })
-      console.log('[overlay] final placed array length:', placed.length)
-      setOrnaments(placed)
-
-      if (image && result) {
-        saveDecoration(image, placed, result)
-        setRecentTrees(loadDecorations())
-      }
-    } catch (err) {
-      console.error('[overlay] ornament parse failed:', err, '\nRaw response (first 500):', rawOverlay.slice(0, 500))
-      setOverlayError('Ornament generation succeeded but the response couldn\'t be parsed. Please try again.')
-    }
-  }, [rawOverlay, overlayLoading])
-
-  // Auto-trigger: wait 4s after text streams in so user can read before modal appears
-  useEffect(() => {
-    if (!loading && result && image && !ornaments.length && !overlayLoading && !rawOverlay) {
-      setPendingOverlay(true)
-      const timer = setTimeout(() => {
-        setPendingOverlay(false)
-        handleDetectAndDecorate()
-      }, 4000)
-      return () => { clearTimeout(timer); setPendingOverlay(false) }
-    }
-  }, [loading, result])
-
-  // Scroll to the decorated tree after the modal dismisses
-  useEffect(() => {
-    if (!overlayLoading && ornaments.length > 0) {
+    if (!overlayLoading && result) {
       const t = setTimeout(() => smoothScrollTo(overlayRef, 120), 100)
       return () => clearTimeout(t)
     }
@@ -644,109 +586,115 @@ export default function TreeAdvisor() {
 
   const handleAnalyze = async () => {
     if (!image) return
-    setLoading(true)
+    setOverlayLoading(true)   // show modal immediately — everything happens behind it
     setResult('')
     setError('')
     setOrnaments([]); setPalette(null)
-    setRawOverlay('')
-    setOverlayError('')
     setShowShop(false)
-    smoothScrollTo(resultRef, 160) // scroll to result card as soon as it mounts
+    treeBoundsRef.current = {}
+
+    let analysisText = ''
+    let rawOrnaments = ''
+
     try {
-      await streamChat({
-        messages: [{
-          role: 'user',
-          content: [
+      // Run all three calls in parallel — detection and analysis are independent
+      await Promise.all([
+
+        // A — Tree bounding box detection (silent failure)
+        (async () => {
+          try {
+            let detectRaw = ''
+            await streamChat({
+              messages: [{ role: 'user', content: [
+                { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+                { type: 'text', text: DETECT_PROMPT },
+              ]}],
+              maxTokens: 200,
+              onText: (t) => { detectRaw += t },
+            })
+            const s = detectRaw.indexOf('{'), e = detectRaw.lastIndexOf('}')
+            if (s !== -1 && e !== -1) treeBoundsRef.current = JSON.parse(detectRaw.slice(s, e + 1))
+          } catch { /* bounds failure is silent — placement uses defaults */ }
+        })(),
+
+        // B — Styling analysis text (failure surfaces as user-visible error)
+        streamChat({
+          messages: [{ role: 'user', content: [
             { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
             { type: 'text', text: getAnalysisPrompt() },
-          ],
-        }],
-        maxTokens: 1000,
-        onText: (text) => setResult(prev => prev + text),
-      })
+          ]}],
+          maxTokens: 1000,
+          onText: (t) => { analysisText += t },
+        }),
+
+        // C — Ornament generation (silent failure, retry with 6)
+        (async () => {
+          try {
+            await streamChat({
+              messages: [{ role: 'user', content: [
+                { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+                { type: 'text', text: buildOrnamentListPrompt(OVERLAY_VARIETIES) },
+              ]}],
+              maxTokens: 2500,
+              onText: (t) => { rawOrnaments += t },
+            })
+          } catch {
+            rawOrnaments = ''
+            try {
+              await streamChat({
+                messages: [{ role: 'user', content: [
+                  { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+                  { type: 'text', text: buildOrnamentListPrompt(6) },
+                ]}],
+                maxTokens: 2500,
+                onText: (t) => { rawOrnaments += t },
+              })
+            } catch { /* ornament failure is silent */ }
+          }
+        })(),
+      ])
+
+      // Analysis text is the only required result
+      setResult(analysisText)
+
+      // Parse ornaments + place overlay — both silent on failure
+      if (rawOrnaments) {
+        try {
+          const { palette: pal, ornaments: meta } = extractOrnamentResponse(rawOrnaments)
+          setPalette(pal)
+
+          const OVERLAY_COUNT = 55
+          const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
+          const placed = positions.map((pos, i) => {
+            const jx = (Math.random() - 0.5) * 4
+            const jy = (Math.random() - 0.5) * 4
+            pos = { ...pos, x: pos.x + jx, y: pos.y + jy }
+            if (pos.yF > 0.70) {
+              for (let k = 0; k < meta.length; k++) {
+                const candidate = meta[(i + k) % meta.length]
+                if (candidate.shape === 'ball' || candidate.shape === 'drop') return { ...candidate, ...pos }
+              }
+            }
+            return { ...meta[i % meta.length], ...pos }
+          })
+          setOrnaments(placed)
+
+          if (image && analysisText) {
+            saveDecoration(image, placed, analysisText)
+            setRecentTrees(loadDecorations())
+          }
+        } catch (err) {
+          console.warn('[overlay] ornament parse/placement failed (silent):', err.message)
+        }
+      }
     } catch (err) {
+      // Only surfaces if the analysis (Branch B) threw — ornament failures are silent above
+      setResult(analysisText) // show whatever text arrived before the error
       const msg = err.message || ''
       const isNetworkError = /load failed|failed to fetch|network/i.test(msg)
       setError(isNetworkError
         ? 'Connection error. Please check your internet and try again.'
-        : 'Something went wrong. Please try again in a moment.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleDetectAndDecorate = async () => {
-    if (!image) return
-    setOverlayLoading(true)
-    setRawOverlay('')
-    setOverlayError('')
-
-    try {
-      // Step 1 — Claude vision detects the tree bounding box
-      console.log('[overlay] Step 1: starting tree bounds detection')
-      let detectRaw = ''
-      await streamChat({
-        messages: [{ role: 'user', content: [
-          { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
-          { type: 'text', text: DETECT_PROMPT },
-        ]}],
-        maxTokens: 200,
-        onText: (t) => { detectRaw += t },
-      })
-      console.log('[overlay] Step 1 raw response:', detectRaw)
-      try {
-        const s = detectRaw.indexOf('{'), e = detectRaw.lastIndexOf('}')
-        if (s !== -1 && e !== -1) {
-          treeBoundsRef.current = JSON.parse(detectRaw.slice(s, e + 1))
-          console.log('[overlay] Step 1 bounds parsed OK:', treeBoundsRef.current)
-        } else {
-          treeBoundsRef.current = {}
-          console.warn('[overlay] Step 1: no JSON object found in detection response — using defaults')
-        }
-      } catch (parseErr) {
-        treeBoundsRef.current = {}
-        console.warn('[overlay] Step 1: bounds parse error — using defaults:', parseErr.message)
-      }
-
-      // Step 2 — get ornament varieties (no coordinates — placed client-side, expanded to 35)
-      // If the primary request fails, retry with 6 varieties (minimum)
-      const varieties = OVERLAY_VARIETIES
-      const runOrnamentStream = async (v) => {
-        const prompt = buildOrnamentListPrompt(v)
-        console.log(`[overlay] Step 2: requesting ${v} varieties — full prompt:\n`, prompt)
-        let accumulated = ''
-        await streamChat({
-          messages: [{ role: 'user', content: [
-            { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
-            { type: 'text', text: prompt },
-          ]}],
-          maxTokens: 2500,
-          onText: (text) => { accumulated += text; setRawOverlay(prev => prev + text) },
-        })
-        console.log(`[overlay] Step 2 (varieties=${v}): stream complete, total chars:`, accumulated.length)
-        return accumulated
-      }
-
-      try {
-        await runOrnamentStream(varieties)
-      } catch (err) {
-        console.warn(`[overlay] Step 2 (${varieties} varieties) failed:`, err.message, '— retrying with 6')
-        setRawOverlay('')   // clear partial response before retry
-        try {
-          await runOrnamentStream(6)
-        } catch (err6) {
-          console.error('[overlay] Step 2 retry (6 varieties) also failed:', err6.message)
-          throw new Error('ornament_generation')
-        }
-      }
-    } catch (err) {
-      console.error('[overlay] handleDetectAndDecorate error:', err)
-      const msg = err.message === 'ornament_generation'
-        ? 'Ornament generation failed. Please try again in a moment.'
-        : /detect|bounds/i.test(err.message)
-          ? 'Tree detection failed. Please try a clearer photo.'
-          : 'Decoration failed. Please try again.'
-      setOverlayError(msg)
+        : 'Something went wrong with the analysis. Please try again.')
     } finally {
       setOverlayLoading(false)
     }
@@ -875,8 +823,8 @@ export default function TreeAdvisor() {
         <p>Upload a photo of your Christmas tree and your stylist will craft a personalized decoration plan — then show you exactly how it could look, fully decorated.</p>
       </div>
 
-      {/* Upload zone — hide once we have ornaments to keep focus on the overlay */}
-      {!ornaments.length && (
+      {/* Upload zone — hidden once results are ready or loading */}
+      {!result && !overlayLoading && (
         <>
           <div
             className={`upload-zone${dragging ? ' drag-over' : ''}${image ? ' has-image' : ''}`}
@@ -905,111 +853,107 @@ export default function TreeAdvisor() {
 
           {image && (
             <div className="action-row">
-              <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setPalette(null); setRawOverlay(''); setShowShop(false) }}>
+              <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setPalette(null); setShowShop(false) }}>
                 Remove Photo
               </button>
-              <button className="btn-primary" onClick={handleAnalyze} disabled={loading}>
-                {loading ? <><span className="spin">✦</span> Analyzing…</> : '✨ Analyze My Tree'}
+              <button className="btn-primary" onClick={handleAnalyze} disabled={overlayLoading}>
+                ✨ Analyze My Tree
               </button>
+            </div>
+          )}
+
+          {/* Recent Trees */}
+          {recentTrees.length > 0 && (
+            <div className="recent-trees-section">
+              <h3 className="recent-trees-title">✦ My Recent Trees</h3>
+              <div className="recent-trees-grid">
+                {recentTrees.map((d) => (
+                  <div key={d.id} className="recent-tree-card">
+                    <button
+                      className="btn-delete-recent"
+                      onClick={() => handleDeleteRecent(d.id)}
+                      title="Remove"
+                      aria-label="Remove this tree"
+                    >✕</button>
+                    <div className="recent-tree-thumb-wrap">
+                      <img src={d.image} alt="Decorated tree" className="recent-tree-thumb" />
+                      <div className="recent-tree-ornament-dots">
+                        {d.ornaments.slice(0, 5).map((o, i) => (
+                          <span key={i} className="recent-dot" style={{ background: o.color }} />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="recent-tree-meta">
+                      <span className="recent-tree-date">
+                        {new Date(d.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      </span>
+                      <span className="recent-tree-count">{d.ornaments.length} ornaments</span>
+                    </div>
+                    <button className="btn-view-again" onClick={() => handleViewAgain(d)}>
+                      View Again
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </>
       )}
 
-      {/* Recent Trees — shown only when no active decoration */}
-      {!ornaments.length && recentTrees.length > 0 && (
-        <div className="recent-trees-section">
-          <h3 className="recent-trees-title">✦ My Recent Trees</h3>
-          <div className="recent-trees-grid">
-            {recentTrees.map((d) => (
-              <div key={d.id} className="recent-tree-card">
-                <button
-                  className="btn-delete-recent"
-                  onClick={() => handleDeleteRecent(d.id)}
-                  title="Remove"
-                  aria-label="Remove this tree"
-                >✕</button>
-                <div className="recent-tree-thumb-wrap">
-                  <img src={d.image} alt="Decorated tree" className="recent-tree-thumb" />
-                  <div className="recent-tree-ornament-dots">
-                    {d.ornaments.slice(0, 5).map((o, i) => (
-                      <span key={i} className="recent-dot" style={{ background: o.color }} />
-                    ))}
-                  </div>
-                </div>
-                <div className="recent-tree-meta">
-                  <span className="recent-tree-date">
-                    {new Date(d.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                  </span>
-                  <span className="recent-tree-count">{d.ornaments.length} ornaments</span>
-                </div>
-                <button className="btn-view-again" onClick={() => handleViewAgain(d)}>
-                  View Again
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {error && <div className="error-card">⚠️ {error}</div>}
 
-      {/* Analysis result */}
-      {(result || loading) && !ornaments.length && (
-        <div className="result-card" ref={resultRef}>
-          <div className="result-header">
-            <span>🎄 Your Personalized Decoration Plan</span>
-            {loading && <span className="streaming-badge">Generating…</span>}
-          </div>
-          <div className="result-body">
-            <MarkdownContent text={result} />
-            {loading && <span className="cursor">▌</span>}
-          </div>
-          {pendingOverlay && (
-            <div className="ta-reading-pause">
-              <div className="ta-reading-bar" />
-              <span className="ta-reading-label">Decorating your tree…</span>
-            </div>
-          )}
-        </div>
-      )}
-
+      {/* Single modal for the entire loading phase */}
       <CurationModal visible={overlayLoading} />
 
-      {overlayError && <div className="error-card">⚠️ {overlayError}</div>}
-
-      {/* Decorated tree overlay — revealed after the modal dismisses */}
-      {ornaments.length > 0 && image && !overlayLoading && (
-        <div className="overlay-section" ref={overlayRef}>
+      {/* ── Complete reveal — everything at once after modal dismisses ── */}
+      {result && !overlayLoading && (
+        <div className="overlay-section reveal-fade" ref={overlayRef}>
 
           <div className="overlay-label-row">
             <span className="overlay-eyebrow">✦ YOUR STYLE DIRECTION</span>
-            <button className="btn-ghost-sm" onClick={() => { setOrnaments([]); setPalette(null); setRawOverlay(''); setShowShop(false) }}>
+            <button className="btn-ghost-sm" onClick={() => {
+              setResult(''); setOrnaments([]); setPalette(null); setShowShop(false)
+              setImage(null); setError('')
+            }}>
               Try Another Look
             </button>
           </div>
 
-          <StyledOverlayView image={image} ornaments={ornaments} />
-          <p className="overlay-caption">Style preview — tap Sleigh It to shop this look</p>
-
-          {palette?.description && (
-            <p className="palette-description">{palette.description}</p>
+          {/* Decorated tree — only if overlay succeeded */}
+          {ornaments.length > 0 && image && (
+            <>
+              <StyledOverlayView image={image} ornaments={ornaments} />
+              <p className="overlay-caption">Style preview — tap Sleigh It to shop this look</p>
+              {palette?.description && (
+                <p className="palette-description">{palette.description}</p>
+              )}
+              <div className="ornament-legend">
+                {ornaments
+                  .filter((o, i, arr) => arr.findIndex(x => x.shape === o.shape && x.color === o.color) === i)
+                  .slice(0, 12)
+                  .map((o, i) => (
+                    <div key={i} className="legend-item">
+                      <span className="legend-dot" style={{ background: o.color }} />
+                      <span>{o.label}</span>
+                    </div>
+                  ))}
+              </div>
+            </>
           )}
 
-          <div className="ornament-legend">
-            {ornaments
-              .filter((o, i, arr) => arr.findIndex(x => x.shape === o.shape && x.color === o.color) === i)
-              .slice(0, 12)
-              .map((o, i) => (
-              <div key={i} className="legend-item">
-                <span className="legend-dot" style={{ background: o.color }} />
-                <span>{o.label}</span>
-              </div>
-            ))}
+          {/* Styling analysis */}
+          <div className="result-card">
+            <div className="result-header">
+              <span>🎄 Your Personalized Decoration Plan</span>
+            </div>
+            <div className="result-body">
+              <MarkdownContent text={result} />
+            </div>
           </div>
 
+          {/* Actions */}
           <div className="overlay-actions">
-            {!showShop && (
+            {ornaments.length > 0 && !showShop && (
               <button className="btn-sleigh-it" onClick={handleSleighIt}>
                 Sleigh It — Shop the Look
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" style={{display:'inline',verticalAlign:'middle',marginLeft:'8px'}}>
@@ -1018,81 +962,73 @@ export default function TreeAdvisor() {
               </button>
             )}
             <div className="share-row">
-              <button className="btn-share" onClick={handleShare} disabled={shareLoading}>
-                {shareLoading ? <><span className="spin">✦</span> Preparing…</> : '✦ Share Image'}
-              </button>
+              {ornaments.length > 0 && (
+                <button className="btn-share" onClick={handleShare} disabled={shareLoading}>
+                  {shareLoading ? <><span className="spin">✦</span> Preparing…</> : '✦ Share Image'}
+                </button>
+              )}
               <button className="btn-share" onClick={handleShareLink}>
                 Share Link
               </button>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Shopping list */}
-      {showShop && ornaments.length > 0 && (
-        <div className="ornament-shop-section" ref={shopRef}>
-          <div className="shop-section-header">
-            <h3>
-              <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style={{display:'inline',verticalAlign:'middle',marginRight:'8px',marginBottom:'2px'}}>
-                <path d="M10,1 L11.6,8.4 L19,10 L11.6,11.6 L10,19 L8.4,11.6 L1,10 L8.4,8.4 Z" fill="#c9a84c"/>
-              </svg>
-              Your Ornament Shopping List
-            </h3>
-            <p className="shop-section-sub">{ornaments.length} ornaments · Tap to shop on your favourite retailer</p>
-          </div>
-
-          <div className="ornament-shop-list">
-            {ornaments.map((o, i) => (
-              <div key={i} className="ornament-shop-card">
-                <div className="shop-card-top">
-                  <div className="shop-ornament-preview">
-                    <OrnamentShape shape={o.shape || getOrnamentShape(o.name || o.label)} color={o.color} />
-                  </div>
-                  <div className="shop-card-info">
-                    <div className="shop-card-num-wrap">
-                      <OrnamentTypeIcon shape={o.shape || getOrnamentShape(o.name)} />
-                      <span className="shop-card-num">{String(i + 1).padStart(2, '0')}</span>
-                    </div>
-                    <h4 className="shop-card-name">{o.label}</h4>
-                    <p className="shop-card-fullname">{o.name}</p>
-                  </div>
-                </div>
-                <div className="shop-card-retailers">
-                  {RETAILERS.map(r => {
-                    const url = getSearchUrl(r.key, o.name, o.shape)
-                    if (!url) return null
-                    return (
-                      <a
-                        key={r.key}
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-retailer"
-                      >
-                        <div className="retailer-top">
-                          <span className="retailer-dot" style={{ background: r.color }} />
-                          <span className="retailer-name" style={{ color: r.color }}>{r.label}</span>
-                          {o[r.key]?.price && <span className="retailer-price">{o[r.key].price}</span>}
-                        </div>
-                        <span className="deck-it-cta">Deck it. Buy it.</span>
-                      </a>
-                    )
-                  })}
-                </div>
-                <button
-                  className={`btn-save-ornament${savedIds.has(i) ? ' saved' : ''}`}
-                  onClick={() => {
-                    saveToMyOrnaments(o)
-                    setSavedIds(prev => new Set([...prev, i]))
-                  }}
-                  disabled={savedIds.has(i)}
-                >
-                  {savedIds.has(i) ? '✓ Saved to My Ornaments' : '+ Save to My Ornaments'}
-                </button>
+          {/* Shopping list */}
+          {showShop && ornaments.length > 0 && (
+            <div className="ornament-shop-section" ref={shopRef}>
+              <div className="shop-section-header">
+                <h3>
+                  <svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" style={{display:'inline',verticalAlign:'middle',marginRight:'8px',marginBottom:'2px'}}>
+                    <path d="M10,1 L11.6,8.4 L19,10 L11.6,11.6 L10,19 L8.4,11.6 L1,10 L8.4,8.4 Z" fill="#c9a84c"/>
+                  </svg>
+                  Your Ornament Shopping List
+                </h3>
+                <p className="shop-section-sub">{ornaments.length} ornaments · Tap to shop on your favourite retailer</p>
               </div>
-            ))}
-          </div>
+              <div className="ornament-shop-list">
+                {ornaments.map((o, i) => (
+                  <div key={i} className="ornament-shop-card">
+                    <div className="shop-card-top">
+                      <div className="shop-ornament-preview">
+                        <OrnamentShape shape={o.shape || getOrnamentShape(o.name || o.label)} color={o.color} />
+                      </div>
+                      <div className="shop-card-info">
+                        <div className="shop-card-num-wrap">
+                          <OrnamentTypeIcon shape={o.shape || getOrnamentShape(o.name)} />
+                          <span className="shop-card-num">{String(i + 1).padStart(2, '0')}</span>
+                        </div>
+                        <h4 className="shop-card-name">{o.label}</h4>
+                        <p className="shop-card-fullname">{o.name}</p>
+                      </div>
+                    </div>
+                    <div className="shop-card-retailers">
+                      {RETAILERS.map(r => {
+                        const url = getSearchUrl(r.key, o.name, o.shape)
+                        if (!url) return null
+                        return (
+                          <a key={r.key} href={url} target="_blank" rel="noopener noreferrer" className="btn-retailer">
+                            <div className="retailer-top">
+                              <span className="retailer-dot" style={{ background: r.color }} />
+                              <span className="retailer-name" style={{ color: r.color }}>{r.label}</span>
+                              {o[r.key]?.price && <span className="retailer-price">{o[r.key].price}</span>}
+                            </div>
+                            <span className="deck-it-cta">Deck it. Buy it.</span>
+                          </a>
+                        )
+                      })}
+                    </div>
+                    <button
+                      className={`btn-save-ornament${savedIds.has(i) ? ' saved' : ''}`}
+                      onClick={() => { saveToMyOrnaments(o); setSavedIds(prev => new Set([...prev, i])) }}
+                      disabled={savedIds.has(i)}
+                    >
+                      {savedIds.has(i) ? '✓ Saved to My Ornaments' : '+ Save to My Ornaments'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

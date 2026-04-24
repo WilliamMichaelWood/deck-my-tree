@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 
 const MESSAGES = [
-  'Your stylist is selecting…',
-  'Weaving the magic…',
-  'Enchanting your tree…',
-  'Almost ready to sleigh…',
+  'Reading your space…',
+  'Choosing your palette…',
+  'Selecting your ornaments…',
+  'Placing the finishing touches…',
+  'Almost ready to reveal…',
 ]
 
 // ── Color palette — cycles every COLOR_MS ms ──────────────────────────────────
