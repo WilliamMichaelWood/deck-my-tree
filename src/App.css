@@ -237,33 +237,35 @@ a { text-decoration: none; color: inherit; }
 .action-row { display: flex; gap: 12px; flex-wrap: wrap; }
 
 .btn-primary {
-  background: linear-gradient(180deg, #d4a84c 0%, #c9a84c 100%);
-  color: #08060a;
+  background: linear-gradient(180deg, #c9a84c 0%, #b8943d 100%);
+  color: #0f1f35;
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
   font-size: 0.9rem;
-  letter-spacing: 0.03em;
-  padding: 13px 26px;
-  border-radius: var(--radius);
-  border: 3px solid #c9a84c;
+  letter-spacing: 0.04em;
+  padding: 16px 24px;
+  min-height: 52px;
+  border-radius: 10px;
+  border: 1px solid rgba(201, 168, 76, 0.6);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: inset 0 3px 6px rgba(255,255,255,0.2), inset 0 -3px 6px rgba(0,0,0,0.5), 0 6px 12px rgba(0,0,0,0.3);
-  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
 }
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, #ddb84e 0%, #d4a84c 100%);
-  box-shadow: inset 0 3px 6px rgba(255,255,255,0.25), inset 0 -3px 6px rgba(0,0,0,0.55), 0 8px 16px rgba(0,0,0,0.35);
-  transform: translateY(-4px) scale(1.05);
+  background: linear-gradient(180deg, #d4b055 0%, #c9a84c 100%);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
 }
 .btn-primary:active:not(:disabled) {
   transform: translateY(0);
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
-.btn-primary:disabled { opacity: 0.72; cursor: not-allowed; transform: none; }
+.btn-primary:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
 .btn-primary.btn-full { width: 100%; }
-.btn-primary.btn-lg { padding: 15px 30px; font-size: 0.96rem; }
+.btn-primary.btn-lg { padding: 16px 32px; font-size: 0.95rem; }
 
 /* ── Analyze button — matches Share buttons ── */
 .btn-analyze {
@@ -297,16 +299,23 @@ a { text-decoration: none; color: inherit; }
 .btn-analyze:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
 
 .btn-secondary {
-  background: var(--navy-lift);
-  color: var(--text-soft);
-  font-size: 0.87rem;
-  font-weight: 500;
-  padding: 12px 22px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border-soft);
-  transition: all var(--transition);
+  background: #162840;
+  color: #b8ccde;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 16px 24px;
+  min-height: 52px;
+  border-radius: 10px;
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.18s ease, border-color 0.18s ease;
 }
-.btn-secondary:hover { background: var(--navy-mid); color: var(--text); border-color: var(--border); }
+.btn-secondary:hover { background: #1c3350; border-color: rgba(201, 168, 76, 0.5); color: var(--text); }
 
 .btn-ghost {
   background: transparent;
@@ -877,15 +886,19 @@ a { text-decoration: none; color: inherit; }
   color: var(--gold);
 }
 .btn-ghost-sm {
-  background: none;
-  border: 1px solid var(--border-soft);
-  color: var(--text-muted);
-  font-size: 0.72rem;
-  padding: 4px 10px;
-  border-radius: 20px;
-  transition: color var(--transition), border-color var(--transition);
+  background: linear-gradient(180deg, #c9a84c 0%, #b8943d 100%);
+  border: 1px solid rgba(201, 168, 76, 0.6);
+  color: #0f1f35;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 8px 16px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.18s ease, transform 0.18s ease;
 }
-.btn-ghost-sm:hover { color: var(--text-soft); border-color: rgba(255,255,255,0.2); }
+.btn-ghost-sm:hover { background: linear-gradient(180deg, #d4b055 0%, #c9a84c 100%); transform: translateY(-1px); }
 
 .tree-overlay-wrap {
   position: relative;
@@ -1213,20 +1226,22 @@ a { text-decoration: none; color: inherit; }
   display: block;
   width: calc(100% - 24px);
   margin: 0 12px 12px;
-  padding: 9px 12px;
-  background: transparent;
-  border: 1px solid rgba(201,168,76,0.35);
-  border-radius: 8px;
-  color: var(--gold);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
+  padding: 12px;
+  background: linear-gradient(180deg, #c9a84c 0%, #b8943d 100%);
+  border: 1px solid rgba(201, 168, 76, 0.6);
+  border-radius: 10px;
+  color: #0f1f35;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: background var(--transition), border-color var(--transition), color var(--transition);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.18s ease, transform 0.18s ease;
 }
 .btn-save-ornament:hover:not(:disabled) {
-  background: rgba(201,168,76,0.1);
-  border-color: rgba(201,168,76,0.7);
+  background: linear-gradient(180deg, #d4b055 0%, #c9a84c 100%);
+  transform: translateY(-1px);
 }
 .btn-save-ornament.saved {
   border-color: rgba(94,203,133,0.4);

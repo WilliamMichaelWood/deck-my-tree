@@ -207,21 +207,23 @@
 /* ── Shop Similar button ── */
 .myo-shop-btn {
   margin-top: auto;
-  padding: 7px 10px;
-  background: transparent;
-  border: 1px solid rgba(201, 168, 76, 0.4);
-  border-radius: 7px;
-  color: #c9a84c;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
+  padding: 10px 12px;
+  background: linear-gradient(180deg, #c9a84c 0%, #b8943d 100%);
+  border: 1px solid rgba(201, 168, 76, 0.6);
+  border-radius: 10px;
+  color: #0f1f35;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: all 0.18s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.18s ease, transform 0.18s ease;
   width: 100%;
 }
 .myo-shop-btn:hover {
-  background: rgba(201, 168, 76, 0.1);
-  border-color: #c9a84c;
+  background: linear-gradient(180deg, #d4b055 0%, #c9a84c 100%);
+  transform: translateY(-1px);
 }
 
 /* ── Floating action button ── */
