@@ -3,7 +3,7 @@ import { streamChat } from '../lib/stream'
 import './MyOrnaments.css'
 
 // ─── Constants ────────────────────────────────────────────────
-const SHAPES    = ['ball', 'star', 'snowflake', 'drop', 'pinecone']
+const SHAPES    = ['ball', 'drop', 'star', 'snowflake', 'pinecone']
 const MATERIALS = ['Glass', 'Metal', 'Wood', 'Fabric', 'Plastic', 'Ceramic', 'Paper', 'Mixed']
 const STYLE_TAGS  = ['Rustic', 'Modern', 'Elegant', 'Whimsical', 'Maximalist', 'Scandinavian']
 const BUDGET_TAGS = ['Budget', 'Mid-range', 'Premium']
@@ -14,8 +14,8 @@ const RETAILER_SEARCH = {
   amazon:  (q) => `https://www.amazon.com/s?k=${encodeURIComponent(q)}`,
   etsy:    (q) => `https://www.etsy.com/search?q=${encodeURIComponent(q)}`,
 }
+const RETAILER_ORDER = ['walmart', 'amazon', 'etsy']
 
-// Build a rich search query from all available ornament descriptors
 function buildSearchQuery(ornament) {
   const parts = [
     ornament.colorDesc || '',
@@ -54,14 +54,13 @@ const resizePhoto = (dataUrl, maxPx = 400) => new Promise(resolve => {
 const persist = (list) => localStorage.setItem('myOrnaments', JSON.stringify(list))
 const load    = ()     => { try { return JSON.parse(localStorage.getItem('myOrnaments') || '[]') } catch { return [] } }
 
-// Extract the first number from a price string — handles ranges like "$6–$12" correctly
 const extractPrice = (priceStr) => {
   if (!priceStr) return null
   const m = String(priceStr).match(/[\d.]+/)
   return m ? parseFloat(m[0]) : null
 }
 
-// ─── Ornament SVG shapes ─────────────────────────────────────
+// ─── OrnamentSVG ─────────────────────────────────────────────
 function OrnamentSVG({ shape, color }) {
   const c = color || '#c9a84c'
   switch (shape) {
@@ -111,7 +110,7 @@ function OrnamentSVG({ shape, color }) {
           <ellipse cx="22" cy="34" rx="4" ry="2.5" fill="rgba(255,255,255,0.28)" transform="rotate(-20 22 34)"/>
         </svg>
       )
-    default: // ball
+    default:
       return (
         <svg viewBox="0 0 60 72" width="58" height="58" fill="none" aria-hidden="true">
           <rect x="26" y="0" width="8" height="13" rx="3.5" fill="#8a6520"/>
@@ -122,35 +121,27 @@ function OrnamentSVG({ shape, color }) {
   }
 }
 
-// ─── Sub-components ──────────────────────────────────────────
-function OrnamentIcon() {
+// ─── Empty state illustration (stroke only, no fill) ─────────
+function EmptyIllustration() {
   return (
-    <svg width="18" height="22" viewBox="0 0 18 22" xmlns="http://www.w3.org/2000/svg"
-      style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '8px', marginBottom: '2px' }}>
-      <rect x="7.5" y="0" width="3" height="5.5" rx="1.2" fill="#8a6520"/>
-      <circle cx="9" cy="13.5" r="8.5" fill="#c9a84c"/>
-      <ellipse cx="6.5" cy="10.5" rx="2" ry="1.4" fill="rgba(255,255,255,0.32)" transform="rotate(-20 6.5 10.5)"/>
+    <svg width="80" height="96" viewBox="0 0 60 80" fill="none" aria-hidden="true">
+      <rect x="26" y="1" width="8" height="12" rx="3.5" stroke="#c9a84c" strokeWidth="1.5"/>
+      <circle cx="30" cy="51" r="26" stroke="#c9a84c" strokeWidth="1.5"/>
+      <ellipse cx="20" cy="39" rx="7" ry="5" stroke="rgba(201,168,76,0.4)" strokeWidth="1" transform="rotate(-25 20 39)"/>
+      <ellipse cx="30" cy="51" rx="10" ry="16" stroke="rgba(201,168,76,0.18)" strokeWidth="1"/>
     </svg>
   )
 }
 
+// ─── OrnamentCard ─────────────────────────────────────────────
 function OrnamentCard({ ornament, onDelete, onEdit }) {
-  const thumbColor = ornament.colorHex || ornament.color || '#c9a84c'
+  const color = ornament.colorHex || ornament.color || '#c9a84c'
   const shape = ornament.shape || 'ball'
 
-  const bestPrice = ornament.retailers
-    ? Object.values(ornament.retailers)
-        .map(r => extractPrice(r.price))
-        .filter(p => p != null)
-        .sort((a, b) => a - b)[0]
-    : null
-
-  const handleDeckIt = () => {
+  const handleShopSimilar = () => {
     const q = buildSearchQuery(ornament)
-    const RETAILER_ORDER = ['walmart', 'amazon', 'etsy']
     for (const key of RETAILER_ORDER) {
-      const entry = ornament.retailers?.[key]
-      if (entry?.price && RETAILER_SEARCH[key]) {
+      if (ornament.retailers?.[key]?.price && RETAILER_SEARCH[key]) {
         window.open(RETAILER_SEARCH[key](q), '_blank')
         return
       }
@@ -160,268 +151,47 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
 
   return (
     <div className="myo-card">
-      <div className="myo-card-image">
+      <div className="myo-card-media">
         {ornament.photo
-          ? <img src={ornament.photo} alt={ornament.name} className="myo-card-thumb-photo" />
+          ? <img src={ornament.photo} alt={ornament.name} className="myo-card-photo" />
           : (
-            <div className="myo-card-thumb-svg">
-              <OrnamentSVG shape={shape} color={thumbColor} />
+            <div
+              className="myo-card-svg-bg"
+              style={{ background: `radial-gradient(circle at 40% 35%, ${color}44 0%, ${color}18 60%, transparent 100%)` }}
+            >
+              <OrnamentSVG shape={shape} color={color} />
             </div>
           )
         }
-        {ornament.rating > 0 && (
-          <div className="myo-card-rating">{'★'.repeat(ornament.rating)}</div>
-        )}
+        <div className="myo-card-actions-overlay">
+          <button className="myo-btn-edit" onClick={() => onEdit(ornament)} title="Edit">✎</button>
+          <button className="myo-btn-delete" onClick={() => onDelete(ornament.id)} title="Remove">✕</button>
+        </div>
       </div>
 
       <div className="myo-card-body">
         <h3 className="myo-card-name">{ornament.name}</h3>
-
-        <div className="myo-card-tags">
-          {ornament.shape    && <span className="myo-tag myo-tag-shape">{ornament.shape}</span>}
-          {ornament.material && <span className="myo-tag myo-tag-mat">{ornament.material}</span>}
-          {ornament.tags?.slice(0, 2).map(t => <span key={t} className="myo-tag myo-tag-label">{t}</span>)}
-        </div>
-
-        {bestPrice != null && (
-          <p className="myo-best-price">From <strong>${bestPrice}</strong></p>
+        {(ornament.shape || ornament.material) && (
+          <div className="myo-card-tags">
+            {ornament.shape    && <span className="myo-tag">{ornament.shape}</span>}
+            {ornament.material && <span className="myo-tag">{ornament.material}</span>}
+          </div>
         )}
         {ornament.notes && <p className="myo-card-notes">{ornament.notes}</p>}
-
-        <div className="myo-card-actions">
-          <button className="myo-deck-it" onClick={handleDeckIt}>
-            {ornament.source === 'saved' ? 'Deck it. Buy it.' : 'Shop Similar'}
-          </button>
-          <button className="myo-btn-edit" onClick={() => onEdit(ornament)} title="Edit">✎</button>
-          <button className="myo-btn-delete" onClick={() => onDelete(ornament.id)} title="Delete">✕</button>
-        </div>
+        <button className="myo-shop-btn" onClick={handleShopSimilar}>Shop Similar</button>
       </div>
     </div>
   )
 }
 
-function FilterDrawer({ isOpen, onClose, onFilter, onSort }) {
-  const [priceRange,        setPriceRange]        = useState('')
-  const [selectedStyles,    setSelectedStyles]    = useState([])
-  const [selectedBudgets,   setSelectedBudgets]   = useState([])
-  const [searchTerm,        setSearchTerm]        = useState('')
-  const [sortBy,            setSortBy]            = useState('recent')
+// ─── AddModal (slide-up) ──────────────────────────────────────
+function AddModal({ onClose, onSave }) {
+  const [form,       setForm]       = useState(BLANK_FORM)
+  const [photo,      setPhoto]      = useState(null)
+  const [analyzing,  setAnalyzing]  = useState(false)
+  const [analyzeErr, setAnalyzeErr] = useState('')
+  const photoInputRef = useRef(null)
 
-  const toggle = (list, setList, val) =>
-    setList(list.includes(val) ? list.filter(x => x !== val) : [...list, val])
-
-  const apply = () => {
-    onFilter({ priceRange, styles: selectedStyles, budgets: selectedBudgets, search: searchTerm })
-    onSort(sortBy)
-    onClose()
-  }
-
-  const reset = () => {
-    setPriceRange(''); setSelectedStyles([]); setSelectedBudgets([]); setSearchTerm(''); setSortBy('recent')
-    onFilter({}); onSort('recent')
-  }
-
-  return (
-    <>
-      {isOpen && <div className="myo-overlay" onClick={onClose} />}
-      <div className={`myo-drawer${isOpen ? ' open' : ''}`}>
-        <div className="myo-drawer-header">
-          <h3>Filter &amp; Sort</h3>
-          <button className="myo-btn-close" onClick={onClose}>✕</button>
-        </div>
-
-        <div className="myo-drawer-body">
-          <div className="myo-filter-section">
-            <label className="myo-filter-label">Search</label>
-            <input className="form-input" placeholder="Name, color, note…" value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} />
-          </div>
-
-          <div className="myo-filter-section">
-            <label className="myo-filter-label">Price Range</label>
-            {['Under $10', '$10–$20', '$20–$50', '$50+'].map(r => (
-              <label key={r} className="myo-check">
-                <input type="radio" name="price" value={r} checked={priceRange === r}
-                  onChange={(e) => setPriceRange(e.target.value)} />
-                {r}
-              </label>
-            ))}
-          </div>
-
-          <div className="myo-filter-section">
-            <label className="myo-filter-label">Style</label>
-            {STYLE_TAGS.map(s => (
-              <label key={s} className="myo-check">
-                <input type="checkbox" checked={selectedStyles.includes(s)}
-                  onChange={() => toggle(selectedStyles, setSelectedStyles, s)} />
-                {s}
-              </label>
-            ))}
-          </div>
-
-          <div className="myo-filter-section">
-            <label className="myo-filter-label">Budget</label>
-            {BUDGET_TAGS.map(b => (
-              <label key={b} className="myo-check">
-                <input type="checkbox" checked={selectedBudgets.includes(b)}
-                  onChange={() => toggle(selectedBudgets, setSelectedBudgets, b)} />
-                {b}
-              </label>
-            ))}
-          </div>
-
-          <div className="myo-filter-section">
-            <label className="myo-filter-label">Sort By</label>
-            <select className="form-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-              <option value="recent">Most Recent</option>
-              <option value="rating">Highest Rating</option>
-              <option value="price-low">Lowest Price</option>
-              <option value="price-high">Highest Price</option>
-              <option value="name">Alphabetical</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="myo-drawer-footer">
-          <button className="btn-secondary" onClick={reset}>Reset</button>
-          <button className="btn-primary" style={{ flex: 1 }} onClick={apply}>Apply</button>
-        </div>
-      </div>
-    </>
-  )
-}
-
-function EditModal({ ornament, onSave, onClose }) {
-  const [name,    setName]    = useState(ornament?.name     || '')
-  const [notes,   setNotes]   = useState(ornament?.notes    || '')
-  const [rating,  setRating]  = useState(ornament?.rating   || 0)
-  const [tags,    setTags]    = useState(ornament?.tags      || [])
-  const [shape,   setShape]   = useState(ornament?.shape    || 'ball')
-  const [colorDesc, setColorDesc] = useState(ornament?.colorDesc || ornament?.color || '')
-
-  const toggleTag = (tag) => setTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
-
-  const save = () => {
-    onSave({ ...ornament, name, notes, rating, tags, shape, colorDesc })
-    onClose()
-  }
-
-  return (
-    <>
-      <div className="myo-modal-overlay" onClick={onClose} />
-      <div className="myo-modal">
-        <div className="myo-modal-header">
-          <h2>Edit Ornament</h2>
-          <button className="myo-btn-close" onClick={onClose}>✕</button>
-        </div>
-        <div className="myo-modal-body">
-          <div className="form-group">
-            <label className="form-label">Name</label>
-            <input className="form-input" value={name} onChange={(e) => setName(e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Color / Description</label>
-            <input className="form-input" value={colorDesc} onChange={(e) => setColorDesc(e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Shape</label>
-            <select className="form-select" value={shape} onChange={(e) => setShape(e.target.value)}>
-              {SHAPES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-            </select>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Notes</label>
-            <textarea className="form-input myo-textarea" value={notes} rows={3}
-              placeholder="e.g. Great for small gaps, set of 6"
-              onChange={(e) => setNotes(e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Rating</label>
-            <div className="myo-rating-row">
-              {[1,2,3,4,5].map(r => (
-                <button key={r} className={`myo-star${rating >= r ? ' active' : ''}`} onClick={() => setRating(r)}>★</button>
-              ))}
-            </div>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Tags</label>
-            <div className="myo-tag-grid">
-              {[...STYLE_TAGS, ...BUDGET_TAGS].map(t => (
-                <button key={t} className={`myo-tag-btn${tags.includes(t) ? ' selected' : ''}`} onClick={() => toggleTag(t)}>{t}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="myo-modal-footer">
-          <button className="btn-secondary" onClick={onClose}>Cancel</button>
-          <button className="btn-primary" onClick={save}>Save Changes</button>
-        </div>
-      </div>
-    </>
-  )
-}
-
-// ─── Main Component ───────────────────────────────────────────
-export default function MyOrnaments() {
-  const [ornaments,       setOrnaments]       = useState(() => load())
-  const [filteredOrnaments, setFiltered]      = useState([])
-  const [filters,         setFilters]         = useState({})
-  const [sortBy,          setSortBy]          = useState('recent')
-  const [filterDrawerOpen, setFilterDrawer]   = useState(false)
-  const [editingOrnament, setEditing]         = useState(null)
-
-  // Add form state
-  const [form,        setForm]        = useState(BLANK_FORM)
-  const [photo,       setPhoto]       = useState(null)
-  const [analyzing,   setAnalyzing]   = useState(false)
-  const [analyzeErr,  setAnalyzeErr]  = useState('')
-
-  const cameraRef  = useRef(null)
-  const libraryRef = useRef(null)
-
-  // Persist on change
-  useEffect(() => { persist(ornaments) }, [ornaments])
-
-  // Filter + sort
-  useEffect(() => {
-    let result = [...ornaments]
-
-    if (filters.search) {
-      const term = filters.search.toLowerCase()
-      result = result.filter(o => o.name.toLowerCase().includes(term) || o.notes?.toLowerCase().includes(term))
-    }
-    if (filters.priceRange) {
-      result = result.filter(o => {
-        const prices = Object.values(o.retailers || {})
-          .map(r => extractPrice(r.price)).filter(p => p != null)
-        if (!prices.length) return true
-        const min = Math.min(...prices)
-        if (filters.priceRange === 'Under $10')  return min < 10
-        if (filters.priceRange === '$10–$20')    return min >= 10 && min < 20
-        if (filters.priceRange === '$20–$50')    return min >= 20 && min < 50
-        if (filters.priceRange === '$50+')       return min >= 50
-        return true
-      })
-    }
-    if (filters.styles?.length)  result = result.filter(o => o.tags?.some(t => filters.styles.includes(t)))
-    if (filters.budgets?.length) result = result.filter(o => o.tags?.some(t => filters.budgets.includes(t)))
-
-    if (sortBy === 'rating')     result.sort((a, b) => (b.rating || 0) - (a.rating || 0))
-    else if (sortBy === 'name')  result.sort((a, b) => a.name.localeCompare(b.name))
-    else if (sortBy === 'price-low' || sortBy === 'price-high') {
-      result.sort((a, b) => {
-        const price = (o) => {
-          const vals = Object.values(o.retailers || {}).map(r => extractPrice(r.price)).filter(p => p != null)
-          return vals.length ? (sortBy === 'price-low' ? Math.min(...vals) : Math.max(...vals)) : (sortBy === 'price-low' ? 9999 : 0)
-        }
-        return sortBy === 'price-low' ? price(a) - price(b) : price(b) - price(a)
-      })
-    } else result.sort((a, b) => (b.dateSaved || 0) - (a.dateSaved || 0))
-
-    setFiltered(result)
-  }, [ornaments, filters, sortBy])
-
-  // Photo capture + AI analysis
   const handlePhotoSelect = useCallback(async (file) => {
     if (!file?.type.startsWith('image/')) return
     setAnalyzeErr('')
@@ -465,11 +235,329 @@ export default function MyOrnaments() {
 
   const handleSave = () => {
     if (!form.name.trim()) return
-    const entry = { ...form, photo, id: `orn-${Date.now()}`, source: 'owned', rating: 0, tags: [], retailers: {}, dateSaved: Date.now() }
+    onSave({
+      ...form,
+      photo,
+      id: `orn-${Date.now()}`,
+      source: 'owned',
+      rating: 0,
+      tags: [],
+      retailers: {},
+      dateSaved: Date.now(),
+    })
+  }
+
+  return (
+    <>
+      <div className="myo-backdrop" onClick={onClose} />
+      <div className="myo-add-modal">
+        <div className="myo-drag-handle" />
+        <div className="myo-add-modal-scroll">
+
+          {/* Photo capture */}
+          <div
+            className="myo-photo-tap"
+            onClick={() => photoInputRef.current?.click()}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && photoInputRef.current?.click()}
+          >
+            {photo ? (
+              <div className="myo-photo-preview">
+                <img src={photo} alt="Ornament" className="myo-photo-img" />
+                {analyzing && (
+                  <div className="myo-analyzing-overlay">
+                    <span className="spin">✦</span>
+                    <span>Analyzing…</span>
+                  </div>
+                )}
+                <div className="myo-photo-retake">Tap to retake</div>
+              </div>
+            ) : (
+              <div className="myo-photo-empty">
+                <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+                <span className="myo-photo-label">Photograph your ornament</span>
+                <span className="myo-photo-sub">Tap to open camera or library</span>
+              </div>
+            )}
+          </div>
+          <input
+            ref={photoInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={(e) => handlePhotoSelect(e.target.files[0])}
+          />
+          {analyzeErr && <p className="myo-analyze-err">{analyzeErr}</p>}
+
+          {/* Name */}
+          <div className="myo-field">
+            <label className="myo-field-label">Name</label>
+            <input
+              className="myo-field-input"
+              placeholder="e.g. Gold Glitter Star, Red Ball Set"
+              value={form.name}
+              onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
+            />
+          </div>
+
+          {/* Shape pills */}
+          <div className="myo-field">
+            <label className="myo-field-label">Type</label>
+            <div className="myo-type-pills">
+              {SHAPES.map(s => (
+                <button
+                  key={s}
+                  className={`myo-type-pill${form.shape === s ? ' selected' : ''}`}
+                  onClick={() => setForm(f => ({ ...f, shape: s }))}
+                >
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Color */}
+          <div className="myo-field">
+            <label className="myo-field-label">Color / Finish</label>
+            <div className="myo-color-row">
+              {form.colorHex && (
+                <span className="myo-color-dot" style={{ background: form.colorHex }} />
+              )}
+              <input
+                className="myo-field-input"
+                placeholder="e.g. Deep burgundy with gold glitter"
+                value={form.colorDesc}
+                onChange={(e) => setForm(f => ({ ...f, colorDesc: e.target.value }))}
+              />
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div className="myo-field">
+            <label className="myo-field-label">
+              Notes <span className="myo-optional">(optional)</span>
+            </label>
+            <textarea
+              className="myo-field-input myo-field-textarea"
+              placeholder="e.g. Set of 6, heirloom piece, large 4-inch"
+              value={form.notes}
+              onChange={(e) => setForm(f => ({ ...f, notes: e.target.value }))}
+              rows={2}
+            />
+          </div>
+
+          <button
+            className="btn-primary btn-full"
+            onClick={handleSave}
+            disabled={!form.name.trim() || analyzing}
+            style={{ marginTop: 8 }}
+          >
+            {analyzing
+              ? <><span className="spin">✦</span> Analyzing photo…</>
+              : 'Add to Collection'}
+          </button>
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ─── EditModal ────────────────────────────────────────────────
+function EditModal({ ornament, onSave, onClose }) {
+  const [name,      setName]      = useState(ornament?.name     || '')
+  const [notes,     setNotes]     = useState(ornament?.notes    || '')
+  const [rating,    setRating]    = useState(ornament?.rating   || 0)
+  const [tags,      setTags]      = useState(ornament?.tags      || [])
+  const [shape,     setShape]     = useState(ornament?.shape    || 'ball')
+  const [colorDesc, setColorDesc] = useState(ornament?.colorDesc || ornament?.color || '')
+
+  const toggleTag = (tag) => setTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
+
+  const save = () => {
+    onSave({ ...ornament, name, notes, rating, tags, shape, colorDesc })
+    onClose()
+  }
+
+  return (
+    <>
+      <div className="myo-backdrop" onClick={onClose} />
+      <div className="myo-edit-modal">
+        <div className="myo-edit-modal-header">
+          <h2>Edit Ornament</h2>
+          <button className="myo-btn-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="myo-edit-modal-body">
+          <div className="form-group">
+            <label className="form-label">Name</label>
+            <input className="form-input" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Color / Description</label>
+            <input className="form-input" value={colorDesc} onChange={(e) => setColorDesc(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Shape</label>
+            <select className="form-select" value={shape} onChange={(e) => setShape(e.target.value)}>
+              {SHAPES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Notes</label>
+            <textarea className="form-input" value={notes} rows={3}
+              placeholder="e.g. Great for small gaps, set of 6"
+              style={{ resize: 'vertical', minHeight: 70, fontFamily: 'inherit' }}
+              onChange={(e) => setNotes(e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Rating</label>
+            <div className="myo-rating-row">
+              {[1,2,3,4,5].map(r => (
+                <button key={r} className={`myo-star${rating >= r ? ' active' : ''}`} onClick={() => setRating(r)}>★</button>
+              ))}
+            </div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Tags</label>
+            <div className="myo-tag-grid">
+              {[...STYLE_TAGS, ...BUDGET_TAGS].map(t => (
+                <button key={t} className={`myo-tag-btn${tags.includes(t) ? ' selected' : ''}`} onClick={() => toggleTag(t)}>{t}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="myo-edit-modal-footer">
+          <button className="btn-secondary" onClick={onClose}>Cancel</button>
+          <button className="btn-primary" onClick={save}>Save Changes</button>
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ─── FilterDrawer ─────────────────────────────────────────────
+function FilterDrawer({ isOpen, onClose, onFilter, onSort }) {
+  const [priceRange,      setPriceRange]      = useState('')
+  const [selectedStyles,  setSelectedStyles]  = useState([])
+  const [selectedBudgets, setSelectedBudgets] = useState([])
+  const [searchTerm,      setSearchTerm]      = useState('')
+  const [sortBy,          setSortBy]          = useState('recent')
+
+  const toggle = (list, setList, val) =>
+    setList(list.includes(val) ? list.filter(x => x !== val) : [...list, val])
+
+  const apply = () => {
+    onFilter({ priceRange, styles: selectedStyles, budgets: selectedBudgets, search: searchTerm })
+    onSort(sortBy)
+    onClose()
+  }
+
+  const reset = () => {
+    setPriceRange(''); setSelectedStyles([]); setSelectedBudgets([]); setSearchTerm(''); setSortBy('recent')
+    onFilter({}); onSort('recent')
+  }
+
+  return (
+    <>
+      {isOpen && <div className="myo-overlay" onClick={onClose} />}
+      <div className={`myo-drawer${isOpen ? ' open' : ''}`}>
+        <div className="myo-drawer-header">
+          <h3>Filter &amp; Sort</h3>
+          <button className="myo-btn-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="myo-drawer-body">
+          <div className="myo-filter-section">
+            <label className="myo-filter-label">Search</label>
+            <input className="form-input" placeholder="Name, color, note…" value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} />
+          </div>
+          <div className="myo-filter-section">
+            <label className="myo-filter-label">Price Range</label>
+            {['Under $10', '$10–$20', '$20–$50', '$50+'].map(r => (
+              <label key={r} className="myo-check">
+                <input type="radio" name="price" value={r} checked={priceRange === r}
+                  onChange={(e) => setPriceRange(e.target.value)} />
+                {r}
+              </label>
+            ))}
+          </div>
+          <div className="myo-filter-section">
+            <label className="myo-filter-label">Style</label>
+            {STYLE_TAGS.map(s => (
+              <label key={s} className="myo-check">
+                <input type="checkbox" checked={selectedStyles.includes(s)}
+                  onChange={() => toggle(selectedStyles, setSelectedStyles, s)} />
+                {s}
+              </label>
+            ))}
+          </div>
+          <div className="myo-filter-section">
+            <label className="myo-filter-label">Sort By</label>
+            <select className="form-select" value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <option value="recent">Most Recent</option>
+              <option value="rating">Highest Rating</option>
+              <option value="name">Alphabetical</option>
+            </select>
+          </div>
+        </div>
+        <div className="myo-drawer-footer">
+          <button className="btn-secondary" onClick={reset}>Reset</button>
+          <button className="btn-primary" style={{ flex: 1 }} onClick={apply}>Apply</button>
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ─── Main Component ───────────────────────────────────────────
+export default function MyOrnaments() {
+  const [ornaments,         setOrnaments]   = useState(() => load())
+  const [filteredOrnaments, setFiltered]    = useState([])
+  const [filters,           setFilters]     = useState({})
+  const [sortBy,            setSortBy]      = useState('recent')
+  const [filterDrawerOpen,  setFilterDrawer] = useState(false)
+  const [editingOrnament,   setEditing]     = useState(null)
+  const [addModalOpen,      setAddModal]    = useState(false)
+
+  useEffect(() => { persist(ornaments) }, [ornaments])
+
+  useEffect(() => {
+    let result = [...ornaments]
+    if (filters.search) {
+      const term = filters.search.toLowerCase()
+      result = result.filter(o =>
+        o.name.toLowerCase().includes(term) || o.notes?.toLowerCase().includes(term)
+      )
+    }
+    if (filters.priceRange) {
+      result = result.filter(o => {
+        const prices = Object.values(o.retailers || {})
+          .map(r => extractPrice(r.price)).filter(p => p != null)
+        if (!prices.length) return true
+        const min = Math.min(...prices)
+        if (filters.priceRange === 'Under $10') return min < 10
+        if (filters.priceRange === '$10–$20')   return min >= 10 && min < 20
+        if (filters.priceRange === '$20–$50')   return min >= 20 && min < 50
+        if (filters.priceRange === '$50+')      return min >= 50
+        return true
+      })
+    }
+    if (filters.styles?.length)  result = result.filter(o => o.tags?.some(t => filters.styles.includes(t)))
+    if (filters.budgets?.length) result = result.filter(o => o.tags?.some(t => filters.budgets.includes(t)))
+
+    if      (sortBy === 'rating') result.sort((a, b) => (b.rating || 0) - (a.rating || 0))
+    else if (sortBy === 'name')   result.sort((a, b) => a.name.localeCompare(b.name))
+    else                          result.sort((a, b) => (b.dateSaved || 0) - (a.dateSaved || 0))
+
+    setFiltered(result)
+  }, [ornaments, filters, sortBy])
+
+  const handleAdd = (entry) => {
     setOrnaments(prev => [entry, ...prev])
-    setForm(BLANK_FORM)
-    setPhoto(null)
-    setAnalyzeErr('')
+    setAddModal(false)
   }
 
   const handleDelete = (id) => setOrnaments(prev => prev.filter(o => o.id !== id))
@@ -478,95 +566,37 @@ export default function MyOrnaments() {
     setOrnaments(prev => prev.map(o => o.id === updated.id ? updated : o))
 
   return (
-    <div className="tab-content">
-      <div className="section-header">
-        <h2><OrnamentIcon />My Ornaments</h2>
-        <p>Photograph your ornaments to build a personal library — then filter, sort, and shop smarter.</p>
-      </div>
+    <div className="tab-content myo-root">
 
-      {/* ── Add form ── */}
-      <div className="form-card">
-        <h3 className="form-card-title">Add an Ornament</h3>
-
-        <div className="photo-btn-row">
-          <button className="btn-photo" onClick={() => cameraRef.current?.click()}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            Take Photo
-          </button>
-          <button className="btn-photo" onClick={() => libraryRef.current?.click()}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-            Choose from Library
+      {/* ── Empty state ── */}
+      {ornaments.length === 0 && (
+        <div className="myo-empty">
+          <EmptyIllustration />
+          <h2 className="myo-empty-headline">Your Collection Awaits</h2>
+          <p className="myo-empty-sub">
+            Photograph ornaments you own or love — your stylist will help you build around them
+          </p>
+          <button className="btn-primary" onClick={() => setAddModal(true)}>
+            Add Your First Ornament
           </button>
         </div>
-        <input ref={cameraRef}  type="file" accept="image/*" capture="environment" style={{ display:'none' }} onChange={(e) => handlePhotoSelect(e.target.files[0])} />
-        <input ref={libraryRef} type="file" accept="image/*" style={{ display:'none' }} onChange={(e) => handlePhotoSelect(e.target.files[0])} />
+      )}
 
-        {photo && (
-          <div className="photo-preview-wrap">
-            <img src={photo} alt="Ornament preview" className="photo-preview-img" />
-            {analyzing && (
-              <div className="photo-analyzing-overlay">
-                <span className="spin">✦</span>
-                <span>Analyzing ornament…</span>
-              </div>
-            )}
-          </div>
-        )}
-        {analyzeErr && <p className="analyze-error">{analyzeErr}</p>}
-
-        <div className="form-grid" style={{ marginTop: photo ? '14px' : '0' }}>
-          <div className="form-group">
-            <label className="form-label">Ornament Name *</label>
-            <input className="form-input" placeholder="e.g. Gold Glitter Star, Red Ball Set"
-              value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} />
-          </div>
-          <div className="form-group">
-            <label className="form-label">Color / Finish</label>
-            <div className="color-input-wrap">
-              {form.colorHex && <span className="color-swatch-inline" style={{ background: form.colorHex }} />}
-              <input className="form-input" placeholder="e.g. Deep red with gold glitter"
-                value={form.colorDesc} onChange={(e) => setForm(f => ({ ...f, colorDesc: e.target.value }))} />
-            </div>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Shape</label>
-            <select className="form-select" value={form.shape} onChange={(e) => setForm(f => ({ ...f, shape: e.target.value }))}>
-              {SHAPES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-            </select>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Material</label>
-            <select className="form-select" value={form.material} onChange={(e) => setForm(f => ({ ...f, material: e.target.value }))}>
-              {MATERIALS.map(m => <option key={m}>{m}</option>)}
-            </select>
-          </div>
-          <div className="form-group">
-            <label className="form-label">Size</label>
-            <select className="form-select" value={form.size} onChange={(e) => setForm(f => ({ ...f, size: e.target.value }))}>
-              {['small','medium','large'].map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-            </select>
-          </div>
-          <div className="form-group form-group-full">
-            <label className="form-label">Notes (optional)</label>
-            <input className="form-input" placeholder="e.g. Set of 12, heirloom, large 4-inch"
-              value={form.notes} onChange={(e) => setForm(f => ({ ...f, notes: e.target.value }))} />
-          </div>
-        </div>
-
-        <button className="btn-primary btn-full" onClick={handleSave} disabled={!form.name.trim() || analyzing}>
-          {analyzing ? <><span className="spin">✦</span> Analyzing photo…</> : '+ Add to Collection'}
-        </button>
-      </div>
-
-      {/* ── Library ── */}
+      {/* ── Collection grid ── */}
       {ornaments.length > 0 && (
         <>
-          <div className="myo-library-controls">
-            <button className="btn-secondary" onClick={() => setFilterDrawer(true)}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+          <div className="myo-collection-header">
+            <span className="myo-count">
+              {filteredOrnaments.length} ornament{filteredOrnaments.length !== 1 ? 's' : ''}
+            </span>
+            <button className="myo-filter-btn" onClick={() => setFilterDrawer(true)}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <line x1="4" y1="6" x2="20" y2="6"/>
+                <line x1="8" y1="12" x2="16" y2="12"/>
+                <line x1="11" y1="18" x2="13" y2="18"/>
+              </svg>
               Filter &amp; Sort
             </button>
-            <span className="myo-count">{filteredOrnaments.length} of {ornaments.length}</span>
           </div>
 
           <div className="myo-grid">
@@ -577,20 +607,32 @@ export default function MyOrnaments() {
         </>
       )}
 
-      {ornaments.length === 0 && (
-        <div className="empty-state">
-          <span className="empty-icon">🎄</span>
-          <p>No ornaments saved yet.</p>
-          <p style={{ fontSize: '0.82rem', marginTop: 6 }}>Photograph yours above, or tap <strong>Save to My Ornaments</strong> on any shopping card.</p>
-        </div>
+      {/* ── Floating add button ── */}
+      {ornaments.length > 0 && (
+        <button className="myo-fab" onClick={() => setAddModal(true)} aria-label="Add ornament">
+          +
+        </button>
       )}
 
-      <FilterDrawer isOpen={filterDrawerOpen} onClose={() => setFilterDrawer(false)}
-        onFilter={setFilters} onSort={setSortBy} />
+      {/* ── Modals / drawers ── */}
+      {addModalOpen && (
+        <AddModal onClose={() => setAddModal(false)} onSave={handleAdd} />
+      )}
 
       {editingOrnament && (
-        <EditModal ornament={editingOrnament} onSave={handleSaveEdit} onClose={() => setEditing(null)} />
+        <EditModal
+          ornament={editingOrnament}
+          onSave={handleSaveEdit}
+          onClose={() => setEditing(null)}
+        />
       )}
+
+      <FilterDrawer
+        isOpen={filterDrawerOpen}
+        onClose={() => setFilterDrawer(false)}
+        onFilter={setFilters}
+        onSort={setSortBy}
+      />
     </div>
   )
 }
