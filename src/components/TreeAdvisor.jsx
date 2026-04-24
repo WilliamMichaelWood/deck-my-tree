@@ -51,7 +51,7 @@ const getAnalysisPrompt = () => {
 // Claude vision detects the tree bounding box. We build an inset triangle from
 // those coords and generate all positions client-side — AI supplies metadata only.
 
-const DETECT_PROMPT = `Analyze this image and return ONLY a JSON object with the Christmas tree bounding box as image-percentage coordinates: {"treeTop":N,"treeBottom":N,"treeLeft":N,"treeRight":N,"treeCenterX":N}. No other text, just the JSON.`
+const DETECT_PROMPT = `Analyze this image and return ONLY a JSON object with the Christmas tree bounding box as image-percentage coordinates AND estimated tree height in feet: {"treeTop":N,"treeBottom":N,"treeLeft":N,"treeRight":N,"treeCenterX":N,"treeHeightFt":N}. No other text, just the JSON.`
 
 // Build an inset triangle from Claude's detected bounding box
 function buildDetectedTri(b) {
@@ -95,35 +95,37 @@ function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
 }
 
 // Zone-allocated placement: guarantees ornaments in all three zones.
-// Zone A (top, yF < 0.25): 3 ornaments
-// Zone B (mid, yF 0.25–0.60): 5 ornaments
-// Zone C (bottom, yF > 0.60): 4 ornaments
+// Zone budgets scale with n: A=20%, B=45%, C=35%
+// Cluster sizes are large enough to handle n=100 in any zone.
 function generateClusteredPlacements(n, bounds) {
   const tri   = buildDetectedTri(bounds || {})
   const treeH = tri.baseL.y - tri.apex.y
 
   const CLUSTERS = [
-    // Zone A — top
-    { yF: 0.08, xBias: -0.20, size: 3, rMin: 1.5, rMax: 1.9, zone: 'A' },
-    { yF: 0.08, xBias:  0.20, size: 3, rMin: 1.5, rMax: 1.9, zone: 'A' },
-    { yF: 0.17, xBias: -0.42, size: 3, rMin: 1.8, rMax: 2.2, zone: 'A' },
-    { yF: 0.17, xBias:  0.42, size: 3, rMin: 1.8, rMax: 2.2, zone: 'A' },
-    // Zone B — middle
-    { yF: 0.32, xBias: -0.38, size: 4, rMin: 1.8, rMax: 2.4, zone: 'B' },
-    { yF: 0.32, xBias:  0.38, size: 4, rMin: 1.8, rMax: 2.4, zone: 'B' },
-    { yF: 0.45, xBias: -0.50, size: 4, rMin: 1.8, rMax: 2.4, zone: 'B' },
-    { yF: 0.45, xBias:  0.50, size: 4, rMin: 1.8, rMax: 2.4, zone: 'B' },
-    { yF: 0.55, xBias:  0.00, size: 4, rMin: 1.8, rMax: 2.4, zone: 'B' },
-    // Zone C — bottom
-    { yF: 0.67, xBias: -0.46, size: 4, rMin: 1.9, rMax: 2.5, zone: 'C' },
-    { yF: 0.67, xBias:  0.46, size: 4, rMin: 1.9, rMax: 2.5, zone: 'C' },
-    { yF: 0.78, xBias: -0.28, size: 4, rMin: 1.9, rMax: 2.5, zone: 'C' },
-    { yF: 0.78, xBias:  0.28, size: 4, rMin: 1.9, rMax: 2.5, zone: 'C' },
-    { yF: 0.87, xBias:  0.00, size: 5, rMin: 1.9, rMax: 2.5, zone: 'C' },
+    // Zone A — top (4 clusters × 10 capacity = 40 max)
+    { yF: 0.08, xBias: -0.20, size: 10, rMin: 1.5, rMax: 1.9, zone: 'A' },
+    { yF: 0.08, xBias:  0.20, size: 10, rMin: 1.5, rMax: 1.9, zone: 'A' },
+    { yF: 0.17, xBias: -0.42, size: 10, rMin: 1.8, rMax: 2.2, zone: 'A' },
+    { yF: 0.17, xBias:  0.42, size: 10, rMin: 1.8, rMax: 2.2, zone: 'A' },
+    // Zone B — middle (5 clusters × 12 capacity = 60 max)
+    { yF: 0.32, xBias: -0.38, size: 12, rMin: 1.8, rMax: 2.4, zone: 'B' },
+    { yF: 0.32, xBias:  0.38, size: 12, rMin: 1.8, rMax: 2.4, zone: 'B' },
+    { yF: 0.45, xBias: -0.50, size: 12, rMin: 1.8, rMax: 2.4, zone: 'B' },
+    { yF: 0.45, xBias:  0.50, size: 12, rMin: 1.8, rMax: 2.4, zone: 'B' },
+    { yF: 0.55, xBias:  0.00, size: 12, rMin: 1.8, rMax: 2.4, zone: 'B' },
+    // Zone C — bottom (5 clusters × 10 capacity = 50 max)
+    { yF: 0.67, xBias: -0.46, size: 10, rMin: 1.9, rMax: 2.5, zone: 'C' },
+    { yF: 0.67, xBias:  0.46, size: 10, rMin: 1.9, rMax: 2.5, zone: 'C' },
+    { yF: 0.78, xBias: -0.28, size: 10, rMin: 1.9, rMax: 2.5, zone: 'C' },
+    { yF: 0.78, xBias:  0.28, size: 10, rMin: 1.9, rMax: 2.5, zone: 'C' },
+    { yF: 0.87, xBias:  0.00, size: 10, rMin: 1.9, rMax: 2.5, zone: 'C' },
   ]
 
-  // Pre-allocate ornament budget per zone regardless of n
-  const ZONE_BUDGET = { A: 3, B: 5, C: 4 }
+  // Proportional zone budgets: A=20%, B=45%, C=35%
+  const zA = Math.round(n * 0.20)
+  const zB = Math.round(n * 0.45)
+  const zC = n - zA - zB
+  const ZONE_BUDGET = { A: zA, B: zB, C: zC }
   const zoneCount   = { A: 0, B: 0, C: 0 }
 
   const MIN_DIST = 4.5
@@ -178,7 +180,7 @@ function generateClusteredPlacements(n, bounds) {
   return positions
 }
 
-const OVERLAY_VARIETIES = 10
+const OVERLAY_VARIETIES = 12
 
 function buildOrnamentListPrompt(varieties = OVERLAY_VARIETIES) {
   return `You are a professional Christmas tree decorator. Analyze this specific tree photo carefully.
@@ -653,7 +655,8 @@ export default function TreeAdvisor() {
           const { palette: pal, ornaments: meta } = extractOrnamentResponse(rawOrnaments)
           setPalette(pal)
 
-          const OVERLAY_COUNT = 55
+          const heightFt = treeBoundsRef.current?.treeHeightFt
+          const OVERLAY_COUNT = !heightFt ? 70 : heightFt < 4 ? 40 : heightFt < 6 ? 60 : heightFt < 8 ? 80 : 100
           const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
           const placed = positions.map((pos, i) => {
             const jx = (Math.random() - 0.5) * 4
