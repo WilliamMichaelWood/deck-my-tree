@@ -143,9 +143,9 @@ function generateClusteredPlacements(n, bounds) {
     const { xMin, xMax } = xRangeAtY(cy, tri)
     const hw             = (xMax - xMin) / 2
     const jitteredBias   = cd.xBias + (Math.random() - 0.5) * 0.18
-    const cxCenter       = tri.apex.x + hw * jitteredBias
+    const cxCenter       = tri.apex.x + hw * jitteredBias + (Math.random() - 0.5) * hw * 0.4
 
-    const sr = Math.min(hw * 0.55, treeH * 0.13)
+    const sr = Math.min(hw * 0.70, treeH * 0.18)
 
     for (let j = 0; j < toPlace; j++) {
       let safeX, y
