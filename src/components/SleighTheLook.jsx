@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { streamChat } from '../lib/stream'
 import CurationModal from './CurationModal'
 
@@ -341,6 +341,7 @@ export default function SleighTheLook() {
   const [products,     setProducts]     = useState([])
   const [error,        setError]        = useState('')
 
+  const resultsRef = useRef(null)
   const canGenerate = style && palette && budget && size
 
   useEffect(() => {
@@ -376,6 +377,7 @@ export default function SleighTheLook() {
       const remaining = 3000 - elapsed
       if (remaining > 0) await new Promise(r => setTimeout(r, remaining))
       setLoading(false)
+      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300)
     }
   }
 
@@ -488,7 +490,7 @@ export default function SleighTheLook() {
       {error && <div className="error-card">⚠️ {error}</div>}
 
       {products.length > 0 && (
-        <div className="recommendations-list">
+        <div className="recommendations-list" ref={resultsRef}>
           {products.map((item, i) => (
             <RecommendationCard key={i} item={item} index={i} />
           ))}
