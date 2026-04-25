@@ -73,6 +73,81 @@ ${extraContext ? `Notes: ${extraContext}` : ''}
 
 Return exactly 12 items in type order: 5 balls, 2 textural, 2 statement, 2 reflective, 1 wildcard. Output only the JSON array.`
 
+function BallOrnament({ color }) {
+  return (
+    <svg width="100%" viewBox="0 0 60 74" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="26" y="0" width="8" height="14" rx="3.5" fill="#c9a84c"/>
+      <circle cx="30" cy="46" r="26" fill={color}/>
+      <ellipse cx="21" cy="35" rx="8" ry="6" fill="rgba(255,255,255,0.48)" transform="rotate(-20 21 35)"/>
+    </svg>
+  )
+}
+
+function DropOrnament({ color }) {
+  return (
+    <svg width="100%" viewBox="0 0 60 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="26" y="0" width="8" height="13" rx="3.5" fill="#c9a84c"/>
+      <path d="M30,13 C18,13 7,27 7,45 C7,62 17,76 30,76 C43,76 53,62 53,45 C53,27 42,13 30,13 Z" fill={color}/>
+      <ellipse cx="21" cy="32" rx="6" ry="10" fill="rgba(255,255,255,0.44)" transform="rotate(-15 21 32)"/>
+    </svg>
+  )
+}
+
+function StarOrnament({ color }) {
+  return (
+    <svg width="100%" viewBox="0 0 60 74" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="26" y="0" width="8" height="14" rx="3.5" fill="#c9a84c"/>
+      <polygon points="30,28 35,42 49,42 38,51 42,64 30,56 18,64 22,51 11,42 25,42" fill={color}/>
+      <ellipse cx="23" cy="37" rx="4" ry="3" fill="rgba(255,255,255,0.38)" transform="rotate(-30 23 37)"/>
+    </svg>
+  )
+}
+
+function SnowflakeOrnament({ color }) {
+  return (
+    <svg width="100%" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g stroke={color} strokeWidth="4.5" strokeLinecap="round">
+        <line x1="30" y1="6"  x2="30" y2="54"/>
+        <line x1="7"  y1="19" x2="53" y2="41"/>
+        <line x1="53" y1="19" x2="7"  y2="41"/>
+        <line x1="23" y1="17" x2="37" y2="17"/>
+        <line x1="23" y1="43" x2="37" y2="43"/>
+        <line x1="14" y1="22" x2="22" y2="14"/>
+        <line x1="38" y1="46" x2="46" y2="38"/>
+        <line x1="46" y1="22" x2="38" y2="14"/>
+        <line x1="22" y1="46" x2="14" y2="38"/>
+      </g>
+      <circle cx="30" cy="30" r="4" fill={color}/>
+    </svg>
+  )
+}
+
+function PineconeOrnament({ color }) {
+  const brown = color || '#7a4a22'
+  return (
+    <svg width="100%" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="26" y="0" width="8" height="12" rx="3" fill="#c9a84c"/>
+      <ellipse cx="30" cy="48" rx="18" ry="28" fill={brown}/>
+      <path d="M13,62 Q30,54 47,62" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
+      <path d="M14,52 Q30,44 46,52" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
+      <path d="M15,42 Q30,34 45,42" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
+      <path d="M17,32 Q30,24 43,32" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
+      <path d="M20,22 Q30,15 40,22" stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none"/>
+      <ellipse cx="21" cy="36" rx="5" ry="4" fill="rgba(255,255,255,0.12)" transform="rotate(-10 21 36)"/>
+    </svg>
+  )
+}
+
+function OrnamentShape({ shape, color }) {
+  switch (shape) {
+    case 'drop':      return <DropOrnament      color={color} />
+    case 'star':      return <StarOrnament      color={color} />
+    case 'snowflake': return <SnowflakeOrnament color={color} />
+    case 'pinecone':  return <PineconeOrnament  color={color} />
+    default:          return <BallOrnament      color={color} />
+  }
+}
+
 function getOrnamentShape(name = '') {
   const n = name.toLowerCase()
   if (n.includes('snowflake'))                          return 'snowflake'
@@ -226,20 +301,19 @@ function OrnamentTypeIcon({ shape, size = 28 }) {
 }
 
 function RecommendationCard({ item, index }) {
+  const shape = item.shape || getOrnamentShape(item.name)
   return (
-    <div className="recommendation-card">
-      <div className="rec-card-header">
-        <div className="rec-info">
-          <span className="rec-number">{String(index + 1).padStart(2, '0')}</span>
-          <h3 className="rec-name">{item.name}</h3>
-          <p className="rec-desc">{item.description}</p>
-          <div className="rec-tags">
-            {item.type     && <span className="rec-tag">{item.type}</span>}
-            {item.quantity && <span className="rec-tag">{item.quantity}</span>}
-          </div>
+    <div className="ornament-shop-card">
+      <div className="shop-card-top">
+        <div className="shop-ornament-preview">
+          <OrnamentShape shape={shape} color={item.color || '#c9a84c'} />
+        </div>
+        <div className="shop-card-info">
+          <span className="shop-card-num">{String(index + 1).padStart(2, '0')}</span>
+          <h4 className="shop-card-name">{item.label || item.name}</h4>
+          <p className="shop-card-fullname">{item.name}</p>
         </div>
       </div>
-      {item.whyPerfect && <p className="rec-why">✦ {item.whyPerfect}</p>}
       <div className="shop-card-retailers">
         {RETAILERS.map(r => (
           <ProductCard
@@ -247,9 +321,8 @@ function RecommendationCard({ item, index }) {
             retailer={r.key}
             price={item[r.key]?.price}
             ornamentName={item.name}
-            ornamentShape={item.shape || getOrnamentShape(item.name)}
+            ornamentShape={shape}
             ornamentDescription={item.description}
-            color={item.color || '#c9a84c'}
           />
         ))}
       </div>
