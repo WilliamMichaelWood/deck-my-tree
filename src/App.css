@@ -229,7 +229,7 @@ a { text-decoration: none; color: inherit; }
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-.tree-preview { width: 100%; max-height: 500px; object-fit: contain; display: block; }
+.tree-preview { width: 100%; max-height: 45vh; object-fit: cover; display: block; }
 
 /* ─── Tree Size Selector ─────────────────────────────────────── */
 
