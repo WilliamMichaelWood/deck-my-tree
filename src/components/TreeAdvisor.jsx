@@ -102,23 +102,29 @@ function generateClusteredPlacements(n, bounds) {
   const treeH = tri.baseL.y - tri.apex.y
 
   const CLUSTERS = [
-    // Zone A — top (4 clusters × 10 capacity = 40 max)
-    { yF: 0.08, xBias: -0.20, size: 10, rMin: 1.5, rMax: 1.9, zone: 'A' },
-    { yF: 0.08, xBias:  0.20, size: 10, rMin: 1.5, rMax: 1.9, zone: 'A' },
-    { yF: 0.17, xBias: -0.42, size: 10, rMin: 1.8, rMax: 2.2, zone: 'A' },
-    { yF: 0.17, xBias:  0.42, size: 10, rMin: 1.8, rMax: 2.2, zone: 'A' },
-    // Zone B — middle (5 clusters × 12 capacity = 60 max)
-    { yF: 0.32, xBias: -0.38, size: 12, rMin: 1.8, rMax: 2.4, zone: 'B' },
-    { yF: 0.32, xBias:  0.38, size: 12, rMin: 1.8, rMax: 2.4, zone: 'B' },
-    { yF: 0.45, xBias: -0.50, size: 12, rMin: 1.8, rMax: 2.4, zone: 'B' },
-    { yF: 0.45, xBias:  0.50, size: 12, rMin: 1.8, rMax: 2.4, zone: 'B' },
-    { yF: 0.55, xBias:  0.00, size: 12, rMin: 1.8, rMax: 2.4, zone: 'B' },
-    // Zone C — bottom (5 clusters × 10 capacity = 50 max)
-    { yF: 0.67, xBias: -0.46, size: 10, rMin: 1.9, rMax: 2.5, zone: 'C' },
-    { yF: 0.67, xBias:  0.46, size: 10, rMin: 1.9, rMax: 2.5, zone: 'C' },
-    { yF: 0.78, xBias: -0.28, size: 10, rMin: 1.9, rMax: 2.5, zone: 'C' },
-    { yF: 0.78, xBias:  0.28, size: 10, rMin: 1.9, rMax: 2.5, zone: 'C' },
-    { yF: 0.87, xBias:  0.00, size: 10, rMin: 1.9, rMax: 2.5, zone: 'C' },
+    // Zone A — top (small, wide spread)
+    { yF: 0.06, xBias: -0.15, size: 3, rMin: 1.2, rMax: 1.5, zone: 'A' },
+    { yF: 0.06, xBias:  0.15, size: 3, rMin: 1.2, rMax: 1.5, zone: 'A' },
+    { yF: 0.14, xBias: -0.38, size: 3, rMin: 1.3, rMax: 1.6, zone: 'A' },
+    { yF: 0.14, xBias:  0.38, size: 3, rMin: 1.3, rMax: 1.6, zone: 'A' },
+    { yF: 0.20, xBias: -0.52, size: 3, rMin: 1.4, rMax: 1.7, zone: 'A' },
+    { yF: 0.20, xBias:  0.52, size: 3, rMin: 1.4, rMax: 1.7, zone: 'A' },
+    // Zone B — middle (medium, balanced)
+    { yF: 0.30, xBias: -0.42, size: 4, rMin: 1.6, rMax: 2.0, zone: 'B' },
+    { yF: 0.30, xBias:  0.42, size: 4, rMin: 1.6, rMax: 2.0, zone: 'B' },
+    { yF: 0.40, xBias: -0.55, size: 4, rMin: 1.7, rMax: 2.1, zone: 'B' },
+    { yF: 0.40, xBias:  0.55, size: 4, rMin: 1.7, rMax: 2.1, zone: 'B' },
+    { yF: 0.50, xBias: -0.30, size: 4, rMin: 1.8, rMax: 2.2, zone: 'B' },
+    { yF: 0.50, xBias:  0.30, size: 4, rMin: 1.8, rMax: 2.2, zone: 'B' },
+    { yF: 0.58, xBias: -0.48, size: 4, rMin: 1.8, rMax: 2.2, zone: 'B' },
+    { yF: 0.58, xBias:  0.48, size: 4, rMin: 1.8, rMax: 2.2, zone: 'B' },
+    // Zone C — bottom (larger, wider)
+    { yF: 0.67, xBias: -0.50, size: 4, rMin: 1.9, rMax: 2.3, zone: 'C' },
+    { yF: 0.67, xBias:  0.50, size: 4, rMin: 1.9, rMax: 2.3, zone: 'C' },
+    { yF: 0.76, xBias: -0.35, size: 4, rMin: 2.0, rMax: 2.4, zone: 'C' },
+    { yF: 0.76, xBias:  0.35, size: 4, rMin: 2.0, rMax: 2.4, zone: 'C' },
+    { yF: 0.84, xBias: -0.20, size: 4, rMin: 2.0, rMax: 2.4, zone: 'C' },
+    { yF: 0.84, xBias:  0.20, size: 4, rMin: 2.0, rMax: 2.4, zone: 'C' },
   ]
 
   // Proportional zone budgets: A=20%, B=45%, C=35%
@@ -128,7 +134,7 @@ function generateClusteredPlacements(n, bounds) {
   const ZONE_BUDGET = { A: zA, B: zB, C: zC }
   const zoneCount   = { A: 0, B: 0, C: 0 }
 
-  const MIN_DIST = 4.5
+  const MIN_DIST = 6.0
   const { apex, baseL, baseR } = tri
   const positions = []
 
@@ -145,7 +151,7 @@ function generateClusteredPlacements(n, bounds) {
     const jitteredBias   = cd.xBias + (Math.random() - 0.5) * 0.18
     const cxCenter       = tri.apex.x + hw * jitteredBias + (Math.random() - 0.5) * hw * 0.4
 
-    const sr = Math.min(hw * 0.70, treeH * 0.18)
+    const sr = Math.min(hw * 0.55, treeH * 0.10)
 
     for (let j = 0; j < toPlace; j++) {
       let safeX, y
