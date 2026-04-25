@@ -789,18 +789,13 @@ a { text-decoration: none; color: inherit; }
   padding: 22px 24px 18px;
   border-bottom: 1px solid var(--border-soft);
 }
-.rec-icon-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-}
 .rec-number {
+  display: block;
   font-size: 0.65rem;
   font-weight: 600;
   color: #7090a8;
   line-height: 1;
+  margin-bottom: 3px;
   letter-spacing: 0.04em;
 }
 .rec-info { flex: 1; min-width: 0; }
@@ -1208,17 +1203,13 @@ h3.shop-section-header {
     0 4px 16px rgba(0,0,0,0.4);
 }
 .shop-card-info { flex: 1; min-width: 0; }
-.shop-card-num-wrap {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 4px;
-}
 .shop-card-num {
+  display: block;
   font-size: 0.65rem;
   font-weight: 600;
   color: #7090a8;
   letter-spacing: 0.04em;
+  margin-bottom: 2px;
 }
 .shop-card-name {
   font-size: 1rem;

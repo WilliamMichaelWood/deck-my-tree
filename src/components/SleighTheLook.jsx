@@ -229,11 +229,8 @@ function RecommendationCard({ item, index }) {
   return (
     <div className="recommendation-card">
       <div className="rec-card-header">
-        <div className="rec-icon-col">
-          <OrnamentTypeIcon shape={item.shape || getOrnamentShape(item.name)} />
-          <span className="rec-number">{String(index + 1).padStart(2, '0')}</span>
-        </div>
         <div className="rec-info">
+          <span className="rec-number">{String(index + 1).padStart(2, '0')}</span>
           <h3 className="rec-name">{item.name}</h3>
           <p className="rec-desc">{item.description}</p>
           <div className="rec-tags">
