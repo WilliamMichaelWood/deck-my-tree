@@ -165,7 +165,7 @@ function generateClusteredPlacements(n, bounds) {
         const cy3 = Math.max(tri.apex.y, Math.min(tri.baseL.y, rawY))
         // Bug 1 fix: clamp to valid x range at this y — never fall back to apex.x
         const { xMin: lo2, xMax: hi2 } = xRangeAtY(cy3, tri)
-        const clampedX = Math.max(lo2 + 1.5, Math.min(hi2 - 1.5, rawX))
+        const clampedX = Math.max(lo2 + 2.5, Math.min(hi2 - 1.5, rawX))
         safeX = clampedX
         y     = cy3
 
@@ -176,7 +176,7 @@ function generateClusteredPlacements(n, bounds) {
         if (!tooClose) break
       }
 
-      const r = +(cd.rMin + Math.random() * (cd.rMax - cd.rMin)).toFixed(1)
+      const r = +((cd.rMin + Math.random() * (cd.rMax - cd.rMin)) * 0.85).toFixed(1)
       const z = Math.round(8 + Math.random() * 84)
       positions.push({ x: +safeX.toFixed(1), y: +y.toFixed(1), r, z, yF: cd.yF })
       zoneCount[cd.zone]++
