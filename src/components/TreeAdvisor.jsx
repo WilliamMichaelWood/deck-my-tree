@@ -492,13 +492,14 @@ function StyledOverlayView({ image, ornaments, topper, bounds }) {
   )
 }
 
-const saveDecoration = (image, ornaments, analysis, varieties, palette) => {
+const saveDecoration = (image, ornaments, analysis, varieties, palette, topper) => {
   const decoration = {
     id: Date.now(),
     image: image.preview,
     ornaments,
     varieties: varieties || [],
     palette:   palette   || null,
+    topper:    topper    || null,
     analysis,
     timestamp: new Date().toISOString(),
   }
@@ -626,6 +627,7 @@ export default function TreeAdvisor() {
     const obj = scanBalanced(text, '{', '}')
     if (obj && Array.isArray(obj.ornaments) && obj.ornaments.length > 0) {
       console.log('[overlay] found object with palette:', obj.palette, 'and', obj.ornaments.length, 'ornaments')
+      console.log('[overlay] topper:', obj.topper || null)
       return { palette: obj.palette || null, ornaments: obj.ornaments, topper: obj.topper || null }
     }
 
@@ -767,7 +769,7 @@ export default function TreeAdvisor() {
           setOrnaments(placed)
 
           if (image && analysisText) {
-            saveDecoration(image, placed, analysisText, meta.slice(0, 12), pal)
+            saveDecoration(image, placed, analysisText, meta.slice(0, 12), pal, top)
             setRecentTrees(loadDecorations())
           }
         } catch (err) {
@@ -891,7 +893,7 @@ export default function TreeAdvisor() {
           })
           setOrnaments(placed)
           if (image && analysisText) {
-            saveDecoration(image, placed, analysisText, meta.slice(0, 12), pal)
+            saveDecoration(image, placed, analysisText, meta.slice(0, 12), pal, top)
             setRecentTrees(loadDecorations())
           }
         } catch (err) {
@@ -917,6 +919,7 @@ export default function TreeAdvisor() {
     setOrnaments(decoration.ornaments || [])
     setVarieties(decoration.varieties || [])
     setPalette(decoration.palette || null)
+    setTopper(decoration.topper || null)
     smoothScrollTo(overlayRef, 80)
   }
 

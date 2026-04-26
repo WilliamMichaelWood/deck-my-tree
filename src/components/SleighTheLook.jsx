@@ -34,36 +34,28 @@ const RETAILERS = [
 ]
 
 const buildPrompt = ({ style, palette, budget, size, extraContext }) =>
-  `You are a professional Christmas decorator. Create a curated ornament shopping list of exactly 12 items using the five-type ornament system.
+  `You are a professional Christmas decorator. Create a curated ornament shopping list and topper recommendation.
 
-MANDATORY TYPE DISTRIBUTION — return exactly these counts, in this order:
+MANDATORY ORNAMENT TYPE DISTRIBUTION — return exactly these counts, in this order:
 1. Ball ornaments (Type 1): 5 items — the backbone. Vary finish across the 5: one each of matte, satin, glitter, mercury glass, velvet/fabric. No two identical finishes.
 2. Textural objects (Type 2): 2 items — wood, rope, woven, felt, burlap, or fabric. Must feel tactile, not shiny.
 3. Statement shapes (Type 3): 2 items — stars, animals, sculptural, novelty. Bold and specific, not generic.
 4. Reflective accents (Type 4): 2 items — metallics, glitter glass, mirror finish, or mercury glass. These are your sparkle layer.
 5. Wildcard (Type 5): 1 item — one unexpected element that makes this tree memorable. Surprise the client.
-Total: exactly 12 items. Deviation from these counts is an error.
+Total: exactly 12 ornament items. Deviation from these counts is an error.
 
-Output ONLY a valid JSON array — no markdown, no explanation, no code fences. Start with [ and end with ].
+Output ONLY a valid JSON object — no markdown, no explanation, no code fences:
 
-Each item must use exactly this structure:
-{
-  "name": "Specific searchable product name (e.g. 'Velvet burgundy ball ornament set of 6')",
-  "description": "One vivid sentence describing this ornament's look and feel",
-  "type": "ball | textural | statement | reflective | wildcard",
-  "shape": "ball | drop | star | snowflake | pinecone",
-  "color": "#hexcolor",
-  "quantity": "X pieces",
-  "whyPerfect": "One sentence why this suits their palette and style",
-  "walmart": { "price": "$X–$XX" },
-  "amazon":  { "price": "$X–$XX" },
-  "etsy":    { "price": "$X–$XX" }
-}
+{"ornaments":[EXACTLY 12 ITEMS],"topper":{"name":"Specific searchable topper product name","label":"Short label","type":"star|angel|bow|lantern|monogram","color":"#hexcolor","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}}
+
+Each ornament must use exactly this structure:
+{"name":"Specific searchable product name","description":"One vivid sentence","type":"ball|textural|statement|reflective|wildcard","shape":"ball|drop|star|snowflake|pinecone","color":"#hexcolor","quantity":"X pieces","whyPerfect":"One sentence why","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}
 
 Field rules:
 - type: exactly one of ball, textural, statement, reflective, wildcard
 - shape: exactly one of ball, drop, star, snowflake, pinecone — match the actual ornament shape
 - color: hex color matching the ornament's primary color
+- topper type: choose based on style — elegant/classic → star or angel, rustic → lantern or bow, whimsical → bow, modern → geometric star
 
 Tree Style:    ${style}
 Color Palette: ${palette}
@@ -71,7 +63,7 @@ Budget:        ${budget}
 Tree Size:     ${size}
 ${extraContext ? `Notes: ${extraContext}` : ''}
 
-Return exactly 12 items in type order: 5 balls, 2 textural, 2 statement, 2 reflective, 1 wildcard. Output only the JSON array.`
+Return exactly 12 ornaments in type order plus one topper. Output only the JSON object.`
 
 function BallOrnament({ color }) {
   return (
@@ -231,6 +223,44 @@ function OrnamentSVG({ shape, color }) {
   }
 }
 
+function TopperSVG({ type, color }) {
+  const c = color || '#c9a84c'
+  if (type === 'angel') return (
+    <svg viewBox="0 0 40 48" width="40" height="48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="20" cy="8" rx="6" ry="6" fill={c}/>
+      <ellipse cx="20" cy="8" rx="4" ry="4" fill="rgba(255,255,255,0.25)"/>
+      <path d="M12,14 Q6,20 8,32 L32,32 Q34,20 28,14 Z" fill={c}/>
+      <path d="M8,32 Q4,36 6,42 L34,42 Q36,36 32,32 Z" fill={c} opacity="0.7"/>
+      <path d="M12,16 Q4,12 2,22 Q8,20 12,26 Z" fill={c} opacity="0.5"/>
+      <path d="M28,16 Q36,12 38,22 Q32,20 28,26 Z" fill={c} opacity="0.5"/>
+    </svg>
+  )
+  if (type === 'bow') return (
+    <svg viewBox="0 0 48 32" width="48" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M24,16 Q16,4 4,6 Q8,16 4,26 Q16,28 24,16 Z" fill={c}/>
+      <path d="M24,16 Q32,4 44,6 Q40,16 44,26 Q32,28 24,16 Z" fill={c}/>
+      <ellipse cx="24" cy="16" rx="5" ry="5" fill={c}/>
+      <ellipse cx="24" cy="16" rx="3" ry="3" fill="rgba(255,255,255,0.3)"/>
+    </svg>
+  )
+  if (type === 'lantern') return (
+    <svg viewBox="0 0 32 44" width="32" height="44" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="13" y="0" width="6" height="8" rx="2" fill={c}/>
+      <rect x="8"  y="8" width="16" height="4" rx="2" fill={c}/>
+      <rect x="10" y="12" width="12" height="22" rx="4" fill="none" stroke={c} strokeWidth="2"/>
+      <line x1="10" y1="23" x2="22" y2="23" stroke={c} strokeWidth="1.5" opacity="0.5"/>
+      <ellipse cx="16" cy="23" rx="3" ry="3" fill={c} opacity="0.6"/>
+      <rect x="8" y="34" width="16" height="4" rx="2" fill={c}/>
+    </svg>
+  )
+  // Default: star
+  return (
+    <svg viewBox="0 0 32 32" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12,2 L14.9,9.5 L22.5,9.5 L16.6,14.5 L18.9,22 L12,17.5 L5.1,22 L7.4,14.5 L1.5,9.5 L9.1,9.5 Z" fill={c}/>
+    </svg>
+  )
+}
+
 function OrnamentPlaceholder({ shape, color }) {
   return (
     <div
@@ -339,6 +369,7 @@ export default function SleighTheLook() {
   const [loading,      setLoading]      = useState(false)
   const [rawResult,    setRawResult]    = useState('')
   const [products,     setProducts]     = useState([])
+  const [topper,       setTopper]       = useState(null)
   const [error,        setError]        = useState('')
 
   const resultsRef = useRef(null)
@@ -348,10 +379,23 @@ export default function SleighTheLook() {
     if (!rawResult || loading) return
     try {
       const cleaned = rawResult.replace(/```json\n?/gi, '').replace(/```\n?/g, '').trim()
+      // Try object format first: {"ornaments":[...],"topper":{...}}
+      const objStart = cleaned.indexOf('{')
+      const objEnd   = cleaned.lastIndexOf('}')
+      if (objStart !== -1 && objEnd !== -1) {
+        const parsed = JSON.parse(cleaned.slice(objStart, objEnd + 1))
+        if (Array.isArray(parsed.ornaments) && parsed.ornaments.length > 0) {
+          setProducts(parsed.ornaments)
+          setTopper(parsed.topper || null)
+          return
+        }
+      }
+      // Fallback: bare array
       const start = cleaned.indexOf('[')
       const end   = cleaned.lastIndexOf(']')
       if (start === -1 || end === -1) throw new Error('No array found')
       setProducts(JSON.parse(cleaned.slice(start, end + 1)))
+      setTopper(null)
     } catch {
       setError('Your stylist had trouble formatting the list. Please try again.')
     }
@@ -381,7 +425,7 @@ export default function SleighTheLook() {
     }
   }
 
-  const reset = () => { setProducts([]); setRawResult(''); setError('') }
+  const reset = () => { setProducts([]); setRawResult(''); setError(''); setTopper(null) }
 
   return (
     <div className="tab-content">
@@ -489,11 +533,51 @@ export default function SleighTheLook() {
 
       {error && <div className="error-card">⚠️ {error}</div>}
 
-      {products.length > 0 && (
-        <div className="recommendations-list" ref={resultsRef}>
-          {products.map((item, i) => (
-            <RecommendationCard key={i} item={item} index={i} />
-          ))}
+      {(topper || products.length > 0) && (
+        <div ref={resultsRef}>
+          {topper && (
+            <div className="ornament-shop-section">
+              <h3 className="shop-section-header">✦ Top It Off</h3>
+              <div className="ornament-shop-card topper-card">
+                <div className="shop-card-top">
+                  <div className="shop-ornament-preview topper-preview">
+                    <TopperSVG type={topper.type || 'star'} color={topper.color || '#c9a84c'} />
+                  </div>
+                  <div className="shop-card-info">
+                    <span className="shop-card-num topper-tag">TOPPER</span>
+                    <h4 className="shop-card-name">{topper.label}</h4>
+                    <p className="shop-card-fullname">{topper.name}</p>
+                  </div>
+                </div>
+                <div className="shop-card-retailers">
+                  {RETAILERS.map(r => {
+                    const url = getSearchUrl(r.key, topper.name, topper.type)
+                    if (!url) return null
+                    return (
+                      <a key={r.key} href={url} target="_blank" rel="noopener noreferrer" className="btn-retailer">
+                        <div className="retailer-top">
+                          <span className="retailer-dot" style={{ background: r.color }} />
+                          <span className="retailer-name" style={{ color: r.color }}>{r.label}</span>
+                          {topper[r.key]?.price && <span className="retailer-price">{topper[r.key].price}</span>}
+                        </div>
+                        <span className="deck-it-cta">Deck it. Buy it.</span>
+                      </a>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+          {products.length > 0 && (
+            <div className="ornament-shop-section">
+              <h3 className="shop-section-header">✦ Sleigh It — Shop the Look</h3>
+              <div className="recommendations-list">
+                {products.map((item, i) => (
+                  <RecommendationCard key={i} item={item} index={i} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
