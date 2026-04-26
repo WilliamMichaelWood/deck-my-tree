@@ -51,7 +51,7 @@ const getAnalysisPrompt = () => {
 // Claude vision detects the tree bounding box. We build an inset triangle from
 // those coords and generate all positions client-side — AI supplies metadata only.
 
-const DETECT_PROMPT = `Analyze this image and return ONLY a JSON object with the Christmas tree bounding box as image-percentage coordinates AND estimated tree height in feet: {"treeTop":N,"treeBottom":N,"treeLeft":N,"treeRight":N,"treeCenterX":N,"treeHeightFt":N}. No other text, just the JSON.`
+const DETECT_PROMPT = `Analyze this image and return ONLY a JSON object with the Christmas tree bounding box as image-percentage coordinates, estimated tree height in feet, and whether the tree has string lights: {"treeTop":N,"treeBottom":N,"treeLeft":N,"treeRight":N,"treeCenterX":N,"treeHeightFt":N,"hasLights":true/false}. Also detect whether the tree already has string lights on it. Look for visible light bulbs, glowing points, or illuminated strands on the branches. Return hasLights: true if lights are clearly visible on the tree, false if the tree appears unlit or bare. No other text, just the JSON.`
 
 // Build an inset triangle from Claude's detected bounding box
 function buildDetectedTri(b) {
@@ -92,6 +92,65 @@ function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
   const d2 = triSign(px, py, bx, by, cx, cy)
   const d3 = triSign(px, py, cx, cy, ax, ay)
   return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0))
+}
+
+// ── Light strand generation ───────────────────────────────────────────────────
+const WARM_WHITE  = { bulb: '#fffde7', glow: '#f9a825' }
+const COOL_WHITE  = { bulb: '#e3f2fd', glow: '#90caf9' }
+const MULTICOLORS = ['#ef5350', '#c9a84c', '#1d5c3a', '#1a2a6b']
+
+function getLightColors(palette) {
+  if (!palette) return WARM_WHITE
+  const cols = [palette.base, palette.secondary, palette.accent].filter(Boolean).map(c => c.toLowerCase())
+  // Detect saturation: count colors that are clearly non-neutral
+  const isCool    = cols.some(c => /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/.test(c) && (() => {
+    const b = parseInt(c.slice(5, 7), 16), r = parseInt(c.slice(1, 3), 16), g = parseInt(c.slice(3, 5), 16)
+    return b > r + 20 && b > g + 20  // blue-dominant
+  })())
+  const warmWords = /gold|ivory|champagne|cream|copper|bronze|amber|warm/i
+  const coolWords = /silver|blue|white|grey|gray|ice|frost|crystal/i
+  const multiWords = /red|green|pink|purple|magenta|rainbow/i
+  const str = cols.join(',')
+  const isWarm  = warmWords.test(str) || cols.some(c => {
+    const r = parseInt(c.slice(1, 3), 16), g = parseInt(c.slice(3, 5), 16), b = parseInt(c.slice(5, 7), 16)
+    return r > 180 && g > 130 && b < 100  // warm-toned hex
+  })
+  const isMulti = multiWords.test(str) || (
+    cols.filter(c => { const r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), b = parseInt(c.slice(5,7),16); return Math.max(r,g,b) - Math.min(r,g,b) > 80 }).length >= 2
+  )
+  if (isCool || coolWords.test(str)) return COOL_WHITE
+  if (isMulti) return { bulb: null, glow: null, multi: true }
+  if (isWarm)  return WARM_WHITE
+  return WARM_WHITE
+}
+
+function generateLightStrands(bounds, palette) {
+  const tri = buildDetectedTri(bounds || {})
+  const treeH = tri.baseL.y - tri.apex.y
+  const lightColors = getLightColors(palette)
+  const STRAND_YFS  = [0.28, 0.52, 0.74]
+  const BULBS_PER   = 9
+
+  return STRAND_YFS.map((yF, si) => {
+    const y = tri.apex.y + yF * treeH
+    const { xMin, xMax } = xRangeAtY(y, tri)
+    const edgePad = (xMax - xMin) * 0.03
+    const lo = xMin + edgePad
+    const hi = xMax - edgePad
+    const bulbs = Array.from({ length: BULBS_PER }, (_, bi) => {
+      const t = BULBS_PER === 1 ? 0.5 : bi / (BULBS_PER - 1)
+      const x = lo + t * (hi - lo)
+      const colorIdx = bi % MULTICOLORS.length
+      return {
+        x,
+        y,
+        color:     lightColors.multi ? MULTICOLORS[colorIdx]       : lightColors.bulb,
+        glowColor: lightColors.multi ? MULTICOLORS[colorIdx] + '80' : lightColors.glow + '80',
+        delay:     Math.random() * 2000,
+      }
+    })
+    return { id: si, y, xMin: lo, xMax: hi, bulbs }
+  })
 }
 
 // Zone-allocated placement: guarantees ornaments in all three zones.
@@ -418,6 +477,56 @@ function renderTopperLayer(topper, bounds) {
   )
 }
 
+const LIGHT_PULSE_CSS = `
+@keyframes lightPulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1.0; }
+}
+`
+
+function renderLightLayer(strands) {
+  if (!strands || strands.length === 0) return null
+  return (
+    <>
+      <style>{LIGHT_PULSE_CSS}</style>
+      {strands.map(strand => (
+        <div key={strand.id} aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5 }}>
+          {/* Wire */}
+          <div style={{
+            position:  'absolute',
+            top:       `${strand.y}%`,
+            left:      `${strand.xMin}%`,
+            width:     `${strand.xMax - strand.xMin}%`,
+            height:    1,
+            background: 'rgba(180,180,180,0.25)',
+            transform: 'translateY(-50%)',
+          }} />
+          {/* Bulbs */}
+          {strand.bulbs.map((b, bi) => (
+            <div key={bi} style={{ position: 'absolute', top: `${b.y}%`, left: `${b.x}%`, transform: 'translate(-50%, -50%)', pointerEvents: 'none' }}>
+              {/* Cap */}
+              <div style={{
+                width: 2, height: 3,
+                background: '#444',
+                margin: '0 auto',
+              }} />
+              {/* Bulb */}
+              <div style={{
+                width:     5,
+                height:    6,
+                borderRadius: '40% 40% 50% 50%',
+                background: b.color,
+                boxShadow: `0 0 5px 2px ${b.glowColor}, 0 0 10px 4px ${b.glowColor.slice(0, 7)}50`,
+                animation: `lightPulse 1.8s ease-in-out ${b.delay.toFixed(0)}ms infinite`,
+              }} />
+            </div>
+          ))}
+        </div>
+      ))}
+    </>
+  )
+}
+
 function renderOrnamentLayer(ornaments) {
   return ornaments.map((o, i) => {
     // Every 4th ornament skipped — intentional human-feeling gaps
@@ -482,24 +591,27 @@ function renderOrnamentLayer(ornaments) {
   })
 }
 
-function StyledOverlayView({ image, ornaments, topper, bounds }) {
+function StyledOverlayView({ image, ornaments, topper, bounds, lightStrands }) {
   return (
     <div className="styled-overlay-view">
       <img src={image.preview} alt="Your tree" className="ba-img" draggable={false} />
+      {renderLightLayer(lightStrands)}
       {renderOrnamentLayer(ornaments)}
       {renderTopperLayer(topper, bounds)}
     </div>
   )
 }
 
-const saveDecoration = (image, ornaments, analysis, varieties, palette, topper) => {
+const saveDecoration = (image, ornaments, analysis, varieties, palette, topper, lightStrands, hasLights) => {
   const decoration = {
     id: Date.now(),
     image: image.preview,
     ornaments,
-    varieties: varieties || [],
-    palette:   palette   || null,
-    topper:    topper    || null,
+    varieties:    varieties    || [],
+    palette:      palette      || null,
+    topper:       topper       || null,
+    lightStrands: lightStrands || [],
+    hasLights:    hasLights    || false,
     analysis,
     timestamp: new Date().toISOString(),
   }
@@ -572,6 +684,8 @@ export default function TreeAdvisor() {
   const [varieties,      setVarieties]      = useState([])
   const [palette,        setPalette]        = useState(null)
   const [topper,         setTopper]         = useState(null)
+  const [lightStrands,   setLightStrands]   = useState([])
+  const [hasLights,      setHasLights]      = useState(false)
   const [shareLoading,    setShareLoading]    = useState(false)
   const [recentTrees,     setRecentTrees]     = useState(() => loadDecorations())
   const [savedIds,        setSavedIds]        = useState(new Set())
@@ -660,7 +774,7 @@ export default function TreeAdvisor() {
       setImage({ preview: reader.result, base64: reader.result.split(',')[1], mediaType: file.type })
       setResult('')
       setError('')
-      setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null)
+      setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null); setLightStrands([]); setHasLights(false)
     }
     reader.readAsDataURL(file)
   }
@@ -676,7 +790,7 @@ export default function TreeAdvisor() {
     setOverlayLoading(true)   // show modal immediately — everything happens behind it
     setResult('')
     setError('')
-    setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null)
+    setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null); setLightStrands([]); setHasLights(false)
     treeBoundsRef.current = {}
 
     let analysisText = ''
@@ -768,8 +882,14 @@ export default function TreeAdvisor() {
           })
           setOrnaments(placed)
 
+          // Generate light strands unless the tree already has lights
+          const treeHasLights = !!treeBoundsRef.current?.hasLights
+          setHasLights(treeHasLights)
+          const strands = treeHasLights ? [] : generateLightStrands(treeBoundsRef.current, pal)
+          setLightStrands(strands)
+
           if (image && analysisText) {
-            saveDecoration(image, placed, analysisText, meta.slice(0, 12), pal, top)
+            saveDecoration(image, placed, analysisText, meta.slice(0, 12), pal, top, strands, treeHasLights)
             setRecentTrees(loadDecorations())
           }
         } catch (err) {
@@ -806,7 +926,7 @@ export default function TreeAdvisor() {
     setOverlayLoading(true)
     setResult('')
     setError('')
-    setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null)
+    setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null); setLightStrands([]); setHasLights(false)
     treeBoundsRef.current = {}
 
     let analysisText = ''
@@ -892,8 +1012,12 @@ export default function TreeAdvisor() {
             return { ...meta[i % meta.length], ...pos }
           })
           setOrnaments(placed)
+          const treeHasLights = !!treeBoundsRef.current?.hasLights
+          setHasLights(treeHasLights)
+          const strands = treeHasLights ? [] : generateLightStrands(treeBoundsRef.current, pal)
+          setLightStrands(strands)
           if (image && analysisText) {
-            saveDecoration(image, placed, analysisText, meta.slice(0, 12), pal, top)
+            saveDecoration(image, placed, analysisText, meta.slice(0, 12), pal, top, strands, treeHasLights)
             setRecentTrees(loadDecorations())
           }
         } catch (err) {
@@ -920,6 +1044,8 @@ export default function TreeAdvisor() {
     setVarieties(decoration.varieties || [])
     setPalette(decoration.palette || null)
     setTopper(decoration.topper || null)
+    setLightStrands(decoration.lightStrands || [])
+    setHasLights(decoration.hasLights || false)
     smoothScrollTo(overlayRef, 80)
   }
 
@@ -1056,7 +1182,7 @@ export default function TreeAdvisor() {
 
           {image && (
             <div className="action-row">
-              <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null) }}>
+              <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null); setLightStrands([]); setHasLights(false) }}>
                 Remove Photo
               </button>
               <button className="btn-analyze" onClick={handleAnalyze} disabled={overlayLoading}>
@@ -1114,7 +1240,7 @@ export default function TreeAdvisor() {
 
           {/* 1 — Decorated tree image (no header above it) */}
           {ornaments.length > 0 && image && (
-            <StyledOverlayView image={image} ornaments={ornaments} topper={topper} bounds={treeBoundsRef.current} />
+            <StyledOverlayView image={image} ornaments={ornaments} topper={topper} bounds={treeBoundsRef.current} lightStrands={lightStrands} />
           )}
 
           {/* 2 — Style direction header + palette reasoning card */}
@@ -1126,7 +1252,7 @@ export default function TreeAdvisor() {
               </button>
             ) : (
               <button className="btn-secondary btn-sm" onClick={() => {
-                setResult(''); setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null)
+                setResult(''); setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null); setLightStrands([]); setHasLights(false)
                 setImage(null); setError('')
               }}>
                 New Tree
@@ -1139,6 +1265,7 @@ export default function TreeAdvisor() {
               <span className="palette-card-label">YOUR STYLIST SAYS</span>
               <p className="palette-description">
                 <span className="palette-flourish">✦</span> {palette.description}
+                {hasLights && ' Your tree\'s existing lights are already perfect for this palette.'}
               </p>
             </div>
           )}
