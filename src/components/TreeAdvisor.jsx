@@ -51,7 +51,7 @@ const getAnalysisPrompt = () => {
 // Claude vision detects the tree bounding box. We build an inset triangle from
 // those coords and generate all positions client-side — AI supplies metadata only.
 
-const DETECT_PROMPT = `Analyze this image and return ONLY a JSON object with the Christmas tree bounding box as image-percentage coordinates, estimated tree height in feet, and whether the tree has string lights: {"treeTop":N,"treeBottom":N,"treeLeft":N,"treeRight":N,"treeCenterX":N,"treeHeightFt":N,"hasLights":true/false}. Also detect whether the tree already has string lights on it. Look for visible light bulbs, glowing points, or illuminated strands on the branches. Return hasLights: true if lights are clearly visible on the tree, false if the tree appears unlit or bare. No other text, just the JSON.`
+const DETECT_PROMPT = `Analyze this image and return ONLY a JSON object with the Christmas tree bounding box as image-percentage coordinates, estimated tree height in feet, and whether the tree has string lights: {"treeTop":N,"treeBottom":N,"treeLeft":N,"treeRight":N,"treeCenterX":N,"treeHeightFt":N,"hasLights":true/false}. Look carefully at the tree branches for ANY signs of lighting — warm glowing points, bright spots between branches, illuminated areas, or a general glow emanating from the tree. If there is ANY indication of lights, return hasLights: true. Only return hasLights: false if the tree is clearly completely dark and unlit. If the tree appears professionally photographed, fully decorated, or is in a well-lit indoor setting where lights would be expected, default to hasLights: true. No other text, just the JSON.`
 
 // Build an inset triangle from Claude's detected bounding box
 function buildDetectedTri(b) {
@@ -132,24 +132,29 @@ function generateLightStrands(bounds, palette) {
   const BULBS_PER   = 9
 
   return STRAND_YFS.map((yF, si) => {
-    const y = tri.apex.y + yF * treeH
-    const { xMin, xMax } = xRangeAtY(y, tri)
+    const baseY = tri.apex.y + yF * treeH
+    const { xMin, xMax } = xRangeAtY(baseY, tri)
     const edgePad = (xMax - xMin) * 0.03
     const lo = xMin + edgePad
     const hi = xMax - edgePad
     const bulbs = Array.from({ length: BULBS_PER }, (_, bi) => {
       const t = BULBS_PER === 1 ? 0.5 : bi / (BULBS_PER - 1)
       const x = lo + t * (hi - lo)
+      // Sine drape: bulbs bow slightly downward in the middle, like a real strand
+      const drape = Math.sin(bi / (BULBS_PER - 1) * Math.PI) * (treeH * 0.02)
+      // Per-bulb random y jitter ±2% of image height
+      const jitter = (Math.random() - 0.5) * 4
+      const y = baseY + drape + jitter
       const colorIdx = bi % MULTICOLORS.length
       return {
         x,
         y,
-        color:     lightColors.multi ? MULTICOLORS[colorIdx]       : lightColors.bulb,
+        color:     lightColors.multi ? MULTICOLORS[colorIdx]        : lightColors.bulb,
         glowColor: lightColors.multi ? MULTICOLORS[colorIdx] + '80' : lightColors.glow + '80',
         delay:     Math.random() * 2000,
       }
     })
-    return { id: si, y, xMin: lo, xMax: hi, bulbs }
+    return { id: si, y: baseY, xMin: lo, xMax: hi, bulbs }
   })
 }
 
@@ -491,16 +496,7 @@ function renderLightLayer(strands) {
       <style>{LIGHT_PULSE_CSS}</style>
       {strands.map(strand => (
         <div key={strand.id} aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5 }}>
-          {/* Wire */}
-          <div style={{
-            position:  'absolute',
-            top:       `${strand.y}%`,
-            left:      `${strand.xMin}%`,
-            width:     `${strand.xMax - strand.xMin}%`,
-            height:    1,
-            background: 'rgba(180,180,180,0.25)',
-            transform: 'translateY(-50%)',
-          }} />
+          {/* Wire removed — straight line conflicts with draped bulb positions */}
           {/* Bulbs */}
           {strand.bulbs.map((b, bi) => (
             <div key={bi} style={{ position: 'absolute', top: `${b.y}%`, left: `${b.x}%`, transform: 'translate(-50%, -50%)', pointerEvents: 'none' }}>
@@ -512,12 +508,13 @@ function renderLightLayer(strands) {
               }} />
               {/* Bulb */}
               <div style={{
-                width:     5,
-                height:    6,
+                width:        5,
+                height:       6,
                 borderRadius: '40% 40% 50% 50%',
-                background: b.color,
-                boxShadow: `0 0 5px 2px ${b.glowColor}, 0 0 10px 4px ${b.glowColor.slice(0, 7)}50`,
-                animation: `lightPulse 1.8s ease-in-out ${b.delay.toFixed(0)}ms infinite`,
+                background:   b.color,
+                opacity:      0.75,
+                boxShadow:    `0 0 3px 1px ${b.glowColor}, 0 0 6px 2px ${b.glowColor.slice(0, 7)}50`,
+                animation:    `lightPulse 1.8s ease-in-out ${b.delay.toFixed(0)}ms infinite`,
               }} />
             </div>
           ))}
