@@ -195,7 +195,7 @@ STEP 1 — Read the room. Look at: wall color, floor, furniture, lighting, tree 
 
 STEP 2 — Return ONLY a valid JSON object in this exact format. No markdown, no code fences, no explanation before or after:
 
-{"palette":{"base":"#hexcolor","secondary":"#hexcolor","accent":"#hexcolor","description":"one sentence explaining why these colors fit this specific room"},"ornaments":[EXACTLY ${varieties} ITEMS]}
+{"palette":{"base":"#hexcolor","secondary":"#hexcolor","accent":"#hexcolor","description":"one sentence explaining why these colors fit this specific room"},"ornaments":[EXACTLY ${varieties} ITEMS],"topper":{"name":"Specific searchable topper product name","label":"Short label","type":"star|angel|bow|lantern|monogram","color":"#hexcolor","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}}
 
 Each ornament must use ONLY the palette colors above:
 {"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}
@@ -203,7 +203,9 @@ Each ornament must use ONLY the palette colors above:
 Type distribution for ${varieties} ornaments:
 - 50% balls, 20% drops, 20% stars, 10% wildcard shape
 - Every single ornament color must be one of the three palette hex values — no exceptions
-- Vary finish descriptions in names (matte, satin, glitter, mercury, velvet) but keep colors disciplined`
+- Vary finish descriptions in names (matte, satin, glitter, mercury, velvet) but keep colors disciplined
+
+For the topper: choose based on style direction — elegant/classic → star or angel, rustic → lantern or bow, whimsical → oversized bow or novelty, modern → geometric star. Topper color should complement the palette.`
 }
 
 const RETAILERS = [
@@ -339,6 +341,83 @@ function OrnamentTypeIcon({ shape, size = 22 }) {
   )
 }
 
+function TopperSVG({ type, color }) {
+  const c = color || '#c9a84c'
+  if (type === 'angel') {
+    return (
+      <svg viewBox="0 0 32 40" width="32" height="40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="6" r="5" fill="#f8f4ec"/>
+        <path d="M8,14 Q16,10 24,14 L22,30 Q16,34 10,30 Z" fill="#f8f4ec"/>
+        <path d="M4,12 Q8,8 12,14" stroke="#f8f4ec" strokeWidth="2" fill="none"/>
+        <path d="M28,12 Q24,8 20,14" stroke="#f8f4ec" strokeWidth="2" fill="none"/>
+        <ellipse cx="16" cy="4" rx="7" ry="3" stroke={c} strokeWidth="1.5" fill="none"/>
+      </svg>
+    )
+  }
+  if (type === 'bow') {
+    return (
+      <svg viewBox="0 0 32 28" width="32" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="10" cy="14" rx="9" ry="6" fill={c} opacity="0.9"/>
+        <ellipse cx="22" cy="14" rx="9" ry="6" fill={c} opacity="0.9"/>
+        <circle cx="16" cy="14" r="4" fill={c}/>
+        <ellipse cx="10" cy="14" rx="9" ry="6" stroke="rgba(255,255,255,0.3)" strokeWidth="1" fill="none"/>
+        <ellipse cx="22" cy="14" rx="9" ry="6" stroke="rgba(255,255,255,0.3)" strokeWidth="1" fill="none"/>
+      </svg>
+    )
+  }
+  if (type === 'lantern') {
+    return (
+      <svg viewBox="0 0 28 36" width="28" height="36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="10" y="0" width="8" height="5" rx="2" fill={c}/>
+        <rect x="6" y="5" width="16" height="3" rx="1" fill={c}/>
+        <rect x="7" y="8" width="14" height="18" rx="3" fill="none" stroke={c} strokeWidth="1.5"/>
+        <line x1="14" y1="8" x2="14" y2="26" stroke={c} strokeWidth="1" opacity="0.4"/>
+        <line x1="7" y1="17" x2="21" y2="17" stroke={c} strokeWidth="1" opacity="0.4"/>
+        <ellipse cx="14" cy="17" rx="4" ry="4" fill={c} opacity="0.3"/>
+        <rect x="6" y="26" width="16" height="3" rx="1" fill={c}/>
+        <line x1="11" y1="29" x2="11" y2="34" stroke={c} strokeWidth="1.5"/>
+        <line x1="17" y1="29" x2="17" y2="34" stroke={c} strokeWidth="1.5"/>
+        <line x1="9" y1="34" x2="19" y2="34" stroke={c} strokeWidth="1.5"/>
+      </svg>
+    )
+  }
+  // Default: star
+  return (
+    <svg viewBox="0 0 32 32" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon
+        points="16,2 19.5,12 30,12 21.5,18.5 24.5,29 16,22.5 7.5,29 10.5,18.5 2,12 12.5,12"
+        fill={c}
+      />
+      <polygon
+        points="16,2 19.5,12 30,12 21.5,18.5 24.5,29 16,22.5 7.5,29 10.5,18.5 2,12 12.5,12"
+        fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1"
+      />
+    </svg>
+  )
+}
+
+function renderTopperLayer(topper, bounds) {
+  if (!topper) return null
+  const tri = buildDetectedTri(bounds || {})
+  const x = tri.apex.x
+  const y = Math.max(0, tri.apex.y - 4)
+  const type = (topper.type || 'star').toLowerCase()
+  const color = topper.color || '#c9a84c'
+  return (
+    <div style={{
+      position: 'absolute',
+      left: `${x}%`,
+      top: `${y}%`,
+      transform: 'translate(-50%, -50%)',
+      zIndex: 200,
+      filter: `drop-shadow(0 0 8px ${color}cc) drop-shadow(0 0 16px ${color}88)`,
+      pointerEvents: 'none',
+    }}>
+      <TopperSVG type={type} color={color} />
+    </div>
+  )
+}
+
 function renderOrnamentLayer(ornaments) {
   return ornaments.map((o, i) => {
     // Every 4th ornament skipped — intentional human-feeling gaps
@@ -403,11 +482,12 @@ function renderOrnamentLayer(ornaments) {
   })
 }
 
-function StyledOverlayView({ image, ornaments }) {
+function StyledOverlayView({ image, ornaments, topper, bounds }) {
   return (
     <div className="styled-overlay-view">
       <img src={image.preview} alt="Your tree" className="ba-img" draggable={false} />
       {renderOrnamentLayer(ornaments)}
+      {renderTopperLayer(topper, bounds)}
     </div>
   )
 }
@@ -489,6 +569,7 @@ export default function TreeAdvisor() {
   const [ornaments,      setOrnaments]      = useState([])
   const [varieties,      setVarieties]      = useState([])
   const [palette,        setPalette]        = useState(null)
+  const [topper,         setTopper]         = useState(null)
   const [shareLoading,    setShareLoading]    = useState(false)
   const [recentTrees,     setRecentTrees]     = useState(() => loadDecorations())
   const [savedIds,        setSavedIds]        = useState(new Set())
@@ -544,14 +625,14 @@ export default function TreeAdvisor() {
     const obj = scanBalanced(text, '{', '}')
     if (obj && Array.isArray(obj.ornaments) && obj.ornaments.length > 0) {
       console.log('[overlay] found object with palette:', obj.palette, 'and', obj.ornaments.length, 'ornaments')
-      return { palette: obj.palette || null, ornaments: obj.ornaments }
+      return { palette: obj.palette || null, ornaments: obj.ornaments, topper: obj.topper || null }
     }
 
     // Fallback: bare [...] array (old format)
     const arr = scanBalanced(text, '[', ']')
     if (Array.isArray(arr) && arr.length > 0) {
       console.log('[overlay] fallback: found bare array of', arr.length, 'items')
-      return { palette: null, ornaments: arr }
+      return { palette: null, ornaments: arr, topper: null }
     }
 
     throw new Error('No valid ornament response found')
@@ -576,7 +657,7 @@ export default function TreeAdvisor() {
       setImage({ preview: reader.result, base64: reader.result.split(',')[1], mediaType: file.type })
       setResult('')
       setError('')
-      setOrnaments([]); setVarieties([]); setPalette(null)
+      setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null)
     }
     reader.readAsDataURL(file)
   }
@@ -592,7 +673,7 @@ export default function TreeAdvisor() {
     setOverlayLoading(true)   // show modal immediately — everything happens behind it
     setResult('')
     setError('')
-    setOrnaments([]); setVarieties([]); setPalette(null)
+    setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null)
     treeBoundsRef.current = {}
 
     let analysisText = ''
@@ -662,9 +743,10 @@ export default function TreeAdvisor() {
       // Parse ornaments + place overlay — both silent on failure
       if (rawOrnaments) {
         try {
-          const { palette: pal, ornaments: meta } = extractOrnamentResponse(rawOrnaments)
+          const { palette: pal, ornaments: meta, topper: top } = extractOrnamentResponse(rawOrnaments)
           setPalette(pal)
           setVarieties(meta.slice(0, 12))
+          setTopper(top || null)
 
           const heightFt = treeBoundsRef.current?.treeHeightFt
           const OVERLAY_COUNT = !heightFt ? 70 : heightFt < 4 ? 40 : heightFt < 6 ? 60 : heightFt < 8 ? 80 : 100
@@ -721,7 +803,7 @@ export default function TreeAdvisor() {
     setOverlayLoading(true)
     setResult('')
     setError('')
-    setOrnaments([]); setVarieties([]); setPalette(null)
+    setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null)
     treeBoundsRef.current = {}
 
     let analysisText = ''
@@ -787,9 +869,10 @@ export default function TreeAdvisor() {
 
       if (rawOrnaments) {
         try {
-          const { palette: pal, ornaments: meta } = extractOrnamentResponse(rawOrnaments)
+          const { palette: pal, ornaments: meta, topper: top } = extractOrnamentResponse(rawOrnaments)
           setPalette(pal)
           setVarieties(meta.slice(0, 12))
+          setTopper(top || null)
           const heightFt = treeBoundsRef.current?.treeHeightFt
           const OVERLAY_COUNT = !heightFt ? 70 : heightFt < 4 ? 40 : heightFt < 6 ? 60 : heightFt < 8 ? 80 : 100
           const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
@@ -969,7 +1052,7 @@ export default function TreeAdvisor() {
 
           {image && (
             <div className="action-row">
-              <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setVarieties([]); setPalette(null) }}>
+              <button className="btn-secondary" onClick={() => { setImage(null); setResult(''); setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null) }}>
                 Remove Photo
               </button>
               <button className="btn-analyze" onClick={handleAnalyze} disabled={overlayLoading}>
@@ -1027,7 +1110,7 @@ export default function TreeAdvisor() {
 
           {/* 1 — Decorated tree image (no header above it) */}
           {ornaments.length > 0 && image && (
-            <StyledOverlayView image={image} ornaments={ornaments} />
+            <StyledOverlayView image={image} ornaments={ornaments} topper={topper} bounds={treeBoundsRef.current} />
           )}
 
           {/* 2 — Style direction header + palette reasoning card */}
@@ -1039,7 +1122,7 @@ export default function TreeAdvisor() {
               </button>
             ) : (
               <button className="btn-secondary btn-sm" onClick={() => {
-                setResult(''); setOrnaments([]); setVarieties([]); setPalette(null)
+                setResult(''); setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null)
                 setImage(null); setError('')
               }}>
                 New Tree
@@ -1109,6 +1192,41 @@ export default function TreeAdvisor() {
                   </div>
                 ))}
               </div>
+
+              {/* Topper card */}
+              {topper && (
+                <div style={{ marginTop: 32 }}>
+                  <h3 className="shop-section-header">✦ Top It Off</h3>
+                  <div className="ornament-shop-card topper-card">
+                    <div className="shop-card-top">
+                      <div className="shop-ornament-preview topper-preview">
+                        <TopperSVG type={topper.type || 'star'} color={topper.color || '#c9a84c'} />
+                      </div>
+                      <div className="shop-card-info">
+                        <span className="shop-card-num topper-tag">TOPPER</span>
+                        <h4 className="shop-card-name">{topper.label}</h4>
+                        <p className="shop-card-fullname">{topper.name}</p>
+                      </div>
+                    </div>
+                    <div className="shop-card-retailers">
+                      {RETAILERS.map(r => {
+                        const url = getSearchUrl(r.key, topper.name, topper.type)
+                        if (!url) return null
+                        return (
+                          <a key={r.key} href={url} target="_blank" rel="noopener noreferrer" className="btn-retailer">
+                            <div className="retailer-top">
+                              <span className="retailer-dot" style={{ background: r.color }} />
+                              <span className="retailer-name" style={{ color: r.color }}>{r.label}</span>
+                              {topper[r.key]?.price && <span className="retailer-price">{topper[r.key].price}</span>}
+                            </div>
+                            <span className="deck-it-cta">Deck it. Buy it.</span>
+                          </a>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

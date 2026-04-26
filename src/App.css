@@ -1166,6 +1166,20 @@ h3.shop-section-header {
 .shop-section-sub { font-size: 0.8rem; color: var(--text-muted); }
 
 .ornament-shop-list { display: flex; flex-direction: column; gap: 20px; }
+.topper-card {
+  border-top: 3px solid #e8c96a !important;
+  box-shadow: 0 0 20px rgba(212, 168, 67, 0.15), 0 4px 12px rgba(0,0,0,0.3);
+}
+.topper-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 8px rgba(212,168,67,0.6));
+}
+.topper-tag {
+  color: #e8c96a !important;
+  letter-spacing: 0.14em !important;
+}
 .ornament-shop-card {
   background: linear-gradient(135deg, #162438 0%, #0f1f2e 100%);
   border: 1px solid var(--border-soft);
