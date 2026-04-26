@@ -400,9 +400,7 @@ function renderTopperLayer(topper, bounds) {
   if (!topper) return null
   const tri = buildDetectedTri(bounds || {})
   const x = tri.apex.x
-  const y = Math.max(0, tri.apex.y - 4)
-  const type = (topper.type || 'star').toLowerCase()
-  const color = topper.color || '#c9a84c'
+  const y = Math.max(0, tri.apex.y - 1.5)
   return (
     <div style={{
       position: 'absolute',
@@ -410,10 +408,12 @@ function renderTopperLayer(topper, bounds) {
       top: `${y}%`,
       transform: 'translate(-50%, -50%)',
       zIndex: 200,
-      filter: `drop-shadow(0 0 8px ${color}cc) drop-shadow(0 0 16px ${color}88)`,
+      filter: 'drop-shadow(0 0 10px rgba(201,168,76,0.95))',
       pointerEvents: 'none',
     }}>
-      <TopperSVG type={type} color={color} />
+      <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12,2 L14.9,9.5 L22.5,9.5 L16.6,14.5 L18.9,22 L12,17.5 L5.1,22 L7.4,14.5 L1.5,9.5 L9.1,9.5 Z" fill="#c9a84c" />
+      </svg>
     </div>
   )
 }
@@ -517,6 +517,7 @@ function saveToMyOrnaments(o) {
     name:      o.name,
     color:     o.color,
     shape:     o.shape,
+    type:      o.type || null,
     retailers: {
       walmart: { price: o.walmart?.price || '' },
       amazon:  { price: o.amazon?.price  || '' },
@@ -1149,9 +1150,54 @@ export default function TreeAdvisor() {
             <button className="btn-share" onClick={handleShareLink}>Share Link</button>
           </div>
 
-          {/* 3 — Ornament shopping cards (12 unique varieties only) */}
-          {varieties.length > 0 && (
+          {/* 3 — Topper card (first) */}
+          {topper && (
             <div className="ornament-shop-section" ref={shopRef}>
+              <h3 className="shop-section-header">✦ Top It Off</h3>
+              <div className="ornament-shop-card topper-card">
+                <div className="shop-card-top">
+                  <div className="shop-ornament-preview topper-preview">
+                    <TopperSVG type={topper.type || 'star'} color={topper.color || '#c9a84c'} />
+                  </div>
+                  <div className="shop-card-info">
+                    <span className="shop-card-num topper-tag">TOPPER</span>
+                    <h4 className="shop-card-name">{topper.label}</h4>
+                    <p className="shop-card-fullname">{topper.name}</p>
+                  </div>
+                </div>
+                <div className="shop-card-retailers">
+                  {RETAILERS.map(r => {
+                    const url = getSearchUrl(r.key, topper.name, topper.type)
+                    if (!url) return null
+                    return (
+                      <a key={r.key} href={url} target="_blank" rel="noopener noreferrer" className="btn-retailer">
+                        <div className="retailer-top">
+                          <span className="retailer-dot" style={{ background: r.color }} />
+                          <span className="retailer-name" style={{ color: r.color }}>{r.label}</span>
+                          {topper[r.key]?.price && <span className="retailer-price">{topper[r.key].price}</span>}
+                        </div>
+                        <span className="deck-it-cta">Deck it. Buy it.</span>
+                      </a>
+                    )
+                  })}
+                </div>
+                <button
+                  className={`btn-save-ornament${savedIds.has('topper') ? ' saved' : ''}`}
+                  onClick={() => {
+                    saveToMyOrnaments({ name: topper.name, color: topper.color, shape: topper.type, type: 'Topper', walmart: topper.walmart, amazon: topper.amazon, etsy: topper.etsy, source: 'saved' })
+                    setSavedIds(prev => new Set([...prev, 'topper']))
+                  }}
+                  disabled={savedIds.has('topper')}
+                >
+                  {savedIds.has('topper') ? '✓ Saved to My Ornaments' : '+ Save to My Ornaments'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* 4 — Ornament shopping cards (12 unique varieties only) */}
+          {varieties.length > 0 && (
+            <div className="ornament-shop-section" ref={topper ? undefined : shopRef}>
               <h3 className="shop-section-header">✦ Sleigh It — Shop the Look</h3>
               <div className="ornament-shop-list">
                 {varieties.map((o, i) => (
@@ -1192,41 +1238,6 @@ export default function TreeAdvisor() {
                   </div>
                 ))}
               </div>
-
-              {/* Topper card */}
-              {topper && (
-                <div style={{ marginTop: 32 }}>
-                  <h3 className="shop-section-header">✦ Top It Off</h3>
-                  <div className="ornament-shop-card topper-card">
-                    <div className="shop-card-top">
-                      <div className="shop-ornament-preview topper-preview">
-                        <TopperSVG type={topper.type || 'star'} color={topper.color || '#c9a84c'} />
-                      </div>
-                      <div className="shop-card-info">
-                        <span className="shop-card-num topper-tag">TOPPER</span>
-                        <h4 className="shop-card-name">{topper.label}</h4>
-                        <p className="shop-card-fullname">{topper.name}</p>
-                      </div>
-                    </div>
-                    <div className="shop-card-retailers">
-                      {RETAILERS.map(r => {
-                        const url = getSearchUrl(r.key, topper.name, topper.type)
-                        if (!url) return null
-                        return (
-                          <a key={r.key} href={url} target="_blank" rel="noopener noreferrer" className="btn-retailer">
-                            <div className="retailer-top">
-                              <span className="retailer-dot" style={{ background: r.color }} />
-                              <span className="retailer-name" style={{ color: r.color }}>{r.label}</span>
-                              {topper[r.key]?.price && <span className="retailer-price">{topper[r.key].price}</span>}
-                            </div>
-                            <span className="deck-it-cta">Deck it. Buy it.</span>
-                          </a>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>

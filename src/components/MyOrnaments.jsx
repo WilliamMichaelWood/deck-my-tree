@@ -171,9 +171,10 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
 
       <div className="myo-card-body">
         <h3 className="myo-card-name">{ornament.name}</h3>
-        {(ornament.shape || ornament.material) && (
+        {(ornament.type || ornament.shape || ornament.material) && (
           <div className="myo-card-tags">
-            {ornament.shape    && <span className="myo-tag">{ornament.shape}</span>}
+            {ornament.type     && <span className="myo-tag myo-tag-topper">{ornament.type.toUpperCase()}</span>}
+            {ornament.shape    && !ornament.type && <span className="myo-tag">{ornament.shape}</span>}
             {ornament.material && <span className="myo-tag">{ornament.material}</span>}
           </div>
         )}

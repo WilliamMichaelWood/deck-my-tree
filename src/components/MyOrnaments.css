@@ -197,6 +197,13 @@
   color: #c9a84c;
 }
 
+.myo-tag-topper {
+  background: rgba(232, 201, 106, 0.18);
+  color: #e8c96a;
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(232, 201, 106, 0.3);
+}
+
 .myo-card-notes {
   font-size: 0.78rem;
   color: #7090a8;
