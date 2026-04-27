@@ -276,10 +276,10 @@ STEP 2 — Return ONLY a valid JSON object in this exact format. No markdown, no
 {"palette":{"base":"#hexcolor","secondary":"#hexcolor","accent":"#hexcolor","description":"one sentence explaining why these colors fit this specific room"},"ornaments":[EXACTLY ${varieties} ITEMS],"topper":{"name":"Specific searchable topper product name","label":"Short label","type":"star|angel|bow|lantern|monogram","color":"#hexcolor","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}}
 
 Each ornament must use ONLY the palette colors above:
-{"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}
+{"name":"Specific searchable product name","label":"Short label","color":"#hexcolor","shape":"ball|drop|star|snowflake|pinecone|bow|bell|berry","walmart":{"price":"$X–$XX"},"amazon":{"price":"$X–$XX"},"etsy":{"price":"$X–$XX"}}
 
 Type distribution for ${varieties} ornaments:
-- 50% balls, 20% drops, 20% stars, 10% wildcard shape
+- 50% balls, 20% drops, 15% stars/snowflakes, 15% wildcard (bow/bell/berry/pinecone)
 - Every single ornament color must be one of the three palette hex values — no exceptions
 - Vary finish descriptions in names (matte, satin, glitter, mercury, velvet) but keep colors disciplined
 
@@ -367,12 +367,94 @@ function PineconeOrnament({ color }) {
 }
 
 
+function BowOrnament({ color }) {
+  return (
+    <svg width="100%" viewBox="0 0 80 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Left loop */}
+      <path d="M40,28 Q28,10 10,14 Q4,22 10,30 Q22,38 40,28 Z" fill={color}/>
+      <path d="M40,28 Q28,10 10,14 Q4,22 10,30 Q22,38 40,28 Z" fill="rgba(255,255,255,0.12)"/>
+      {/* Right loop */}
+      <path d="M40,28 Q52,10 70,14 Q76,22 70,30 Q58,38 40,28 Z" fill={color}/>
+      <path d="M40,28 Q52,10 70,14 Q76,22 70,30 Q58,38 40,28 Z" fill="rgba(0,0,0,0.08)"/>
+      {/* Centre knot */}
+      <ellipse cx="40" cy="28" rx="8" ry="7" fill={color}/>
+      <ellipse cx="38" cy="25" rx="4" ry="3" fill="rgba(255,255,255,0.35)" transform="rotate(-15 38 25)"/>
+      {/* Ribbon tails */}
+      <path d="M36,33 Q30,46 22,50" stroke={color} strokeWidth="5" strokeLinecap="round"/>
+      <path d="M44,33 Q50,46 58,50" stroke={color} strokeWidth="5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function BellOrnament({ color }) {
+  return (
+    <svg width="100%" viewBox="0 0 60 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Cap/hanger */}
+      <rect x="26" y="0" width="8" height="11" rx="3.5" fill="#c9a84c"/>
+      <ellipse cx="30" cy="11" rx="5" ry="2.5" fill="none" stroke="#c9a84c" strokeWidth="1.5"/>
+      {/* Bell body */}
+      <path d="M30,13 C16,13 8,26 8,42 L8,54 Q8,58 12,58 L48,58 Q52,58 52,54 L52,42 C52,26 44,13 30,13 Z" fill={color}/>
+      {/* Flared rim */}
+      <rect x="5" y="54" width="50" height="7" rx="3.5" fill={color}/>
+      <rect x="5" y="54" width="50" height="3" rx="1.5" fill="rgba(0,0,0,0.15)"/>
+      {/* Clapper */}
+      <circle cx="30" cy="62" r="3" fill="#c9a84c"/>
+      {/* Specular */}
+      <ellipse cx="20" cy="28" rx="7" ry="5" fill="rgba(255,255,255,0.40)" transform="rotate(-20 20 28)"/>
+    </svg>
+  )
+}
+
+function BerryOrnament({ color }) {
+  return (
+    <svg width="100%" viewBox="0 0 60 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Stem */}
+      <rect x="27" y="0" width="6" height="12" rx="3" fill="#c9a84c"/>
+      {/* Three berry cluster */}
+      <circle cx="30" cy="35" r="14" fill={color}/>
+      <circle cx="16" cy="50" r="12" fill={color}/>
+      <circle cx="44" cy="50" r="12" fill={color}/>
+      {/* Specular on each berry */}
+      <ellipse cx="23" cy="28" rx="5" ry="4" fill="rgba(255,255,255,0.45)" transform="rotate(-20 23 28)"/>
+      <ellipse cx="10" cy="43" rx="4" ry="3" fill="rgba(255,255,255,0.35)" transform="rotate(-20 10 43)"/>
+      <ellipse cx="38" cy="43" rx="4" ry="3" fill="rgba(255,255,255,0.30)" transform="rotate(-20 38 43)"/>
+    </svg>
+  )
+}
+
+// Maps AI type strings + name text → canonical shape key used by OrnamentShape
+function resolveOrnamentShape(shape, name) {
+  const s = (shape || '').toLowerCase()
+  const n = (name  || '').toLowerCase()
+  const combined = `${s} ${n}`
+
+  if (/bow|ribbon/.test(combined))                               return 'bow'
+  if (/bell/.test(combined))                                     return 'bell'
+  if (/berry|berr|cluster/.test(combined))                       return 'berry'
+  if (/pinecone|pine.?cone|pine/.test(combined))                 return 'pinecone'
+  if (/snowflake|flake/.test(combined))                          return 'snowflake'
+  if (/star|starburst/.test(combined))                           return 'star'
+  if (/teardrop|drop|finial|icicle/.test(combined))             return 'drop'
+  if (/ball|round|globe|sphere/.test(combined))                  return 'ball'
+  // Pure shape field fallback
+  if (['ball','drop','star','snowflake','pinecone','bow','bell','berry'].includes(s)) return s
+  return 'ball'
+}
+
+// Shapes that float free — no cap rendered by BallOrnament/etc, no specular div needed
+const FLOATING_SHAPES = new Set(['star', 'snowflake', 'bow'])
+// Aspect ratios (h/w) — used to set container height relative to width
+const SHAPE_ASPECT = { ball: 1.23, drop: 1.40, pinecone: 1.33, bell: 1.20, berry: 1.13, bow: 0.70, star: 1.23, snowflake: 1.0 }
+
 function OrnamentShape({ shape, color }) {
   switch (shape) {
     case 'drop':      return <DropOrnament      color={color} />
     case 'star':      return <StarOrnament      color={color} />
     case 'snowflake': return <SnowflakeOrnament color={color} />
     case 'pinecone':  return <PineconeOrnament  color={color} />
+    case 'bow':       return <BowOrnament       color={color} />
+    case 'bell':      return <BellOrnament      color={color} />
+    case 'berry':     return <BerryOrnament     color={color} />
     default:          return <BallOrnament      color={color} />
   }
 }
@@ -545,32 +627,42 @@ function renderOrnamentLayer(ornaments) {
 
     const z     = o.z ?? 55
     const yF    = o.yF ?? 0.5
-    const shape = o.shape || 'ball'
+    const shape = resolveOrnamentShape(o.shape, o.name)
 
-    // Zone-based depth scaling: A=60%, B=85%, C=100%
+    // Zone-based depth scaling: top=60%, mid=85%, bottom=100%
     const zoneScale = yF < 0.35 ? 0.60 : yF < 0.65 ? 0.85 : 1.00
-    const size = o.r * 2 * zoneScale
+    const w = o.r * 2 * zoneScale                     // width %
+    const aspect = SHAPE_ASPECT[shape] ?? 1.23
+    const h = w * aspect                              // height % — preserves each shape's natural ratio
 
-    // Depth layer opacity + z-index only (size now from zone scale)
+    // Depth layer: opacity + z-index
     let op, zi
     if      (z < 34) { op = 0.60; zi = 10 + Math.round(z * 0.7) }
     else if (z < 67) { op = 0.80; zi = 40 + Math.round((z - 34) * 0.9) }
     else             { op = 1.00; zi = 70 + Math.round((z - 67) * 0.9) }
 
-    // White stroke via chained drop-shadow + main shadow; back layer darkened
     const strokeFilter = 'drop-shadow(0 0 1.5px rgba(255,255,255,0.4)) drop-shadow(0px 3px 6px rgba(0,0,0,0.5))'
     const svgFilter    = z < 34 ? `brightness(0.65) ${strokeFilter}` : strokeFilter
 
-    const isBallOrDrop = shape === 'ball' || shape === 'drop'
-    const glowRadius   = shape === 'drop' ? '40% 40% 55% 55%' : '50%'
+    const isFloating = FLOATING_SHAPES.has(shape)
+    const glowRadius = shape === 'drop' ? '40% 40% 55% 55%' : shape === 'bow' ? '30%' : '50%'
+
+    // Stable per-ornament rotation for floating shapes (seeded by position so it's consistent)
+    let rotation = 0
+    if (shape === 'star')      rotation = ((o.x * 7 + o.y * 3) % 30) - 15   // ±15°
+    if (shape === 'snowflake') rotation = ((o.x * 11 + o.y * 5) % 60)        // 0–60°
 
     return (
       <div key={i} className="ornament-pin" title={o.label} style={{
-        left: `${o.x}%`, top: `${o.y}%`,
-        width: `${size}%`,
-        opacity: op, zIndex: zi,
+        left:    `${o.x}%`,
+        top:     `${o.y}%`,
+        width:   `${w}%`,
+        height:  `${h}%`,
+        opacity: op,
+        zIndex:  zi,
+        transform: rotation ? `translate(-50%, -50%) rotate(${rotation}deg)` : undefined,
       }}>
-        {/* Radial glow — behind SVG, color matches ornament */}
+        {/* Radial glow */}
         <div style={{
           position: 'absolute', inset: '-20%',
           borderRadius: glowRadius,
@@ -578,23 +670,25 @@ function renderOrnamentLayer(ornaments) {
           filter: 'blur(6px)', pointerEvents: 'none',
         }} />
 
-        {/* Ornament SVG with stroke + shadow filter */}
-        <div style={{ position: 'relative', filter: svgFilter }}>
+        {/* Ornament SVG */}
+        <div style={{ position: 'relative', width: '100%', height: '100%', filter: svgFilter }}>
           <OrnamentShape shape={shape} color={o.color} />
         </div>
 
-        {/* Specular highlight — ball and drop only */}
-        {isBallOrDrop && (
+        {/* Specular highlight — only for solid rounded shapes */}
+        {!isFloating && shape !== 'pinecone' && (
           <div style={{
-            position: 'absolute',
-            top:    shape === 'drop' ? '28%' : '20%',
-            left:   '22%',
-            width:  shape === 'drop' ? '22%' : '30%',
-            height: shape === 'drop' ? '30%' : '22%',
-            background: 'white', opacity: 0.25,
+            position:     'absolute',
+            top:          shape === 'drop' ? '28%' : shape === 'bell' ? '22%' : '20%',
+            left:         '22%',
+            width:        shape === 'drop' ? '22%' : '30%',
+            height:       shape === 'drop' ? '30%' : '22%',
+            background:   'white',
+            opacity:      0.22,
             borderRadius: '50%',
-            transform: 'rotate(-20deg)',
-            filter: 'blur(2px)', pointerEvents: 'none',
+            transform:    'rotate(-20deg)',
+            filter:       'blur(2px)',
+            pointerEvents: 'none',
           }} />
         )}
       </div>
