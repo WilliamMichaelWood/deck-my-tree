@@ -199,12 +199,12 @@ export default function SplashSVG({ onFinish }) {
 
             {/* ── Main sweep band (wide, white-hot core, clipped to tree) ── */}
             <g clipPath="url(#sp-tree-clip)" filter="url(#sp-band-glow)">
-              {/* Outer band */}
-              <rect x="-10" y="0" width="220" height="32" fill="url(#sp-sweep-grad)">
+              {/* Outer band — y="235" hides it below viewBox until animation starts */}
+              <rect x="-10" y="235" width="220" height="32" fill="url(#sp-sweep-grad)">
                 <animate attributeName="y" from="235" to="-32" dur={S(2200)} begin={S(800)} fill="freeze" />
               </rect>
               {/* Bright center line */}
-              <rect x="-10" y="0" width="220" height="5" fill="rgba(255,253,231,0.95)">
+              <rect x="-10" y="248" width="220" height="5" fill="rgba(255,253,231,0.95)">
                 <animate attributeName="y" from="248" to="-5" dur={S(2200)} begin={S(800)} fill="freeze" />
               </rect>
             </g>
