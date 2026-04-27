@@ -1329,18 +1329,19 @@ export default function TreeAdvisor() {
           {/* 2 — Style direction header + palette reasoning card */}
           <div className="overlay-label-row" style={{ marginTop: 20 }}>
             <span className="overlay-eyebrow">✦ YOUR STYLE DIRECTION</span>
-            {image?.base64 ? (
-              <button className="btn-secondary btn-sm" onClick={handleRetry}>
-                Try a New Look
-              </button>
-            ) : (
+            <div style={{ display: 'flex', gap: 8 }}>
               <button className="btn-secondary btn-sm" onClick={() => {
                 setResult(''); setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null); setLightStrands([]); setHasLights(false)
                 setImage(null); setError('')
               }}>
-                New Tree
+                {image?.base64 ? 'Different Tree' : 'New Tree'}
               </button>
-            )}
+              {image?.base64 && (
+                <button className="btn-secondary btn-sm" onClick={handleRetry}>
+                  Try a New Look
+                </button>
+              )}
+            </div>
           </div>
 
           {palette?.description && (
