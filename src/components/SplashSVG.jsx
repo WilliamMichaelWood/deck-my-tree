@@ -114,8 +114,12 @@ export default function SplashSVG({ onFinish }) {
         ))}
       </div>
 
-      {/* ── Center stage: tree SVG + title ─────────────────────── */}
+      {/* ── Center stage: tree + title ──────────────────────────── */}
       <div className="splash-stage">
+        {/* Tree wrap: emoji behind, SVG animation overlay on top */}
+        <div className="splash-tree-wrap">
+          <div className={`splash-emoji-tree splash-tree-body`} aria-hidden="true">🎄</div>
+
         <svg
           className="splash-tree-svg"
           viewBox="0 0 200 235"
@@ -160,15 +164,7 @@ export default function SplashSVG({ onFinish }) {
             </filter>
           </defs>
 
-          {/* ── Bare tree silhouette ──────────────────────────── */}
-          <g className="splash-tree-body">
-            {TIERS.map((pts, i) => (
-              <polygon key={i} points={pts} fill="#1d5c3a" />
-            ))}
-            <rect x="88" y="192" width="24" height="30" rx="2" fill="#1d5c3a" />
-          </g>
-
-          {/* ── Gold sweep band (clipped to tree) ────────────── */}
+          {/* ── Gold sweep band (clipped to tree shape) ──────── */}
           <g clipPath="url(#sp-tree-clip)" filter="url(#sp-band-glow)">
             <rect x="-10" y="0" width="220" height="22" fill="url(#sp-sweep-grad)">
               {/* SMIL: sweep band travels from tree base to apex */}
@@ -241,6 +237,7 @@ export default function SplashSVG({ onFinish }) {
             </circle>
           ))}
         </svg>
+        </div>{/* end splash-tree-wrap */}
 
         {/* ── Title: rises in at phase 4 ──────────────────────── */}
         <p className={`splash-title${phase >= 4 ? ' splash-title-rise' : ''}`}>

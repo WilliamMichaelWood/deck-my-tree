@@ -61,12 +61,31 @@
   margin-bottom: 5vh;
 }
 
-/* ─── Tree SVG ───────────────────────────────────────────── */
+/* ─── Tree wrap: emoji behind, SVG overlay on top ───────── */
+.splash-tree-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Illustrated emoji tree — the actual visual */
+.splash-emoji-tree {
+  font-size: min(48vh, 290px);
+  line-height: 1;
+  display: block;
+}
+
+/* SVG overlay: animation only (sweep band, star, sparkles) */
 .splash-tree-svg {
-  height: min(52vh, 310px);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  height: 100%;
   width: auto;
-  /* allow star to render above viewBox top */
   overflow: visible;
+  pointer-events: none;
 }
 
 /* Tree silhouette: invisible until phase 1 */
