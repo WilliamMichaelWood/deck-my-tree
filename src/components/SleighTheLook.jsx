@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { streamChat } from '../lib/stream'
 import CurationModal from './CurationModal'
 
@@ -32,6 +32,41 @@ const RETAILERS = [
   { key: 'amazon',  label: 'Amazon',  color: '#ff9900' },
   { key: 'etsy',    label: 'Etsy',    color: '#F1641E' },
 ]
+
+// ─── Generic tree bounding boxes (normalized 0–1 fractions) ──────
+const GENERIC_TREE_BOUNDS = {
+  small:  { apex: { x: 0.50, y: 0.12 }, baseLeft: { x: 0.22, y: 0.92 }, baseRight: { x: 0.78, y: 0.92 }, treeHeightFt: 5   },
+  medium: { apex: { x: 0.50, y: 0.12 }, baseLeft: { x: 0.22, y: 0.92 }, baseRight: { x: 0.78, y: 0.92 }, treeHeightFt: 6.5 },
+  large:  { apex: { x: 0.50, y: 0.12 }, baseLeft: { x: 0.22, y: 0.92 }, baseRight: { x: 0.78, y: 0.92 }, treeHeightFt: 7.5 },
+  xlarge: { apex: { x: 0.50, y: 0.12 }, baseLeft: { x: 0.22, y: 0.92 }, baseRight: { x: 0.78, y: 0.92 }, treeHeightFt: 9   },
+}
+
+function getSizeKey(size = '') {
+  const s = size.toLowerCase()
+  if (s.includes('tabletop') || (s.includes('small') && !s.includes('large'))) return 'small'
+  if (s.includes('xl') || s.includes('10ft')) return 'xlarge'
+  if (s.includes('large') || s.includes('8') || s.includes('9')) return 'large'
+  return 'medium'
+}
+
+// Distribute 12 ornaments across 4 rows × 3 columns inside the tree triangle
+function placePreviewOrnaments(bounds, ornaments) {
+  const { apex, baseLeft, baseRight } = bounds
+  const treeH = baseLeft.y - apex.y
+  const rows = 4
+  return ornaments.slice(0, 12).map((orn, i) => {
+    const row = Math.floor(i / 3)
+    const col = i % 3
+    const yF = 0.18 + (row / (rows - 1)) * 0.70
+    const y = apex.y + yF * treeH
+    const tF = (y - apex.y) / treeH
+    const xLeft  = apex.x + tF * (baseLeft.x  - apex.x)
+    const xRight = apex.x + tF * (baseRight.x - apex.x)
+    const xFracs = [0.2, 0.5, 0.8]
+    const x = xLeft + xFracs[col] * (xRight - xLeft)
+    return { x, y, orn }
+  })
+}
 
 const buildPrompt = ({ style, palette, budget, size, extraContext }) =>
   `You are a professional Christmas decorator. Create a curated ornament shopping list and topper recommendation.
@@ -360,6 +395,54 @@ function RecommendationCard({ item, index }) {
   )
 }
 
+function StylePreview({ products, topper, size }) {
+  const sizeKey = getSizeKey(size)
+  const bounds  = GENERIC_TREE_BOUNDS[sizeKey]
+  const placements = useMemo(
+    () => placePreviewOrnaments(bounds, products),
+    [bounds, products]
+  )
+
+  return (
+    <div className="ornament-shop-section style-preview-section">
+      <h3 className="shop-section-header">✦ Your Style Preview</h3>
+      <p className="preview-caption">Here's how your selections come together. Make it yours below.</p>
+      <div className="style-preview-wrap">
+        <img
+          src={`/trees/tree-${sizeKey}.jpg`}
+          alt="Your Christmas tree"
+          className="preview-tree-img"
+          draggable="false"
+        />
+
+        {/* Topper at apex */}
+        {topper && (
+          <div
+            className="preview-topper"
+            style={{ left: `${bounds.apex.x * 100}%`, top: `${bounds.apex.y * 100}%` }}
+          >
+            <TopperSVG type={topper.type || 'star'} color={topper.color || '#c9a84c'} />
+          </div>
+        )}
+
+        {/* Ornaments */}
+        {placements.map((p, i) => (
+          <div
+            key={i}
+            className="preview-ornament"
+            style={{ left: `${p.x * 100}%`, top: `${p.y * 100}%` }}
+          >
+            <OrnamentSVG
+              shape={p.orn.shape || 'ball'}
+              color={p.orn.color || '#c9a84c'}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function SleighTheLook() {
   const [style,        setStyle]        = useState('')
   const [palette,      setPalette]      = useState('')
@@ -542,6 +625,9 @@ export default function SleighTheLook() {
 
       {(topper || products.length > 0) && (
         <div ref={resultsRef}>
+          {products.length > 0 && (
+            <StylePreview products={products} topper={topper} size={size} />
+          )}
           {topper && (
             <div className="ornament-shop-section">
               <h3 className="shop-section-header">✦ Top It Off</h3>
