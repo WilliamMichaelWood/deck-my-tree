@@ -83,25 +83,32 @@ export default function SplashSVG({ onFinish }) {
   const audioUnlocked = useRef(false)
   const done          = useRef(false)
 
-  // ── Phase schedule (7s total at normal speed) ─────────────────
-  // Band sweeps 800ms→3000ms (2200ms). Star bursts 100ms after band ends.
+  // ── Phase schedule ────────────────────────────────────────────
+  // Phase 1 (50ms):    logo fades + scales in
+  // Phase 2 (1000ms):  logo pulses, tree begins fading in behind
+  // Phase 3 (2300ms):  gold band sweeps (SMIL runs independently)
+  // Phase 4 (4600ms):  star bursts + sound
+  // Phase 5 (5100ms):  title rises
+  // Phase 6 (8600ms):  fade out
+  // Done  (9400ms):    unmount
   useEffect(() => {
     localStorage.setItem('splashSeen', JSON.stringify({ ts: Date.now() }))
     const T = (ms) => Math.round(ms * sm)
     const timers = [
-      setTimeout(() => setPhase(1), T(50)),     // dark tree fades in
-      setTimeout(() => setPhase(2), T(800)),    // band sweeps, dark→color wipe
-      setTimeout(() => setPhase(3), T(3100)),   // star burst + sound
-      setTimeout(() => setPhase(4), T(3500)),   // title rises (1s to animate)
-      setTimeout(() => setPhase(5), T(7000)),   // hold full scene, then fade
-      setTimeout(() => { if (!done.current) { done.current = true; onFinish() } }, T(7800)),
+      setTimeout(() => setPhase(1), T(50)),     // logo in
+      setTimeout(() => setPhase(2), T(1000)),   // logo pulse + tree fades in
+      setTimeout(() => setPhase(3), T(2300)),   // band sweeps
+      setTimeout(() => setPhase(4), T(4600)),   // star burst + sound
+      setTimeout(() => setPhase(5), T(5100)),   // title rises
+      setTimeout(() => setPhase(6), T(8600)),   // fade out
+      setTimeout(() => { if (!done.current) { done.current = true; onFinish() } }, T(9400)),
     ]
     return () => timers.forEach(clearTimeout)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Play sparkle chime at phase 3 ────────────────────────────
+  // ── Play sparkle chime at phase 4 (star burst) ───────────────
   useEffect(() => {
-    if (phase === 3 && audioRef.current) {
+    if (phase === 4 && audioRef.current) {
       audioRef.current.volume = 0.4
       audioRef.current.play().catch(() => {})
     }
@@ -149,16 +156,21 @@ export default function SplashSVG({ onFinish }) {
         ))}
       </div>
 
-      {/* ── Stage ────────────────────────────────────────────── */}
+      {/* ── Logo (phases 1–2: hero; phases 3+: fades to corner) ── */}
+      <div className={`splash-logo-wrap splash-logo-p${phase}`} aria-hidden="true">
+        <img src="/logo.png" alt="" className="splash-logo-img" />
+      </div>
+
+      {/* ── Stage (tree + title, visible from phase 2 onward) ─── */}
       <div className="splash-stage">
-        <div className="splash-tree-wrap splash-tree-body">
+        <div className={`splash-tree-wrap splash-tree-body`}>
 
           {/* Layer 1: full-color emoji (the revealed state) */}
           <div className="splash-emoji-color" aria-hidden="true">🎄</div>
 
           {/* Layer 2: dark/purple emoji — clips away bottom→top in sync with band */}
           <div
-            className={`splash-emoji-dark${phase >= 2 ? ' revealing' : ''}${phase >= 3 ? ' revealed' : ''}`}
+            className={`splash-emoji-dark${phase >= 3 ? ' revealing' : ''}${phase >= 4 ? ' revealed' : ''}`}
             aria-hidden="true"
           >🎄</div>
 
@@ -231,13 +243,13 @@ export default function SplashSVG({ onFinish }) {
             ))}
           </svg>
 
-          {/* ── Star glow burst (HTML div — CSS animation starts on mount) ── */}
-          {phase >= 3 && (
+          {/* ── Star glow burst ───────────────────────────────────── */}
+          {phase >= 4 && (
             <div className="splash-star-glow" aria-hidden="true" />
           )}
 
-          {/* ── 12 burst sparkles radiating from emoji star (HTML + CSS) ── */}
-          {phase >= 3 && BURST_SPARKS.map(s => (
+          {/* ── 12 burst sparkles ─────────────────────────────────── */}
+          {phase >= 4 && BURST_SPARKS.map(s => (
             <div
               key={s.id}
               className="splash-burst-ptcl"
@@ -252,7 +264,7 @@ export default function SplashSVG({ onFinish }) {
 
         </div>{/* end splash-tree-wrap */}
 
-        <p className={`splash-title${phase >= 4 ? ' splash-title-rise' : ''}`}>
+        <p className={`splash-title${phase >= 5 ? ' splash-title-rise' : ''}`}>
           Deck My Tree
         </p>
       </div>

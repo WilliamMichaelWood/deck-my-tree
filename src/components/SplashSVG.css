@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   Cinderella Splash — color-reveal wipe with pixie-dust trail
+   Cinderella Splash — logo intro + color-reveal wipe
    ═══════════════════════════════════════════════════════════ */
 
 /* ─── Container ──────────────────────────────────────────── */
@@ -17,7 +17,8 @@
   -webkit-user-select: none;
 }
 
-.splash-p5 {
+/* Phase 6: fade out */
+.splash-p6 {
   animation: splashOut calc(0.8s * var(--sm)) ease forwards;
   pointer-events: none;
 }
@@ -44,7 +45,57 @@
   100% { transform: translateY(100vh); opacity: 0;    }
 }
 
-/* ─── Stage ──────────────────────────────────────────────── */
+/* ─── Logo wrap ──────────────────────────────────────────── */
+.splash-logo-wrap {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.splash-logo-img {
+  width:  min(72vw, 340px);
+  height: min(72vw, 340px);
+  object-fit: contain;
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+/* Phase 1: logo fades + scales in */
+.splash-logo-p1 .splash-logo-img {
+  animation: logoIn calc(0.7s * var(--sm)) ease-out forwards;
+}
+@keyframes logoIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1.0);  }
+}
+
+/* Phase 2: logo holds at full opacity + gentle pulse */
+.splash-logo-p2 .splash-logo-img {
+  opacity: 1;
+  animation: logoPulse calc(1.5s * var(--sm)) ease-in-out infinite;
+}
+@keyframes logoPulse {
+  0%, 100% { transform: scale(1.0);  }
+  50%       { transform: scale(1.04); }
+}
+
+/* Phase 3+: logo fades out as tree takes over */
+.splash-logo-p3 .splash-logo-img,
+.splash-logo-p4 .splash-logo-img,
+.splash-logo-p5 .splash-logo-img,
+.splash-logo-p6 .splash-logo-img {
+  animation: logoOut calc(0.6s * var(--sm)) ease-in forwards;
+}
+@keyframes logoOut {
+  from { opacity: 1; transform: scale(1.0);  }
+  to   { opacity: 0; transform: scale(1.06); }
+}
+
+/* ─── Stage (tree + title) ───────────────────────────────── */
 .splash-stage {
   display: flex;
   flex-direction: column;
@@ -60,13 +111,13 @@
   justify-content: center;
 }
 
-/* Fade in the whole wrap at phase 1 */
+/* Tree invisible until phase 2, then fades in */
 .splash-tree-body { opacity: 0; }
-.splash-p1 .splash-tree-body,
 .splash-p2 .splash-tree-body,
 .splash-p3 .splash-tree-body,
-.splash-p4 .splash-tree-body {
-  animation: treeIn calc(0.6s * var(--sm)) ease forwards;
+.splash-p4 .splash-tree-body,
+.splash-p5 .splash-tree-body {
+  animation: treeIn calc(0.8s * var(--sm)) ease forwards;
 }
 @keyframes treeIn {
   from { opacity: 0; }
@@ -80,7 +131,7 @@
   display: block;
 }
 
-/* ─── Dark/purple emoji (top, clips away as band sweeps) ─── */
+/* ─── Dark/purple emoji (clips away as band sweeps) ─────── */
 .splash-emoji-dark {
   position: absolute;
   top: 0;
@@ -88,13 +139,11 @@
   font-size: min(48vh, 290px);
   line-height: 1;
   display: block;
-  /* Desaturated dark purple — all color stripped, personality gone */
   filter: brightness(0.15) saturate(0.4) hue-rotate(255deg);
-  /* Initially covers the color emoji completely */
   clip-path: inset(0 0 0% 0);
 }
 
-/* Phase 2: synchronize with band sweep (800ms start, 2200ms dur) */
+/* Phase 3: band synced clip reveal */
 .splash-emoji-dark.revealing {
   animation: darkReveal calc(2.2s * var(--sm)) linear forwards;
 }
@@ -103,7 +152,7 @@
   to   { clip-path: inset(0 0 100% 0); }
 }
 
-/* Phase 3+: hold fully revealed — emoji color shows completely */
+/* Phase 4+: hold fully revealed */
 .splash-emoji-dark.revealed {
   animation: none;
   clip-path: inset(0 0 100% 0);
@@ -121,8 +170,7 @@
   pointer-events: none;
 }
 
-/* ─── Star glow burst (replaces SVG polygon — no double star) */
-/* Positioned to overlay the emoji's own star at the tree top  */
+/* ─── Star glow burst ────────────────────────────────────── */
 .splash-star-glow {
   position: absolute;
   top: 9%;
@@ -146,7 +194,7 @@
   100% { opacity: 0; transform: translate(-50%, -50%) scale(3.5); }
 }
 
-/* ─── 12 burst sparkles (CSS animation, starts on mount) ──── */
+/* ─── 12 burst sparkles ──────────────────────────────────── */
 .splash-burst-ptcl {
   position: absolute;
   top: 9%;
@@ -156,22 +204,12 @@
   border-radius: 50%;
   background: #fff8e1;
   box-shadow: 0 0 6px 2px rgba(232, 201, 106, 0.9);
-  /* Starts centered on star, then bursts outward */
   animation: burstOut calc(0.95s * var(--sm)) ease-out var(--bd, 0ms) both;
 }
 @keyframes burstOut {
-  0%  {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.5);
-  }
-  25% { opacity: 1; }
-  100% {
-    opacity: 0;
-    transform: translate(
-      calc(-50% + var(--dx)),
-      calc(-50% + var(--dy))
-    ) scale(0.2);
-  }
+  0%   { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
+  25%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.2); }
 }
 
 /* ─── Title ──────────────────────────────────────────────── */

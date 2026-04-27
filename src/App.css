@@ -81,6 +81,13 @@ a { text-decoration: none; color: inherit; }
   padding: 16px 24px;
 }
 .header-brand { display: flex; align-items: center; gap: 14px; }
+.header-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
 .header-tree {
   font-size: 2rem;
   filter: drop-shadow(0 0 10px rgba(46, 180, 90, 0.4));

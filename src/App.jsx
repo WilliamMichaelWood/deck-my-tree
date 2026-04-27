@@ -72,7 +72,7 @@ export default function App() {
       <header className="app-header">
         <div className="header-inner">
           <div className="header-brand">
-            <span className="header-tree">🎄</span>
+            <img src="/logo.png" alt="Deck My Tree" className="header-logo" />
             <div>
               <h1 className="header-title">Deck My Tree</h1>
               <p className="header-sub">Your Personal Holiday Stylist</p>
