@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   Cinderella Splash — color-reveal wipe
+   Cinderella Splash — color-reveal wipe with pixie-dust trail
    ═══════════════════════════════════════════════════════════ */
 
 /* ─── Container ──────────────────────────────────────────── */
@@ -18,12 +18,12 @@
 }
 
 .splash-p5 {
-  animation: splashOut calc(0.5s * var(--sm)) ease forwards;
+  animation: splashOut calc(0.8s * var(--sm)) ease forwards;
   pointer-events: none;
 }
 @keyframes splashOut { to { opacity: 0; } }
 
-/* ─── Falling gold particles ─────────────────────────────── */
+/* ─── Falling ambient particles ──────────────────────────── */
 .splash-particles {
   position: absolute;
   inset: 0;
@@ -52,7 +52,7 @@
   margin-bottom: 5vh;
 }
 
-/* ─── Tree wrap (sizes to the color emoji) ───────────────── */
+/* ─── Tree wrap ──────────────────────────────────────────── */
 .splash-tree-wrap {
   position: relative;
   display: inline-flex;
@@ -60,27 +60,27 @@
   justify-content: center;
 }
 
-/* Fade the whole tree wrap in at phase 1 */
+/* Fade in the whole wrap at phase 1 */
 .splash-tree-body { opacity: 0; }
 .splash-p1 .splash-tree-body,
 .splash-p2 .splash-tree-body,
 .splash-p3 .splash-tree-body,
 .splash-p4 .splash-tree-body {
-  animation: treeIn calc(0.5s * var(--sm)) ease forwards;
+  animation: treeIn calc(0.6s * var(--sm)) ease forwards;
 }
 @keyframes treeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-/* ─── Color emoji (bottom layer, sets container size) ────── */
+/* ─── Color emoji (bottom, sets container size) ──────────── */
 .splash-emoji-color {
   font-size: min(48vh, 290px);
   line-height: 1;
   display: block;
 }
 
-/* ─── Dark/purple emoji (top layer, reveals upward) ─────── */
+/* ─── Dark/purple emoji (top, clips away as band sweeps) ─── */
 .splash-emoji-dark {
   position: absolute;
   top: 0;
@@ -88,27 +88,28 @@
   font-size: min(48vh, 290px);
   line-height: 1;
   display: block;
-  /* Dark desaturated purple — same emoji, personality stripped */
-  filter: brightness(0.17) saturate(0.45) hue-rotate(258deg);
-  clip-path: inset(0 0 0% 0); /* initially: fully covers color layer */
+  /* Desaturated dark purple — all color stripped, personality gone */
+  filter: brightness(0.15) saturate(0.4) hue-rotate(255deg);
+  /* Initially covers the color emoji completely */
+  clip-path: inset(0 0 0% 0);
 }
 
-/* Phase 2: clip away from bottom → top over 1.5s (matches band sweep) */
+/* Phase 2: synchronize with band sweep (800ms start, 2200ms dur) */
 .splash-emoji-dark.revealing {
-  animation: darkReveal calc(1.5s * var(--sm)) linear forwards;
+  animation: darkReveal calc(2.2s * var(--sm)) linear forwards;
 }
 @keyframes darkReveal {
   from { clip-path: inset(0 0 0%   0); }
   to   { clip-path: inset(0 0 100% 0); }
 }
 
-/* Phase 3+: hold fully revealed (color emoji fully visible) */
+/* Phase 3+: hold fully revealed — emoji color shows completely */
 .splash-emoji-dark.revealed {
   animation: none;
   clip-path: inset(0 0 100% 0);
 }
 
-/* ─── SVG animation overlay (transparent, on top) ────────── */
+/* ─── SVG animation overlay ──────────────────────────────── */
 .splash-tree-svg {
   position: absolute;
   top: 50%;
@@ -120,36 +121,57 @@
   pointer-events: none;
 }
 
-/* ─── Star ───────────────────────────────────────────────── */
-.splash-star {
-  opacity: 0;
-  transform-box:    fill-box;
-  transform-origin: center;
-  transform:        scale(0);
+/* ─── Star glow burst (replaces SVG polygon — no double star) */
+/* Positioned to overlay the emoji's own star at the tree top  */
+.splash-star-glow {
+  position: absolute;
+  top: 9%;
+  left: 50%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 253, 231, 0.95) 0%,
+    rgba(232, 201, 106, 0.75) 25%,
+    rgba(201, 168, 76,  0.35) 55%,
+    transparent 75%
+  );
+  transform: translate(-50%, -50%);
+  animation: starGlow calc(1.0s * var(--sm)) ease-out forwards;
 }
-.splash-star-burst {
-  animation: starBurst calc(0.5s * var(--sm)) cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-@keyframes starBurst {
-  0%   { opacity: 0; transform: scale(0);    }
-  55%  { opacity: 1; transform: scale(1.35); }
-  100% { opacity: 1; transform: scale(1);    }
+@keyframes starGlow {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.2); }
+  15%  { opacity: 1; transform: translate(-50%, -50%) scale(1.0); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(3.5); }
 }
 
-/* ─── Star glow bloom ────────────────────────────────────── */
-.splash-glow-ring {
-  opacity: 0;
-  filter: blur(14px);
-  transform-box:    fill-box;
-  transform-origin: center;
+/* ─── 12 burst sparkles (CSS animation, starts on mount) ──── */
+.splash-burst-ptcl {
+  position: absolute;
+  top: 9%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff8e1;
+  box-shadow: 0 0 6px 2px rgba(232, 201, 106, 0.9);
+  /* Starts centered on star, then bursts outward */
+  animation: burstOut calc(0.95s * var(--sm)) ease-out var(--bd, 0ms) both;
 }
-.splash-glow-ring-on {
-  animation: glowRing calc(0.9s * var(--sm)) ease-out forwards;
-}
-@keyframes glowRing {
-  0%   { opacity: 0;   transform: scale(0.2); }
-  18%  { opacity: 0.9; transform: scale(1);   }
-  100% { opacity: 0;   transform: scale(2.2); }
+@keyframes burstOut {
+  0%  {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.5);
+  }
+  25% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate(
+      calc(-50% + var(--dx)),
+      calc(-50% + var(--dy))
+    ) scale(0.2);
+  }
 }
 
 /* ─── Title ──────────────────────────────────────────────── */
@@ -160,14 +182,14 @@
   font-weight:    400;
   color:          #e8c96a;
   letter-spacing: 0.05em;
-  text-shadow:    0 0 20px rgba(232, 201, 106, 0.55),
-                  0 0 40px rgba(232, 201, 106, 0.2);
+  text-shadow:    0 0 20px rgba(232, 201, 106, 0.6),
+                  0 0 45px rgba(232, 201, 106, 0.2);
   margin-top:     20px;
   opacity:        0;
   transform:      translateY(24px);
 }
 .splash-title-rise {
-  animation: titleRise calc(0.7s * var(--sm)) ease-out forwards;
+  animation: titleRise calc(0.8s * var(--sm)) ease-out forwards;
 }
 @keyframes titleRise {
   from { opacity: 0; transform: translateY(24px); }
