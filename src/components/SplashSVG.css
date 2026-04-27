@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════════════════════
-   Cinderella Logo Splash — dark silhouette → gold sweep → full color
+   Cinderella Logo Reveal — full-screen gold wave sweeps
+   dark overlay away, materializing the logo in gold magic.
    ═══════════════════════════════════════════════════════════ */
 
 /* ─── Container ──────────────────────────────────────────── */
@@ -17,9 +18,9 @@
   -webkit-user-select: none;
 }
 
-/* Phase 4: fade out */
-.splash-p4 {
-  animation: splashOut calc(0.5s * var(--sm)) ease forwards;
+/* Phase 5: fade to app */
+.splash-p5 {
+  animation: splashOut calc(0.4s * var(--sm)) ease forwards;
   pointer-events: none;
 }
 @keyframes splashOut { to { opacity: 0; } }
@@ -29,6 +30,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 10;
 }
 .splash-ptcl {
   position: absolute;
@@ -45,98 +47,67 @@
   100% { transform: translateY(100vh); opacity: 0;    }
 }
 
-/* ─── Logo outer wrap (centering only) ──────────────────── */
+/* ─── Logo wrap (z-index 1 — beneath overlay) ───────────── */
 .splash-logo-wrap {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 1;
+  pointer-events: none;
 }
 
-/* ─── Logo inner (stacking context) ─────────────────────── */
-.splash-logo-inner {
-  position: relative;
+.splash-logo {
   width:  min(72vw, 300px);
   height: min(72vw, 300px);
-}
-
-/* Initial: invisible */
-.splash-logo-p0 { opacity: 0; }
-
-/* Phase 1: fade the whole stage in (dark overlay visible on top) */
-.splash-logo-p1 {
-  animation: stageIn calc(0.5s * var(--sm)) ease-out forwards;
-  opacity: 0;
-}
-@keyframes stageIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* Phase 2+: hold visible */
-.splash-logo-p2,
-.splash-logo-p3,
-.splash-logo-p4 { opacity: 1; }
-
-/* ─── Full-color logo (bottom layer) ────────────────────── */
-.splash-logo-color {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
   object-fit: contain;
   border-radius: 50%;
   display: block;
-  z-index: 1;
 }
 
-/* Phase 3+: gold glow blooms on the revealed logo */
-.splash-logo-p3 .splash-logo-color,
-.splash-logo-p4 .splash-logo-color {
-  animation: logoGlow calc(0.7s * var(--sm)) ease-out forwards;
+/* Phase 3: gold glow blooms as logo is fully revealed */
+.splash-lp3 .splash-logo,
+.splash-lp4 .splash-logo,
+.splash-lp5 .splash-logo {
+  animation: logoBoom calc(0.4s * var(--sm)) ease-out forwards;
 }
-@keyframes logoGlow {
-  from {
-    box-shadow: none;
-  }
-  to {
-    box-shadow:
-      0 0 32px 16px rgba(232, 201, 106, 0.45),
-      0 0 70px 35px rgba(232, 201, 106, 0.18);
-  }
+@keyframes logoBoom {
+  0%   { box-shadow: none; }
+  45%  { box-shadow: 0 0 60px 30px rgba(232, 201, 106, 0.8),
+                     0 0 100px 50px rgba(232, 201, 106, 0.35); }
+  100% { box-shadow: 0 0 40px 20px rgba(232, 201, 106, 0.5),
+                     0 0  80px 40px rgba(232, 201, 106, 0.18); }
 }
 
-/* ─── Dark overlay logo (top layer, sweeps away) ─────────── */
-.splash-logo-dark {
+/* ─── Dark overlay (z-index 2 — on top of logo) ─────────── */
+.splash-overlay {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 50%;
-  display: block;
   z-index: 2;
-  /* Deep navy-tinted darkness matching the background */
-  filter: brightness(0.12) saturate(0.25) hue-rotate(220deg);
+  background: #0f1f35;
+  pointer-events: none;
+  /* Starts covering everything */
   clip-path: inset(0 0 0% 0);
 }
 
-/* Phase 2: sweep the dark overlay away, bottom → top, synced with band */
-.splash-logo-dark.revealing {
-  animation: darkReveal calc(2.0s * var(--sm)) linear forwards;
+/* Phase 2: clips away bottom→top in sync with wave center */
+.splash-overlay.sweeping {
+  animation: overlayReveal calc(1.5s * var(--sm)) linear forwards;
 }
-@keyframes darkReveal {
+@keyframes overlayReveal {
   from { clip-path: inset(0 0 0%   0); }
   to   { clip-path: inset(0 0 100% 0); }
 }
 
-/* Phase 3+: hold fully revealed */
-.splash-logo-dark.revealed {
+/* Phase 3+: fully clipped (overlay gone) */
+.splash-overlay.swept {
   animation: none;
   clip-path: inset(0 0 100% 0);
 }
 
-/* ─── SVG sweep + wake overlay ───────────────────────────── */
-.splash-sweep-svg {
+/* ─── Wave SVG (z-index 3 — full screen, on top) ─────────── */
+.splash-wave-svg {
   position: absolute;
   inset: 0;
   width: 100%;

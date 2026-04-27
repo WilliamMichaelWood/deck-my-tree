@@ -19,22 +19,25 @@ const PARTICLES = Array.from({ length: 30 }, (_, i) => ({
   size:  (2  + (i * 0.19)   % 2.2).toFixed(1),
 }))
 
-// ─── Pixie-dust wake dots (SVG viewBox 0 0 100 100, circle r=50) ──
-// Each dot appears when the sweep band passes its y-position.
-const SWEEP_DUR_MS = 2000
-const WAKE_DOTS = Array.from({ length: 22 }, (_, i) => {
-  const angle  = (i / 22) * 2 * Math.PI + i * 0.38
-  const radius = 10 + (i * 3.1 % 32)
-  const x = 50 + Math.cos(angle) * radius
-  const y = 50 + Math.sin(angle) * radius * 0.85
-  // When does band center (100→0) reach this y?
-  const delayMs = ((100 - y) / 100) * SWEEP_DUR_MS
+// ─── Full-screen glitter wake trail ──────────────────────────────
+// SVG viewBox 0 0 100 100 stretched full-screen (preserveAspectRatio=none).
+// Each dot appears when the wave center (y: 100→0) passes its y position.
+const SWEEP_DUR_MS = 1500
+const WAKE_DOTS = Array.from({ length: 55 }, (_, i) => {
+  // Spread across full screen width, clustered slightly toward center-x
+  const xBase = (i * 19.7 + 3.2) % 100
+  const x = xBase
+  const y = (i * 7.3  + 5.1) % 100
+  const delayMs = Math.max(0, ((100 - y) / 100) * SWEEP_DUR_MS - 30)
 
-  const RADII  = [1.2, 2.1, 1.5, 2.5, 1.0, 1.9, 1.4, 2.3, 1.6, 1.1,
-                  2.0, 1.3, 2.4, 1.7, 1.2, 2.0, 1.5, 2.2, 1.6, 1.0, 1.8, 1.4]
-  const COLORS = ['#fff8e1', '#e8c96a', '#ffd700', '#fffde7']
-  const DURS   = [500, 700, 560, 810, 610, 660, 490, 730, 570, 630,
-                  710, 530, 770, 590, 650, 520, 750, 580, 640, 500, 720, 580]
+  const RADII  = [0.7, 1.4, 0.9, 1.8, 0.5, 1.2, 1.0, 2.0, 0.6, 1.5,
+                  1.1, 0.8, 1.7, 0.9, 1.3, 0.6, 1.9, 1.0, 1.4, 0.7]
+  const COLORS = ['#fff8e1', '#e8c96a', '#ffd700', '#fffde7', '#f5e07a']
+  const DURS   = [380, 560, 420, 680, 480, 520, 360, 620, 460, 510,
+                  580, 400, 660, 440, 540, 370, 600, 450, 530, 410]
+
+  const ang    = i * 2.399 // golden angle in radians
+  const drift  = 1.8 + (i % 5) * 0.4
 
   return {
     id: i,
@@ -44,8 +47,8 @@ const WAKE_DOTS = Array.from({ length: 22 }, (_, i) => {
     color: COLORS[i % COLORS.length],
     delayMs,
     dur: DURS[i % DURS.length],
-    driftX: (Math.cos(angle) * 2.8).toFixed(1),
-    driftY: (-1.5 - (i % 3) * 0.6).toFixed(1),
+    driftX: (Math.cos(ang) * drift).toFixed(1),
+    driftY: (-0.8 - (i % 4) * 0.35).toFixed(1),
   }
 })
 
@@ -58,25 +61,27 @@ export default function SplashSVG({ onFinish }) {
   const done          = useRef(false)
 
   // ── Phase schedule ────────────────────────────────────────────
-  // Phase 1  (50ms):    dark logo fades in over 0.5s
-  // Phase 2 (550ms):    gold sweep begins, chime fires
-  // Phase 3 (2550ms):   sweep done — full-color logo glows
-  // Phase 4 (3300ms):   fade out to app
-  // Done    (3800ms):   unmount
+  // Phase 1  (50ms):    particles fall, logo hidden under navy overlay
+  // Phase 2 (300ms):    wave sweeps full screen bottom→top (1.5s); chime
+  // Phase 3 (1800ms):   logo fully revealed — gold glow blooms
+  // Phase 4 (2200ms):   hold with soft glow
+  // Phase 5 (2800ms):   fade to app
+  // Done    (3200ms):   unmount
   useEffect(() => {
     localStorage.setItem('splashSeen', JSON.stringify({ ts: Date.now() }))
     const T = (ms) => Math.round(ms * sm)
     const timers = [
       setTimeout(() => setPhase(1), T(50)),
-      setTimeout(() => setPhase(2), T(550)),
-      setTimeout(() => setPhase(3), T(2550)),
-      setTimeout(() => setPhase(4), T(3300)),
-      setTimeout(() => { if (!done.current) { done.current = true; onFinish() } }, T(3800)),
+      setTimeout(() => setPhase(2), T(300)),
+      setTimeout(() => setPhase(3), T(1800)),
+      setTimeout(() => setPhase(4), T(2200)),
+      setTimeout(() => setPhase(5), T(2800)),
+      setTimeout(() => { if (!done.current) { done.current = true; onFinish() } }, T(3200)),
     ]
     return () => timers.forEach(clearTimeout)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Chime at sweep start ─────────────────────────────────────
+  // ── Chime fires as wave begins ───────────────────────────────
   useEffect(() => {
     if (phase === 2 && audioRef.current) {
       audioRef.current.volume = 0.45
@@ -100,7 +105,7 @@ export default function SplashSVG({ onFinish }) {
     onFinish()
   }
 
-  // SMIL timing helper (seconds string, speed-scaled)
+  // SMIL timing helper (seconds, speed-scaled)
   const S = (ms) => `${(ms * sm / 1000).toFixed(3)}s`
 
   return (
@@ -113,7 +118,7 @@ export default function SplashSVG({ onFinish }) {
     >
       <audio ref={audioRef} src="/sounds/sparkle.mp3" preload="auto" />
 
-      {/* ── Ambient falling particles ────────────────────────── */}
+      {/* ── Ambient falling particles (always on top) ─────────── */}
       <div className="splash-particles" aria-hidden="true">
         {PARTICLES.map(p => (
           <div key={p.id} className="splash-ptcl" style={{
@@ -126,93 +131,84 @@ export default function SplashSVG({ onFinish }) {
         ))}
       </div>
 
-      {/* ── Logo stage ───────────────────────────────────────── */}
-      <div className="splash-logo-wrap" aria-hidden="true">
-        <div className={`splash-logo-inner splash-logo-p${phase}`}>
-
-          {/* Layer 1 (bottom): full-color logo — always underneath */}
-          <img src="/logo.png" alt="" className="splash-logo-color" />
-
-          {/* Layer 2 (top): dark overlay — clips away bottom→top during sweep */}
-          <img
-            src="/logo.png"
-            alt=""
-            className={`splash-logo-dark${phase >= 2 ? ' revealing' : ''}${phase >= 3 ? ' revealed' : ''}`}
-          />
-
-          {/* Layer 3 (top): SVG sweep band + pixie-dust wake, clipped to circle */}
-          {phase >= 2 && (
-            <svg
-              className="splash-sweep-svg"
-              viewBox="0 0 100 100"
-              overflow="visible"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <defs>
-                <clipPath id="sp-logo-clip">
-                  <circle cx="50" cy="50" r="50" />
-                </clipPath>
-                <linearGradient id="sp-band-grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%"   stopColor="transparent" />
-                  <stop offset="20%"  stopColor="#c9a84c" stopOpacity="0.55" />
-                  <stop offset="42%"  stopColor="#e8c96a" stopOpacity="0.92" />
-                  <stop offset="50%"  stopColor="#fffde7" />
-                  <stop offset="58%"  stopColor="#e8c96a" stopOpacity="0.92" />
-                  <stop offset="80%"  stopColor="#c9a84c" stopOpacity="0.55" />
-                  <stop offset="100%" stopColor="transparent" />
-                </linearGradient>
-                <filter id="sp-band-glow" x="-80%" y="-400%" width="260%" height="900%">
-                  <feGaussianBlur stdDeviation="2.5" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
-                </filter>
-              </defs>
-
-              {/* Glow band — filter applied before clip so it bleeds outside circle */}
-              <g filter="url(#sp-band-glow)">
-                <g clipPath="url(#sp-logo-clip)">
-                  {/* Band: center tracks seam (100→0), h=15 → top 92.5→-7.5 */}
-                  <rect x="0" y="92.5" width="100" height="15" fill="url(#sp-band-grad)">
-                    <animate attributeName="y" from="92.5" to="-7.5"
-                      dur={S(SWEEP_DUR_MS)} begin="0s" fill="freeze" />
-                  </rect>
-                  {/* Bright center line, h=3 → top 98.5→-1.5 */}
-                  <rect x="0" y="98.5" width="100" height="3" fill="rgba(255,253,231,0.9)">
-                    <animate attributeName="y" from="98.5" to="-1.5"
-                      dur={S(SWEEP_DUR_MS)} begin="0s" fill="freeze" />
-                  </rect>
-                </g>
-              </g>
-
-              {/* Pixie-dust wake trail (clipped to circle, no extra glow) */}
-              <g clipPath="url(#sp-logo-clip)">
-                {WAKE_DOTS.map(d => (
-                  <circle key={d.id} cx={d.x} cy={d.y} r={d.r} fill={d.color} opacity={0}>
-                    <animate
-                      attributeName="opacity"
-                      values="0;1;0.85;0"
-                      keyTimes="0;0.1;0.5;1"
-                      dur={S(d.dur)}
-                      begin={S(d.delayMs)}
-                    />
-                    <animateTransform
-                      attributeName="transform" type="translate"
-                      from="0 0" to={`${d.driftX} ${d.driftY}`}
-                      dur={S(d.dur)}
-                      begin={S(d.delayMs)}
-                      additive="sum"
-                    />
-                  </circle>
-                ))}
-              </g>
-            </svg>
-          )}
-
-        </div>
+      {/* ── Logo — z-index 1, always full color, centered ────── */}
+      <div className={`splash-logo-wrap splash-lp${phase}`} aria-hidden="true">
+        <img src="/logo.png" alt="" className="splash-logo" />
       </div>
+
+      {/* ── Dark overlay — z-index 2, sweeps away to reveal logo ─ */}
+      <div
+        className={`splash-overlay${phase >= 2 ? ' sweeping' : ''}${phase >= 3 ? ' swept' : ''}`}
+        aria-hidden="true"
+      />
+
+      {/* ── Gold wave SVG — z-index 3, full-screen sweep ─────── */}
+      {phase >= 2 && (
+        <svg
+          className="splash-wave-svg"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          overflow="visible"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            {/* Band gradient: transparent → gold → white-hot core → gold → transparent */}
+            <linearGradient id="sp-wave-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="transparent" />
+              <stop offset="15%"  stopColor="#c9a84c" stopOpacity="0.5" />
+              <stop offset="38%"  stopColor="#e8c96a" stopOpacity="0.95" />
+              <stop offset="50%"  stopColor="#fffde7" />
+              <stop offset="62%"  stopColor="#e8c96a" stopOpacity="0.95" />
+              <stop offset="85%"  stopColor="#c9a84c" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="transparent" />
+            </linearGradient>
+
+            {/* Heavy glow — tall filter region for maximum bleed */}
+            <filter id="sp-wave-glow" x="-20%" y="-600%" width="140%" height="1300%">
+              <feGaussianBlur stdDeviation="3.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          {/* Wave band + bright core — filter applied outside so glow bleeds */}
+          <g filter="url(#sp-wave-glow)">
+            {/* Band h=8: center 100→0 → top 96→-4 */}
+            <rect x="0" y="96" width="100" height="8" fill="url(#sp-wave-grad)">
+              <animate attributeName="y" from="96" to="-4"
+                dur={S(SWEEP_DUR_MS)} begin="0s" fill="freeze" />
+            </rect>
+            {/* Bright core h=2: top 99→-1 */}
+            <rect x="0" y="99" width="100" height="2" fill="rgba(255,253,231,0.95)">
+              <animate attributeName="y" from="99" to="-1"
+                dur={S(SWEEP_DUR_MS)} begin="0s" fill="freeze" />
+            </rect>
+          </g>
+
+          {/* Glitter wake trail — no glow filter (keeps it crisp sparkles) */}
+          {WAKE_DOTS.map(d => (
+            <circle key={d.id} cx={d.x} cy={d.y} r={d.r} fill={d.color} opacity={0}>
+              <animate
+                attributeName="opacity"
+                values="0;1;0.9;0"
+                keyTimes="0;0.08;0.45;1"
+                dur={S(d.dur)}
+                begin={S(d.delayMs)}
+              />
+              <animateTransform
+                attributeName="transform" type="translate"
+                from="0 0" to={`${d.driftX} ${d.driftY}`}
+                dur={S(d.dur)}
+                begin={S(d.delayMs)}
+                additive="sum"
+              />
+            </circle>
+          ))}
+        </svg>
+      )}
     </div>
   )
 }
