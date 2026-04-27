@@ -421,7 +421,14 @@ export default function SleighTheLook() {
       const remaining = 3000 - elapsed
       if (remaining > 0) await new Promise(r => setTimeout(r, remaining))
       setLoading(false)
-      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300)
+      setTimeout(() => {
+        const element = resultsRef.current
+        if (element) {
+          const yOffset = -120
+          const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
+          window.scrollTo({ top: y, behavior: 'smooth' })
+        }
+      }, 300)
     }
   }
 
