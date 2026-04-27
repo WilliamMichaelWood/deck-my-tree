@@ -92,9 +92,9 @@ export default function SplashSVG({ onFinish }) {
       setTimeout(() => setPhase(1), T(50)),     // dark tree fades in
       setTimeout(() => setPhase(2), T(800)),    // band sweeps, dark→color wipe
       setTimeout(() => setPhase(3), T(3100)),   // star burst + sound
-      setTimeout(() => setPhase(4), T(3800)),   // title rises
-      setTimeout(() => setPhase(5), T(6200)),   // fade out begins
-      setTimeout(() => { if (!done.current) { done.current = true; onFinish() } }, T(7000)),
+      setTimeout(() => setPhase(4), T(3500)),   // title rises (1s to animate)
+      setTimeout(() => setPhase(5), T(7000)),   // hold full scene, then fade
+      setTimeout(() => { if (!done.current) { done.current = true; onFinish() } }, T(7800)),
     ]
     return () => timers.forEach(clearTimeout)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
