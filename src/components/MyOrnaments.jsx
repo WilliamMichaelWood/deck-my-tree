@@ -5,22 +5,22 @@ import './MyOrnaments.css'
 // ─── Constants ────────────────────────────────────────────────
 // Preset ornament types — maps label → internal shape key used by SVG renderer
 const ORNAMENT_TYPES = [
-  { label: 'Ball',         shape: 'ball'      },
-  { label: 'Teardrop',     shape: 'drop'      },
-  { label: 'Pinecone',     shape: 'pinecone'  },
-  { label: 'Star',         shape: 'star'      },
-  { label: 'Snowflake',    shape: 'snowflake' },
-  { label: 'Bow',          shape: 'bow'       },
-  { label: 'Bell',         shape: 'bell'      },
-  { label: 'Berry Cluster',shape: 'berry'     },
-  { label: 'Icicle',       shape: 'drop'      },
-  { label: 'Finial',       shape: 'drop'      },
-  { label: 'Angel',        shape: 'ball'      },
-  { label: 'Reindeer',     shape: 'ball'      },
-  { label: 'Santa',        shape: 'ball'      },
-  { label: 'Drum',         shape: 'ball'      },
-  { label: 'Candy Cane',   shape: 'ball'      },
-  { label: 'Other / Custom', shape: 'ball'    },
+  { label: 'Ball',          shape: 'ball'      },
+  { label: 'Teardrop',      shape: 'drop'      },
+  { label: 'Star',          shape: 'star'      },
+  { label: 'Snowflake',     shape: 'snowflake' },
+  { label: 'Pinecone',      shape: 'pinecone'  },
+  { label: 'Bell',          shape: 'bell'      },
+  { label: 'Bow',           shape: 'bow'       },
+  { label: 'Icicle',        shape: 'drop'      },
+  { label: 'Angel',         shape: 'ball'      },
+  { label: 'Santa',         shape: 'ball'      },
+  { label: 'Reindeer',      shape: 'ball'      },
+  { label: 'Snowman',       shape: 'ball'      },
+  { label: 'Gingerbread',   shape: 'ball'      },
+  { label: 'Nutcracker',    shape: 'ball'      },
+  { label: 'Photo Frame',   shape: 'ball'      },
+  { label: 'Other / Custom', shape: 'ball'     },
 ]
 const TYPE_LABELS  = ORNAMENT_TYPES.map(t => t.label)
 // Legacy shape list — kept for filter/display but no longer the primary selector
@@ -253,7 +253,7 @@ function AddModal({ onClose, onSave }) {
         if (s !== -1 && e !== -1) {
           const d = JSON.parse(raw.slice(s, e + 1))
           // Map AI shape → preset typeLabel
-          const detectedType = ORNAMENT_TYPES.find(t => t.shape === d.shape && !['Angel','Reindeer','Santa','Drum','Candy Cane','Other / Custom'].includes(t.label))
+          const detectedType = ORNAMENT_TYPES.find(t => t.shape === d.shape && !['Angel','Santa','Reindeer','Snowman','Gingerbread','Nutcracker','Photo Frame','Other / Custom'].includes(t.label))
           setForm(f => ({
             ...f,
             name:      d.name      || f.name,
@@ -425,7 +425,7 @@ function EditModal({ ornament, onSave, onClose }) {
   const [tags,       setTags]       = useState(ornament?.tags      || [])
   const [typeLabel,  setTypeLabel]  = useState(ornament?.typeLabel || (() => {
     // Migrate legacy shape-only ornaments to the nearest preset label
-    const match = ORNAMENT_TYPES.find(t => t.shape === (ornament?.shape || 'ball') && !['Angel','Reindeer','Santa','Drum','Candy Cane','Other / Custom'].includes(t.label))
+    const match = ORNAMENT_TYPES.find(t => t.shape === (ornament?.shape || 'ball') && !['Angel','Santa','Reindeer','Snowman','Gingerbread','Nutcracker','Photo Frame','Other / Custom'].includes(t.label))
     return match?.label || 'Ball'
   })())
   const [customType, setCustomType] = useState(ornament?.customType || '')
