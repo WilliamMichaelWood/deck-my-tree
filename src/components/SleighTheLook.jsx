@@ -35,10 +35,10 @@ const RETAILERS = [
 
 // ─── Generic tree bounding boxes (normalized 0–1 fractions) ──────
 const GENERIC_TREE_BOUNDS = {
-  small:  { apex: { x: 0.50, y: 0.12 }, baseLeft: { x: 0.22, y: 0.92 }, baseRight: { x: 0.78, y: 0.92 }, treeHeightFt: 5   },
-  medium: { apex: { x: 0.50, y: 0.12 }, baseLeft: { x: 0.22, y: 0.92 }, baseRight: { x: 0.78, y: 0.92 }, treeHeightFt: 6.5 },
-  large:  { apex: { x: 0.50, y: 0.12 }, baseLeft: { x: 0.22, y: 0.92 }, baseRight: { x: 0.78, y: 0.92 }, treeHeightFt: 7.5 },
-  xlarge: { apex: { x: 0.50, y: 0.12 }, baseLeft: { x: 0.22, y: 0.92 }, baseRight: { x: 0.78, y: 0.92 }, treeHeightFt: 9   },
+  small:  { apex: { x: 0.50, y: 0.06 }, baseLeft: { x: 0.10, y: 0.91 }, baseRight: { x: 0.90, y: 0.91 }, treeHeightFt: 5   },
+  medium: { apex: { x: 0.50, y: 0.06 }, baseLeft: { x: 0.10, y: 0.91 }, baseRight: { x: 0.90, y: 0.91 }, treeHeightFt: 6.5 },
+  large:  { apex: { x: 0.50, y: 0.06 }, baseLeft: { x: 0.10, y: 0.91 }, baseRight: { x: 0.90, y: 0.91 }, treeHeightFt: 7.5 },
+  xlarge: { apex: { x: 0.50, y: 0.06 }, baseLeft: { x: 0.10, y: 0.91 }, baseRight: { x: 0.90, y: 0.91 }, treeHeightFt: 9   },
 }
 
 function getSizeKey(size = '') {
