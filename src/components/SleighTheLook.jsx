@@ -396,8 +396,9 @@ function RecommendationCard({ item, index }) {
 }
 
 function StylePreview({ products, topper, size }) {
-  const sizeKey = getSizeKey(size)
-  const bounds  = GENERIC_TREE_BOUNDS[sizeKey]
+  const sizeKey    = getSizeKey(size)
+  const bounds     = GENERIC_TREE_BOUNDS[sizeKey]
+  const [imgOk, setImgOk] = useState(false)
   const placements = useMemo(
     () => placePreviewOrnaments(bounds, products),
     [bounds, products]
@@ -407,37 +408,53 @@ function StylePreview({ products, topper, size }) {
     <div className="ornament-shop-section style-preview-section">
       <h3 className="shop-section-header">✦ Your Style Preview</h3>
       <p className="preview-caption">Here's how your selections come together. Make it yours below.</p>
-      <div className="style-preview-wrap">
-        <img
-          src={`/trees/tree-${sizeKey}.jpg`}
-          alt="Your Christmas tree"
-          className="preview-tree-img"
-          draggable="false"
-        />
 
-        {/* Topper at apex */}
-        {topper && (
-          <div
-            className="preview-topper"
-            style={{ left: `${bounds.apex.x * 100}%`, top: `${bounds.apex.y * 100}%` }}
-          >
-            <TopperSVG type={topper.type || 'star'} color={topper.color || '#c9a84c'} />
-          </div>
-        )}
+      {/* Outer shell enforces 4:5 aspect ratio via padding trick */}
+      <div className="style-preview-shell">
+        <div className="style-preview-wrap">
 
-        {/* Ornaments */}
-        {placements.map((p, i) => (
-          <div
-            key={i}
-            className="preview-ornament"
-            style={{ left: `${p.x * 100}%`, top: `${p.y * 100}%` }}
-          >
-            <OrnamentSVG
-              shape={p.orn.shape || 'ball'}
-              color={p.orn.color || '#c9a84c'}
-            />
-          </div>
-        ))}
+          {/* Tree image — hidden until loaded so broken-icon never shows */}
+          <img
+            src={`/trees/tree-${sizeKey}.jpg`}
+            alt=""
+            className="preview-tree-img"
+            draggable="false"
+            onLoad={() => setImgOk(true)}
+            style={{ opacity: imgOk ? 1 : 0 }}
+          />
+
+          {/* Placeholder shown while image loads or if missing */}
+          {!imgOk && (
+            <div className="preview-tree-placeholder">
+              <span>🎄</span>
+              <p>Tree photo loading…</p>
+            </div>
+          )}
+
+          {/* Topper at apex */}
+          {topper && imgOk && (
+            <div
+              className="preview-topper"
+              style={{ left: `${bounds.apex.x * 100}%`, top: `${bounds.apex.y * 100}%` }}
+            >
+              <TopperSVG type={topper.type || 'star'} color={topper.color || '#c9a84c'} />
+            </div>
+          )}
+
+          {/* Ornaments — only render once image is confirmed loaded */}
+          {imgOk && placements.map((p, i) => (
+            <div
+              key={i}
+              className="preview-ornament"
+              style={{ left: `${p.x * 100}%`, top: `${p.y * 100}%` }}
+            >
+              <OrnamentSVG
+                shape={p.orn.shape || 'ball'}
+                color={p.orn.color || '#c9a84c'}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
