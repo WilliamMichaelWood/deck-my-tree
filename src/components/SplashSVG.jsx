@@ -50,8 +50,9 @@ const STAR_PTS = '100,-14 105,1.1 120.9,1.2 108.1,10.6 112.9,25.8 100,16.5 87.1,
 export default function SplashSVG({ onFinish }) {
   const sm      = useMemo(getSplashSpeed, [])
   const [phase, setPhase] = useState(0)
-  const audioRef = useRef(null)
-  const done     = useRef(false)
+  const audioRef      = useRef(null)
+  const audioUnlocked = useRef(false)
+  const done          = useRef(false)
 
   // ── Schedule phase transitions + record visit ──────────────────
   useEffect(() => {
@@ -76,6 +77,16 @@ export default function SplashSVG({ onFinish }) {
     }
   }, [phase])
 
+  // ── First touch unlocks audio (fires before click) ────────────
+  const handlePointerDown = () => {
+    if (audioUnlocked.current || !audioRef.current) return
+    audioUnlocked.current = true
+    audioRef.current.play().then(() => {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+    }).catch(() => {})
+  }
+
   // ── Tap anywhere to skip ───────────────────────────────────────
   const skip = () => {
     if (done.current) return
@@ -90,6 +101,7 @@ export default function SplashSVG({ onFinish }) {
     <div
       className={`splash splash-p${phase}`}
       style={{ '--sm': sm }}
+      onPointerDown={handlePointerDown}
       onClick={skip}
       aria-label="Loading Deck My Tree — tap to skip"
       role="presentation"
