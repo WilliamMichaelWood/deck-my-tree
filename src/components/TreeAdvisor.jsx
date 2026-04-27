@@ -793,7 +793,7 @@ export default function TreeAdvisor() {
   const smoothScrollTo = useCallback((ref, delay = 120) => {
     setTimeout(() => {
       if (!ref.current) return
-      const top = ref.current.getBoundingClientRect().top + window.scrollY - 88
+      const top = ref.current.getBoundingClientRect().top + window.scrollY - 100
       window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
     }, delay)
   }, [])
