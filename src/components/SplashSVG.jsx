@@ -19,13 +19,17 @@ const PARTICLES = Array.from({ length: 30 }, (_, i) => ({
   size:  (2  + (i * 0.19)   % 2.2).toFixed(1),
 }))
 
-// ─── 12 burst sparkles radiating from logo center ────────────────
-const BURST_SPARKS = Array.from({ length: 12 }, (_, i) => {
-  const a = (i * 30) * Math.PI / 180
+// ─── 20 burst sparkles — varying sizes for depth ─────────────────
+const SIZES = [8, 4, 2, 4, 8, 2, 8, 4, 2, 4, 8, 4, 2, 8, 4, 2, 4, 8, 2, 4]
+const BURST_SPARKS = Array.from({ length: 20 }, (_, i) => {
+  const a    = (i * 18) * Math.PI / 180
+  const dist = 80 + (i % 5) * 10 // 80–120px
   return {
-    id: i,
-    dx: Math.round(Math.cos(a) * 90),
-    dy: Math.round(Math.sin(a) * 90),
+    id:    i,
+    dx:    Math.round(Math.cos(a) * dist),
+    dy:    Math.round(Math.sin(a) * dist),
+    size:  SIZES[i],
+    delay: i * 15,
   }
 })
 
@@ -38,30 +42,30 @@ export default function SplashSVG({ onFinish }) {
   const done          = useRef(false)
 
   // ── Phase schedule ────────────────────────────────────────────
-  // Phase 1 (50ms):    logo fades + scales in
-  // Phase 2 (600ms):   logo pulses
-  // Phase 3 (2000ms):  sparkle burst + chime
-  // Phase 4 (2500ms):  hold steady
-  // Phase 5 (3000ms):  fade out
-  // Done  (3300ms):    unmount
+  // Phase 1  (50ms):    logo fades + scales in (0.7→1.0) over 0.4s
+  // Phase 2 (400ms):    burst erupts behind logo + glow + chime
+  // Phase 3 (800ms):    glow dims, logo pulses (1.0→1.06→1.0)
+  // Phase 4 (1800ms):   hold with subtle glow
+  // Phase 5 (2500ms):   fade out
+  // Done    (3000ms):   unmount
   useEffect(() => {
     localStorage.setItem('splashSeen', JSON.stringify({ ts: Date.now() }))
     const T = (ms) => Math.round(ms * sm)
     const timers = [
       setTimeout(() => setPhase(1), T(50)),
-      setTimeout(() => setPhase(2), T(600)),
-      setTimeout(() => setPhase(3), T(2000)),
-      setTimeout(() => setPhase(4), T(2500)),
-      setTimeout(() => setPhase(5), T(3000)),
-      setTimeout(() => { if (!done.current) { done.current = true; onFinish() } }, T(3300)),
+      setTimeout(() => setPhase(2), T(400)),
+      setTimeout(() => setPhase(3), T(800)),
+      setTimeout(() => setPhase(4), T(1800)),
+      setTimeout(() => setPhase(5), T(2500)),
+      setTimeout(() => { if (!done.current) { done.current = true; onFinish() } }, T(3000)),
     ]
     return () => timers.forEach(clearTimeout)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Play sparkle chime at phase 3 ───────────────────────────
+  // ── Chime at phase 2 (burst moment) ─────────────────────────
   useEffect(() => {
-    if (phase === 3 && audioRef.current) {
-      audioRef.current.volume = 0.4
+    if (phase === 2 && audioRef.current) {
+      audioRef.current.volume = 0.45
       audioRef.current.play().catch(() => {})
     }
   }, [phase])
@@ -105,29 +109,35 @@ export default function SplashSVG({ onFinish }) {
         ))}
       </div>
 
-      {/* ── Logo + sparkle burst ─────────────────────────────── */}
+      {/* ── Logo stage ───────────────────────────────────────── */}
       <div className="splash-logo-wrap" aria-hidden="true">
         <div className="splash-logo-inner">
-          <img src="/logo.png" alt="" className={`splash-logo-img splash-logo-p${phase}`} />
 
-          {/* Glow ring at phase 3 */}
-          {phase >= 3 && (
-            <div className="splash-logo-glow" />
-          )}
+          {/* Glow disc — behind logo (z-index 1) */}
+          <div className={`splash-logo-glow splash-glow-p${phase}`} />
 
-          {/* 12 burst sparkles at phase 3 */}
-          {phase >= 3 && BURST_SPARKS.map(s => (
+          {/* Burst sparkles — behind logo (z-index 1) */}
+          {phase >= 2 && BURST_SPARKS.map(s => (
             <div
               key={s.id}
               className="splash-burst-ptcl"
               aria-hidden="true"
               style={{
-                '--dx': `${s.dx}px`,
-                '--dy': `${s.dy}px`,
-                '--bd': `${s.id * 40}ms`,
+                '--dx':   `${s.dx}px`,
+                '--dy':   `${s.dy}px`,
+                '--bd':   `${s.delay}ms`,
+                '--sz':   `${s.size}px`,
               }}
             />
           ))}
+
+          {/* Logo — on top (z-index 2) */}
+          <img
+            src="/logo.png"
+            alt=""
+            className={`splash-logo-img splash-logo-p${phase}`}
+          />
+
         </div>
       </div>
     </div>
