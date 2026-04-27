@@ -94,68 +94,59 @@ function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
   return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0))
 }
 
-// ── Light strand generation ───────────────────────────────────────────────────
-const WARM_WHITE  = { bulb: '#fffde7', glow: '#f9a825' }
-const COOL_WHITE  = { bulb: '#e3f2fd', glow: '#90caf9' }
-const MULTICOLORS = ['#ef5350', '#c9a84c', '#1d5c3a', '#1a2a6b']
+// ── Ambient light scatter ─────────────────────────────────────────────────────
+// Generates a dense random scatter of tiny glow points throughout the tree
+// volume. Industry standard: 100 lights/ft. We target 80/ft for "ambient not
+// noticed" density. Rendered as a single SVG (far faster than div-per-light).
+// 40% of points get a CSS twinkle animation; 60% are static.
 
-function getLightColors(palette) {
-  if (!palette) return WARM_WHITE
-  const cols = [palette.base, palette.secondary, palette.accent].filter(Boolean).map(c => c.toLowerCase())
-  // Detect saturation: count colors that are clearly non-neutral
-  const isCool    = cols.some(c => /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/.test(c) && (() => {
-    const b = parseInt(c.slice(5, 7), 16), r = parseInt(c.slice(1, 3), 16), g = parseInt(c.slice(3, 5), 16)
-    return b > r + 20 && b > g + 20  // blue-dominant
-  })())
-  const warmWords = /gold|ivory|champagne|cream|copper|bronze|amber|warm/i
-  const coolWords = /silver|blue|white|grey|gray|ice|frost|crystal/i
-  const multiWords = /red|green|pink|purple|magenta|rainbow/i
-  const str = cols.join(',')
-  const isWarm  = warmWords.test(str) || cols.some(c => {
-    const r = parseInt(c.slice(1, 3), 16), g = parseInt(c.slice(3, 5), 16), b = parseInt(c.slice(5, 7), 16)
-    return r > 180 && g > 130 && b < 100  // warm-toned hex
-  })
-  const isMulti = multiWords.test(str) || (
-    cols.filter(c => { const r = parseInt(c.slice(1,3),16), g = parseInt(c.slice(3,5),16), b = parseInt(c.slice(5,7),16); return Math.max(r,g,b) - Math.min(r,g,b) > 80 }).length >= 2
-  )
-  if (isCool || coolWords.test(str)) return COOL_WHITE
-  if (isMulti) return { bulb: null, glow: null, multi: true }
-  if (isWarm)  return WARM_WHITE
-  return WARM_WHITE
-}
+const TWINKLE_CSS = `
+@keyframes twinkleA { 0%,100%{opacity:0.35} 50%{opacity:0.70} }
+@keyframes twinkleB { 0%,100%{opacity:0.25} 50%{opacity:0.60} }
+@keyframes twinkleC { 0%,100%{opacity:0.40} 50%{opacity:0.75} }
+.lt-twinkle-a { animation: twinkleA var(--td) ease-in-out var(--delay) infinite; }
+.lt-twinkle-b { animation: twinkleB var(--td) ease-in-out var(--delay) infinite; }
+.lt-twinkle-c { animation: twinkleC var(--td) ease-in-out var(--delay) infinite; }
+`
+const TWINKLE_CLASSES = ['lt-twinkle-a', 'lt-twinkle-b', 'lt-twinkle-c']
 
-function generateLightStrands(bounds, palette) {
-  const tri = buildDetectedTri(bounds || {})
-  const treeH = tri.baseL.y - tri.apex.y
-  const lightColors = getLightColors(palette)
-  const STRAND_YFS  = [0.28, 0.52, 0.74]
-  const BULBS_PER   = 9
+function generateAmbientLights(bounds) {
+  const tri    = buildDetectedTri(bounds || {})
+  const treeH  = tri.baseL.y - tri.apex.y
+  const heightFt = bounds?.treeHeightFt || 6
+  const count    = Math.round(heightFt * 80)   // 80 lights per foot
 
-  return STRAND_YFS.map((yF, si) => {
-    const baseY = tri.apex.y + yF * treeH
-    const { xMin, xMax } = xRangeAtY(baseY, tri)
-    const edgePad = (xMax - xMin) * 0.03
-    const lo = xMin + edgePad
-    const hi = xMax - edgePad
-    const bulbs = Array.from({ length: BULBS_PER }, (_, bi) => {
-      const t = BULBS_PER === 1 ? 0.5 : bi / (BULBS_PER - 1)
-      const x = lo + t * (hi - lo)
-      // Sine drape: bulbs bow slightly downward in the middle, like a real strand
-      const drape = Math.sin(bi / (BULBS_PER - 1) * Math.PI) * (treeH * 0.02)
-      // Per-bulb random y jitter ±2% of image height
-      const jitter = (Math.random() - 0.5) * 4
-      const y = baseY + drape + jitter
-      const colorIdx = bi % MULTICOLORS.length
-      return {
-        x,
-        y,
-        color:     lightColors.multi ? MULTICOLORS[colorIdx]        : lightColors.bulb,
-        glowColor: lightColors.multi ? MULTICOLORS[colorIdx] + '80' : lightColors.glow + '80',
-        delay:     Math.random() * 2000,
-      }
-    })
-    return { id: si, y: baseY, xMin: lo, xMax: hi, bulbs }
-  })
+  const lights = []
+  let attempts = 0
+  const maxAttempts = count * 8
+
+  while (lights.length < count && attempts < maxAttempts) {
+    attempts++
+    // Random y between top 15% and bottom 95% of tree height
+    const yF = 0.15 + Math.random() * 0.80
+    const y  = tri.apex.y + yF * treeH
+
+    // Random x within the tree boundary at this y, with a 1% inner margin
+    const { xMin, xMax } = xRangeAtY(y, tri)
+    if (xMax - xMin < 1) continue
+    const margin = (xMax - xMin) * 0.01
+    const x = xMin + margin + Math.random() * (xMax - xMin - margin * 2)
+
+    // Depth variation: lights deeper in the tree are dimmer
+    const depth   = Math.random()   // 0=back, 1=front
+    const opacity = 0.25 + depth * 0.45
+
+    // 40% get a twinkle animation class
+    const twinkle = Math.random() < 0.40
+      ? TWINKLE_CLASSES[Math.floor(Math.random() * 3)]
+      : null
+    const delay = twinkle ? (Math.random() * 3000).toFixed(0) + 'ms' : '0ms'
+    const dur   = twinkle ? (3 + Math.random() * 2).toFixed(1) + 's'  : '0s'
+
+    lights.push({ x, y, opacity, twinkle, delay, dur })
+  }
+
+  return lights
 }
 
 // ── Spiral-band placement ─────────────────────────────────────────────────────
@@ -578,44 +569,43 @@ function renderTopperLayer(topper, bounds) {
   )
 }
 
-const LIGHT_PULSE_CSS = `
-@keyframes lightPulse {
-  0%, 100% { opacity: 0.6; }
-  50%       { opacity: 1.0; }
-}
-`
-
-function renderLightLayer(strands) {
-  if (!strands || strands.length === 0) return null
+function renderLightLayer(lights) {
+  if (!lights || lights.length === 0) return null
+  // Single SVG covers the full overlay; each light is a tiny circle with a
+  // matching filter-blurred glow circle beneath it.
   return (
     <>
-      <style>{LIGHT_PULSE_CSS}</style>
-      {strands.map(strand => (
-        <div key={strand.id} aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 5 }}>
-          {/* Wire removed — straight line conflicts with draped bulb positions */}
-          {/* Bulbs */}
-          {strand.bulbs.map((b, bi) => (
-            <div key={bi} style={{ position: 'absolute', top: `${b.y}%`, left: `${b.x}%`, transform: 'translate(-50%, -50%)', pointerEvents: 'none' }}>
-              {/* Cap */}
-              <div style={{
-                width: 2, height: 3,
-                background: '#444',
-                margin: '0 auto',
-              }} />
-              {/* Bulb */}
-              <div style={{
-                width:        5,
-                height:       6,
-                borderRadius: '40% 40% 50% 50%',
-                background:   b.color,
-                opacity:      0.75,
-                boxShadow:    `0 0 3px 1px ${b.glowColor}, 0 0 6px 2px ${b.glowColor.slice(0, 7)}50`,
-                animation:    `lightPulse 1.8s ease-in-out ${b.delay.toFixed(0)}ms infinite`,
-              }} />
-            </div>
-          ))}
-        </div>
-      ))}
+      <style>{TWINKLE_CSS}</style>
+      <svg
+        aria-hidden="true"
+        style={{
+          position: 'absolute', top: 0, left: 0,
+          width: '100%', height: '100%',
+          pointerEvents: 'none', zIndex: 5, overflow: 'visible',
+        }}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <filter id="lt-glow" x="-200%" y="-200%" width="500%" height="500%">
+            <feGaussianBlur stdDeviation="0.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        {lights.map((lt, i) => (
+          <circle
+            key={i}
+            cx={lt.x}
+            cy={lt.y}
+            r={0.35}
+            fill="#fff8e1"
+            filter="url(#lt-glow)"
+            opacity={lt.opacity}
+            className={lt.twinkle || undefined}
+            style={lt.twinkle ? { '--delay': lt.delay, '--td': lt.dur } : undefined}
+          />
+        ))}
+      </svg>
     </>
   )
 }
@@ -979,7 +969,7 @@ export default function TreeAdvisor() {
           // Generate light strands unless the tree already has lights
           const treeHasLights = !!treeBoundsRef.current?.hasLights
           setHasLights(treeHasLights)
-          const strands = treeHasLights ? [] : generateLightStrands(treeBoundsRef.current, pal)
+          const strands = treeHasLights ? [] : generateAmbientLights(treeBoundsRef.current)
           setLightStrands(strands)
 
           if (image && analysisText) {
@@ -1097,7 +1087,7 @@ export default function TreeAdvisor() {
           setOrnaments(placed)
           const treeHasLights = !!treeBoundsRef.current?.hasLights
           setHasLights(treeHasLights)
-          const strands = treeHasLights ? [] : generateLightStrands(treeBoundsRef.current, pal)
+          const strands = treeHasLights ? [] : generateAmbientLights(treeBoundsRef.current)
           setLightStrands(strands)
           if (image && analysisText) {
             saveDecoration(image, placed, analysisText, meta.slice(0, 12), pal, top, strands, treeHasLights)
