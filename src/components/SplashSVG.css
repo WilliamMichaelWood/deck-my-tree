@@ -1,0 +1,147 @@
+/* ═══════════════════════════════════════════════════════════
+   Cinderella Splash Screen
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── Container ──────────────────────────────────────────── */
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0f1f35;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  /* Phase 0: fully visible immediately (particles fall on dark bg) */
+}
+
+/* Fade out when sequence ends */
+.splash-p5 {
+  animation: splashOut calc(0.3s * var(--sm)) ease forwards;
+  pointer-events: none;
+}
+
+@keyframes splashOut {
+  to { opacity: 0; }
+}
+
+/* ─── Falling gold particles ─────────────────────────────── */
+.splash-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.splash-ptcl {
+  position: absolute;
+  top: -8px;
+  border-radius: 50%;
+  background: #c9a84c;
+  animation: ptclFall linear infinite;
+}
+
+@keyframes ptclFall {
+  0%   { transform: translateY(0)      scale(1);   opacity: 0;    }
+  8%   { opacity: 0.45; }
+  50%  {                                            opacity: 0.35; }
+  92%  { opacity: 0.2; }
+  100% { transform: translateY(100vh)  scale(0.7); opacity: 0;    }
+}
+
+/* ─── Stage (tree + title, centered) ────────────────────── */
+.splash-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  /* slight upward nudge so title has breathing room below */
+  margin-bottom: 5vh;
+}
+
+/* ─── Tree SVG ───────────────────────────────────────────── */
+.splash-tree-svg {
+  height: min(52vh, 310px);
+  width: auto;
+  /* allow star to render above viewBox top */
+  overflow: visible;
+}
+
+/* Tree silhouette: invisible until phase 1 */
+.splash-tree-body {
+  opacity: 0;
+}
+
+.splash-p1 .splash-tree-body,
+.splash-p2 .splash-tree-body,
+.splash-p3 .splash-tree-body,
+.splash-p4 .splash-tree-body {
+  animation: treeIn calc(0.4s * var(--sm)) ease forwards;
+}
+
+@keyframes treeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Star ───────────────────────────────────────────────── */
+.splash-star {
+  opacity: 0;
+  transform-box:    fill-box;
+  transform-origin: center;
+  transform:        scale(0);
+}
+
+.splash-star-burst {
+  animation: starBurst calc(0.5s * var(--sm)) cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes starBurst {
+  0%   { opacity: 0; transform: scale(0);    }
+  55%  { opacity: 1; transform: scale(1.35); }
+  100% { opacity: 1; transform: scale(1);    }
+}
+
+/* ─── Star glow ring (radial bloom on burst) ─────────────── */
+.splash-glow-ring {
+  opacity: 0;
+  filter: blur(14px);
+  transform-box:    fill-box;
+  transform-origin: center;
+}
+
+.splash-glow-ring-on {
+  animation: glowRing calc(0.9s * var(--sm)) ease-out forwards;
+}
+
+@keyframes glowRing {
+  0%   { opacity: 0;   transform: scale(0.2); }
+  18%  { opacity: 0.9; transform: scale(1);   }
+  100% { opacity: 0;   transform: scale(2.2); }
+}
+
+/* ─── Title ──────────────────────────────────────────────── */
+.splash-title {
+  font-family:    'Playfair Display', serif;
+  font-style:     italic;
+  font-size:      clamp(1.5rem, 5.5vw, 2.2rem);
+  font-weight:    400;
+  color:          #e8c96a;
+  letter-spacing: 0.05em;
+  text-shadow:    0 0 20px rgba(232, 201, 106, 0.55),
+                  0 0 40px rgba(232, 201, 106, 0.2);
+  margin-top:     20px;
+  opacity:        0;
+  transform:      translateY(24px);
+}
+
+.splash-title-rise {
+  animation: titleRise calc(0.7s * var(--sm)) ease-out forwards;
+}
+
+@keyframes titleRise {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
