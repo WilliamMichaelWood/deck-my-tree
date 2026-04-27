@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { streamChat } from '../lib/stream'
 import CurationModal from './CurationModal'
 
@@ -33,14 +33,37 @@ const RETAILERS = [
   { key: 'etsy',    label: 'Etsy',    color: '#F1641E' },
 ]
 
-// ─── Generic tree bounds — same 0-100 scale as TreeAdvisor ───────
-// These match the actual tree-medium.jpg photo dimensions.
-const GENERIC_TREE_BOUNDS = {
-  small:  { treeTop: 18, treeBottom: 85, treeLeft: 22, treeRight: 78, treeCenterX: 50, treeHeightFt: 5   },
-  medium: { treeTop: 18, treeBottom: 85, treeLeft: 20, treeRight: 80, treeCenterX: 50, treeHeightFt: 6.5 },
-  large:  { treeTop: 18, treeBottom: 85, treeLeft: 20, treeRight: 80, treeCenterX: 50, treeHeightFt: 7.5 },
-  xlarge: { treeTop: 18, treeBottom: 85, treeLeft: 18, treeRight: 82, treeCenterX: 50, treeHeightFt: 9   },
+// ─── Static ornament position templates (x/y as % of image) ─────
+// Hand-tuned for the specific tree photo in public/trees/.
+// x/y mark ornament center. size is container width as fraction (0–1).
+// All four sizes use the same photo for now — same coords, same template.
+const TREE_POSITIONS = {
+  medium: {
+    topper: { x: 50, y: 15.5 },
+    ornaments: [
+      // Top zone — small, tight
+      { x: 50,   y: 27,   size: '9%'  },
+      { x: 41,   y: 32,   size: '9%'  },
+      { x: 59,   y: 32,   size: '9%'  },
+      // Upper-middle zone
+      { x: 34,   y: 41,   size: '10%' },
+      { x: 50,   y: 44,   size: '11%' },
+      { x: 66,   y: 41,   size: '10%' },
+      // Middle zone — largest
+      { x: 28,   y: 54,   size: '11%' },
+      { x: 50,   y: 57,   size: '12%' },
+      { x: 72,   y: 54,   size: '11%' },
+      // Lower zone
+      { x: 26,   y: 68,   size: '11%' },
+      { x: 50,   y: 71,   size: '12%' },
+      { x: 74,   y: 68,   size: '11%' },
+    ],
+  },
 }
+// Alias all sizes to medium until size-specific photos are added
+TREE_POSITIONS.small  = TREE_POSITIONS.medium
+TREE_POSITIONS.large  = TREE_POSITIONS.medium
+TREE_POSITIONS.xlarge = TREE_POSITIONS.medium
 
 function getSizeKey(size = '') {
   const s = size.toLowerCase()
@@ -48,96 +71,6 @@ function getSizeKey(size = '') {
   if (s.includes('xl') || s.includes('10ft')) return 'xlarge'
   if (s.includes('large') || s.includes('8') || s.includes('9')) return 'large'
   return 'medium'
-}
-
-// ─── Shared placement functions (mirrors TreeAdvisor exactly) ────
-function buildPreviewTri(b) {
-  const cl  = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
-  const top = cl(b.treeTop    ?? 10,  0,  50)
-  const bot = cl(b.treeBottom ?? 88, 50, 100)
-  const lft = cl(b.treeLeft   ??  5,  0,  45)
-  const rgt = cl(b.treeRight  ?? 95, 55, 100)
-  const cx  = cl(b.treeCenterX ?? 50, 10, 90)
-  const INSET = 0.08
-  const gcx = (cx + lft + rgt) / 3
-  const gcy = (top + bot + bot) / 3
-  const pull = (vx, vy) => ({ x: vx + INSET * (gcx - vx), y: vy + INSET * (gcy - vy) })
-  return { apex: pull(cx, top), baseL: pull(lft, bot), baseR: pull(rgt, bot) }
-}
-
-function xRangeAtYPreview(y, tri) {
-  const h    = tri.baseL.y - tri.apex.y
-  const frac = Math.max(0, Math.min(1, (y - tri.apex.y) / h))
-  const hw   = ((tri.baseR.x - tri.baseL.x) / 2) * frac
-  return { xMin: tri.apex.x - hw, xMax: tri.apex.x + hw }
-}
-
-const PREVIEW_BANDS = [
-  { yLo: 0.00, yHi: 0.20, frac: 0.12, rMin: 1.2, rMax: 1.5 },
-  { yLo: 0.20, yHi: 0.40, frac: 0.20, rMin: 1.4, rMax: 1.8 },
-  { yLo: 0.40, yHi: 0.60, frac: 0.28, rMin: 1.6, rMax: 2.0 },
-  { yLo: 0.60, yHi: 0.80, frac: 0.24, rMin: 1.5, rMax: 1.9 },
-  { yLo: 0.80, yHi: 1.00, frac: 0.16, rMin: 1.3, rMax: 1.7 },
-]
-const PREVIEW_GOLDEN = 2.399963
-const PREVIEW_MINDIST = 5.5
-
-function generatePreviewPlacements(n, bounds) {
-  const tri      = buildPreviewTri(bounds)
-  const treeH    = tri.baseL.y - tri.apex.y
-  const positions = []
-  for (const band of PREVIEW_BANDS) {
-    const count     = Math.max(1, Math.round(n * band.frac))
-    const angleBase = band.yLo * Math.PI * 7
-    for (let i = 0; i < count; i++) {
-      const spiralAngle = angleBase + i * PREVIEW_GOLDEN
-      const yF  = band.yLo + (i / count) * (band.yHi - band.yLo) + (Math.random() - 0.5) * 0.06
-      const yFc = Math.max(band.yLo + 0.01, Math.min(band.yHi - 0.01, yF))
-      const cy  = tri.apex.y + yFc * treeH
-      const { xMin, xMax } = xRangeAtYPreview(cy, tri)
-      const hw   = (xMax - xMin) / 2
-      const lateralFrac = Math.cos(spiralAngle) * 0.72
-      let safeX = tri.apex.x + hw * lateralFrac
-      let safeY = cy
-      for (let attempt = 0; attempt < 12; attempt++) {
-        const jitter   = attempt * 0.8
-        const rawX     = tri.apex.x + hw * lateralFrac + (Math.random() - 0.5) * jitter
-        const rawY     = cy + (Math.random() - 0.5) * treeH * 0.04
-        const cy2      = Math.max(tri.apex.y + 0.5, Math.min(tri.baseL.y - 0.5, rawY))
-        const { xMin: lo, xMax: hi } = xRangeAtYPreview(cy2, tri)
-        const clampedX = Math.max(lo + 2.0, Math.min(hi - 2.0, rawX))
-        const tooClose = positions.some(p => {
-          const dx = p.x - clampedX, dy = p.y - cy2
-          return Math.sqrt(dx * dx + dy * dy) < PREVIEW_MINDIST
-        })
-        safeX = clampedX; safeY = cy2
-        if (!tooClose) break
-      }
-      const r = +((band.rMin + Math.random() * (band.rMax - band.rMin)) * 0.85).toFixed(1)
-      positions.push({ x: +safeX.toFixed(1), y: +safeY.toFixed(1), r, yF: yFc })
-    }
-  }
-  return positions
-}
-
-function assignPreviewOrnaments(positions, meta) {
-  if (!meta.length) return []
-  const colorCount = {}
-  const maxPerColor = Math.ceil(positions.length * 0.25)
-  return positions.map((pos, i) => {
-    for (let k = 0; k < meta.length; k++) {
-      const candidate = meta[(i + k) % meta.length]
-      const c = candidate.color || 'unknown'
-      if (pos.yF > 0.70 && candidate.shape !== 'ball' && candidate.shape !== 'drop') continue
-      if ((colorCount[c] || 0) >= maxPerColor) continue
-      colorCount[c] = (colorCount[c] || 0) + 1
-      return { ...candidate, ...pos }
-    }
-    const fallback = meta[i % meta.length]
-    const c = fallback.color || 'unknown'
-    colorCount[c] = (colorCount[c] || 0) + 1
-    return { ...fallback, ...pos }
-  })
 }
 
 const buildPrompt = ({ style, palette, budget, size, extraContext }) =>
@@ -468,17 +401,9 @@ function RecommendationCard({ item, index }) {
 }
 
 function StylePreview({ products, topper, size }) {
-  const sizeKey = getSizeKey(size)
-  const bounds  = GENERIC_TREE_BOUNDS[sizeKey]
+  const sizeKey  = getSizeKey(size)
+  const template = TREE_POSITIONS[sizeKey]
   const [imgOk, setImgOk] = useState(false)
-
-  const placed = useMemo(() => {
-    const positions = generatePreviewPlacements(14, bounds) // 14 → ~12 after band math
-    const meta      = products.map(p => ({ ...p, shape: p.shape || 'ball' }))
-    return assignPreviewOrnaments(positions, meta)
-  }, [bounds, products])
-
-  const tri = useMemo(() => buildPreviewTri(bounds), [bounds])
 
   return (
     <div className="ornament-shop-section style-preview-section">
@@ -504,33 +429,30 @@ function StylePreview({ products, topper, size }) {
             </div>
           )}
 
-          {/* Topper: uses tri.apex exactly like TreeAdvisor's renderTopperLayer */}
+          {/* Topper at hardcoded apex */}
           {topper && imgOk && (
             <div
               className="preview-topper"
-              style={{
-                left: `${tri.apex.x}%`,
-                top:  `${Math.max(0, tri.apex.y - 1.5)}%`,
-              }}
+              style={{ left: `${template.topper.x}%`, top: `${template.topper.y}%` }}
             >
               <TopperSVG type={topper.type || 'star'} color={topper.color || '#c9a84c'} />
             </div>
           )}
 
-          {/* Ornaments: x/y already in % from generatePreviewPlacements */}
-          {imgOk && placed.map((p, i) => (
-            <div
-              key={i}
-              className="preview-ornament"
-              style={{
-                left:  `${p.x}%`,
-                top:   `${p.y}%`,
-                width: `${Math.max(5, Math.min(9, p.r * 4.5))}%`,
-              }}
-            >
-              <OrnamentSVG shape={p.shape || 'ball'} color={p.color || '#c9a84c'} />
-            </div>
-          ))}
+          {/* Ornaments: slot i → product i, exact hardcoded position */}
+          {imgOk && template.ornaments.map((slot, i) => {
+            const orn = products[i]
+            if (!orn) return null
+            return (
+              <div
+                key={i}
+                className="preview-ornament"
+                style={{ left: `${slot.x}%`, top: `${slot.y}%`, width: slot.size }}
+              >
+                <OrnamentSVG shape={orn.shape || 'ball'} color={orn.color || '#c9a84c'} />
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
