@@ -158,92 +158,79 @@ function generateLightStrands(bounds, palette) {
   })
 }
 
-// Zone-allocated placement: guarantees ornaments in all three zones.
-// Zone budgets scale with n: A=20%, B=45%, C=35%
-// Cluster sizes are large enough to handle n=100 in any zone.
+// ── Spiral-band placement ─────────────────────────────────────────────────────
+// Divides the tree into 5 horizontal bands. Within each band, ornaments are
+// placed using a golden-angle spiral offset so they naturally alternate
+// left/right/center without being perfectly symmetric. Size graduation follows
+// the tapered silhouette: mid-band (40–60%) gets the largest anchors.
+//
+// Every position is clamped to xRangeAtY() — no ornament can escape the
+// silhouette. Color distribution is handled in the caller's mapping step.
+
+const BANDS = [
+  { yLo: 0.00, yHi: 0.20, frac: 0.12, rMin: 1.2, rMax: 1.5 },  // top — small
+  { yLo: 0.20, yHi: 0.40, frac: 0.20, rMin: 1.4, rMax: 1.8 },  // upper-mid
+  { yLo: 0.40, yHi: 0.60, frac: 0.28, rMin: 1.6, rMax: 2.0 },  // anchor — largest
+  { yLo: 0.60, yHi: 0.80, frac: 0.24, rMin: 1.5, rMax: 1.9 },  // lower-mid
+  { yLo: 0.80, yHi: 1.00, frac: 0.16, rMin: 1.3, rMax: 1.7 },  // bottom — taper back
+]
+
+const GOLDEN_ANGLE = 2.399963  // radians ≈ 137.5°
+const MIN_DIST     = 5.5
+
 function generateClusteredPlacements(n, bounds) {
   const tri   = buildDetectedTri(bounds || {})
   const treeH = tri.baseL.y - tri.apex.y
-
-  const CLUSTERS = [
-    // Zone A — top (small, wide spread)
-    { yF: 0.06, xBias: -0.15, size: 3, rMin: 1.2, rMax: 1.5, zone: 'A' },
-    { yF: 0.06, xBias:  0.15, size: 3, rMin: 1.2, rMax: 1.5, zone: 'A' },
-    { yF: 0.14, xBias: -0.38, size: 3, rMin: 1.3, rMax: 1.6, zone: 'A' },
-    { yF: 0.14, xBias:  0.38, size: 3, rMin: 1.3, rMax: 1.6, zone: 'A' },
-    { yF: 0.20, xBias: -0.52, size: 3, rMin: 1.4, rMax: 1.7, zone: 'A' },
-    { yF: 0.20, xBias:  0.52, size: 3, rMin: 1.4, rMax: 1.7, zone: 'A' },
-    // Zone B — middle (medium, balanced)
-    { yF: 0.30, xBias: -0.42, size: 4, rMin: 1.6, rMax: 2.0, zone: 'B' },
-    { yF: 0.30, xBias:  0.42, size: 4, rMin: 1.6, rMax: 2.0, zone: 'B' },
-    { yF: 0.40, xBias: -0.55, size: 4, rMin: 1.7, rMax: 2.1, zone: 'B' },
-    { yF: 0.40, xBias:  0.55, size: 4, rMin: 1.7, rMax: 2.1, zone: 'B' },
-    { yF: 0.50, xBias: -0.30, size: 4, rMin: 1.8, rMax: 2.2, zone: 'B' },
-    { yF: 0.50, xBias:  0.30, size: 4, rMin: 1.8, rMax: 2.2, zone: 'B' },
-    { yF: 0.58, xBias: -0.48, size: 4, rMin: 1.8, rMax: 2.2, zone: 'B' },
-    { yF: 0.58, xBias:  0.48, size: 4, rMin: 1.8, rMax: 2.2, zone: 'B' },
-    // Zone C — bottom (larger, wider)
-    { yF: 0.67, xBias: -0.50, size: 4, rMin: 1.9, rMax: 2.3, zone: 'C' },
-    { yF: 0.67, xBias:  0.50, size: 4, rMin: 1.9, rMax: 2.3, zone: 'C' },
-    { yF: 0.76, xBias: -0.35, size: 4, rMin: 2.0, rMax: 2.4, zone: 'C' },
-    { yF: 0.76, xBias:  0.35, size: 4, rMin: 2.0, rMax: 2.4, zone: 'C' },
-    { yF: 0.84, xBias: -0.20, size: 4, rMin: 2.0, rMax: 2.4, zone: 'C' },
-    { yF: 0.84, xBias:  0.20, size: 4, rMin: 2.0, rMax: 2.4, zone: 'C' },
-  ]
-
-  // Proportional zone budgets: A=20%, B=45%, C=35%
-  const zA = Math.round(n * 0.20)
-  const zB = Math.round(n * 0.45)
-  const zC = n - zA - zB
-  const ZONE_BUDGET = { A: zA, B: zB, C: zC }
-  const zoneCount   = { A: 0, B: 0, C: 0 }
-
-  const MIN_DIST = 6.0
-  const { apex, baseL, baseR } = tri
   const positions = []
 
-  for (const cd of CLUSTERS) {
-    // Stop this zone once its budget is filled
-    if (zoneCount[cd.zone] >= ZONE_BUDGET[cd.zone]) continue
+  for (const band of BANDS) {
+    const count = Math.max(1, Math.round(n * band.frac))
+    // Starting angle offset per band so each band's spiral is rotated
+    const angleBase = band.yLo * Math.PI * 7
 
-    const remaining  = ZONE_BUDGET[cd.zone] - zoneCount[cd.zone]
-    const toPlace    = Math.min(cd.size, remaining)
+    for (let i = 0; i < count; i++) {
+      // Golden-angle spiral: spreads points without repetitive symmetry
+      const spiralAngle = angleBase + i * GOLDEN_ANGLE
+      // yF within this band — spread evenly with slight jitter
+      const yF = band.yLo + (i / count) * (band.yHi - band.yLo) + (Math.random() - 0.5) * 0.06
+      const yFc = Math.max(band.yLo + 0.01, Math.min(band.yHi - 0.01, yF))
+      const cy  = tri.apex.y + yFc * treeH
 
-    const cy             = tri.apex.y + cd.yF * treeH
-    const { xMin, xMax } = xRangeAtY(cy, tri)
-    const hw             = (xMax - xMin) / 2
-    const jitteredBias   = cd.xBias + (Math.random() - 0.5) * 0.18
-    const cxCenter       = tri.apex.x + hw * jitteredBias + (Math.random() - 0.5) * hw * 0.4
+      const { xMin, xMax } = xRangeAtY(cy, tri)
+      const hw = (xMax - xMin) / 2
 
-    const sr = Math.min(hw * 0.55, treeH * 0.10)
+      // Spiral x: golden angle maps to a lateral offset fraction of half-width
+      // cos produces natural left/right alternation; scale shrinks toward tree edges
+      const lateralFrac = Math.cos(spiralAngle) * 0.72  // ±72% of half-width
+      // Depth: sin maps ornament forward/back — front ornaments have lower depth value
+      const depth = Math.round(15 + Math.abs(Math.sin(spiralAngle)) * 70)
 
-    for (let j = 0; j < toPlace; j++) {
-      let safeX, y
+      let safeX = tri.apex.x + hw * lateralFrac
+      let safeY = cy
 
-      for (let attempt = 0; attempt < 10; attempt++) {
-        const angle = (j / toPlace) * Math.PI * 2 + (Math.random() - 0.5) * 0.5
-        const dist  = sr * (0.3 + Math.random() * 0.7)
-        const rawX  = cxCenter + Math.cos(angle) * dist
-        const rawY  = cy       + Math.sin(angle) * dist * 0.55
+      // Try up to 12 positions, each with increasing jitter, to avoid overlap
+      for (let attempt = 0; attempt < 12; attempt++) {
+        const jitter  = attempt * 0.8
+        const rawX    = tri.apex.x + hw * lateralFrac + (Math.random() - 0.5) * jitter
+        const rawY    = cy + (Math.random() - 0.5) * treeH * 0.04
 
-        const cy3 = Math.max(tri.apex.y, Math.min(tri.baseL.y, rawY))
-        // Bug 1 fix: clamp to valid x range at this y — never fall back to apex.x
-        const { xMin: lo2, xMax: hi2 } = xRangeAtY(cy3, tri)
-        const clampedX = Math.max(lo2 + 2.5, Math.min(hi2 - 1.5, rawX))
-        safeX = clampedX
-        y     = cy3
+        const cy2 = Math.max(tri.apex.y + 0.5, Math.min(tri.baseL.y - 0.5, rawY))
+        const { xMin: lo, xMax: hi } = xRangeAtY(cy2, tri)
+        // Hard clamp: 2.0% inside silhouette on each side
+        const clampedX = Math.max(lo + 2.0, Math.min(hi - 2.0, rawX))
 
         const tooClose = positions.some(p => {
-          const dx = p.x - safeX, dy = p.y - y
+          const dx = p.x - clampedX, dy = p.y - cy2
           return Math.sqrt(dx * dx + dy * dy) < MIN_DIST
         })
+
+        safeX = clampedX
+        safeY = cy2
         if (!tooClose) break
       }
 
-      const r = +((cd.rMin + Math.random() * (cd.rMax - cd.rMin)) * 0.85).toFixed(1)
-      const z = Math.round(8 + Math.random() * 84)
-      positions.push({ x: +safeX.toFixed(1), y: +y.toFixed(1), r, z, yF: cd.yF })
-      zoneCount[cd.zone]++
+      const r = +((band.rMin + Math.random() * (band.rMax - band.rMin)) * 0.85).toFixed(1)
+      positions.push({ x: +safeX.toFixed(1), y: +safeY.toFixed(1), r, z: depth, yF: yFc })
     }
   }
 
@@ -251,6 +238,33 @@ function generateClusteredPlacements(n, bounds) {
 }
 
 const OVERLAY_VARIETIES = 12
+
+// Assign ornament metadata (color/shape/name) to positions with color-distribution
+// enforcement: no single color may exceed 25% of total placements.
+// Positions come from generateClusteredPlacements; meta comes from AI.
+function assignOrnamentsToPositions(positions, meta) {
+  if (!meta.length) return []
+  const colorCount = {}
+  const maxPerColor = Math.ceil(positions.length * 0.25)
+
+  return positions.map((pos, i) => {
+    // Try ornaments in round-robin order starting at this index, skip if over-quota
+    for (let k = 0; k < meta.length; k++) {
+      const candidate = meta[(i + k) % meta.length]
+      const c = candidate.color || 'unknown'
+      // Bottom band: prefer ball/drop for stability
+      if (pos.yF > 0.70 && candidate.shape !== 'ball' && candidate.shape !== 'drop') continue
+      if ((colorCount[c] || 0) >= maxPerColor) continue
+      colorCount[c] = (colorCount[c] || 0) + 1
+      return { ...candidate, ...pos }
+    }
+    // Fallback: ignore quota to avoid empty slots
+    const fallback = meta[i % meta.length]
+    const c = fallback.color || 'unknown'
+    colorCount[c] = (colorCount[c] || 0) + 1
+    return { ...fallback, ...pos }
+  })
+}
 
 function buildOrnamentListPrompt(varieties = OVERLAY_VARIETIES) {
   return `You are a professional Christmas tree decorator. Analyze this specific tree photo carefully.
@@ -865,18 +879,7 @@ export default function TreeAdvisor() {
           const heightFt = treeBoundsRef.current?.treeHeightFt
           const OVERLAY_COUNT = !heightFt ? 70 : heightFt < 4 ? 40 : heightFt < 6 ? 60 : heightFt < 8 ? 80 : 100
           const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
-          const placed = positions.map((pos, i) => {
-            const jx = (Math.random() - 0.5) * 4
-            const jy = (Math.random() - 0.5) * 4
-            pos = { ...pos, x: pos.x + jx, y: pos.y + jy }
-            if (pos.yF > 0.70) {
-              for (let k = 0; k < meta.length; k++) {
-                const candidate = meta[(i + k) % meta.length]
-                if (candidate.shape === 'ball' || candidate.shape === 'drop') return { ...candidate, ...pos }
-              }
-            }
-            return { ...meta[i % meta.length], ...pos }
-          })
+          const placed = assignOrnamentsToPositions(positions, meta)
           setOrnaments(placed)
 
           // Generate light strands unless the tree already has lights
@@ -996,18 +999,7 @@ export default function TreeAdvisor() {
           const heightFt = treeBoundsRef.current?.treeHeightFt
           const OVERLAY_COUNT = !heightFt ? 70 : heightFt < 4 ? 40 : heightFt < 6 ? 60 : heightFt < 8 ? 80 : 100
           const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
-          const placed = positions.map((pos, i) => {
-            const jx = (Math.random() - 0.5) * 4
-            const jy = (Math.random() - 0.5) * 4
-            pos = { ...pos, x: pos.x + jx, y: pos.y + jy }
-            if (pos.yF > 0.70) {
-              for (let k = 0; k < meta.length; k++) {
-                const candidate = meta[(i + k) % meta.length]
-                if (candidate.shape === 'ball' || candidate.shape === 'drop') return { ...candidate, ...pos }
-              }
-            }
-            return { ...meta[i % meta.length], ...pos }
-          })
+          const placed = assignOrnamentsToPositions(positions, meta)
           setOrnaments(placed)
           const treeHasLights = !!treeBoundsRef.current?.hasLights
           setHasLights(treeHasLights)
