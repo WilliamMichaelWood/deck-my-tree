@@ -19,59 +19,13 @@ const PARTICLES = Array.from({ length: 30 }, (_, i) => ({
   size:  (2  + (i * 0.19)   % 2.2).toFixed(1),
 }))
 
-// ─── 12 burst sparkles — HTML divs (CSS animation starts on mount) ─
-// dx/dy in CSS pixels, radiating from emoji star position
+// ─── 12 burst sparkles radiating from logo center ────────────────
 const BURST_SPARKS = Array.from({ length: 12 }, (_, i) => {
   const a = (i * 30) * Math.PI / 180
   return {
     id: i,
-    dx: Math.round(Math.cos(a) * 70),
-    dy: Math.round(Math.sin(a) * 70),
-  }
-})
-
-// ─── Tree clip path (SVG viewBox 0 0 200 235) ────────────────────
-const TIERS = [
-  '100,10 142,72 58,72',
-  '100,46 170,130 30,130',
-  '100,88 188,192 12,192',
-]
-
-// ─── 30 pixie-dust wake particles ────────────────────────────────
-// Band sweeps y=235→y=-32 (267 units) over 2200ms starting at 800ms.
-// Three columns (left/center/right), 10 rows, with drift + variety.
-const WAKE_DOTS = Array.from({ length: 30 }, (_, i) => {
-  const row = Math.floor(i / 3)
-  const col = i % 3  // 0=left, 1=center, 2=right
-
-  // y: 10 rows spaced 17px apart, slight offset per column for scatter
-  const yBase = 178 - row * 17
-  const y = yBase + [-3, 0, 4][col]
-
-  // When does the band center reach this y?
-  const delayMs = 800 + ((235 - y) / 267) * 2200 + col * 70
-
-  // x: spread within tree width at this y (tree narrows toward top)
-  const halfW = Math.max(4, (192 - Math.min(y, 192)) / 182 * 68)
-  const xFracs = [-0.58, 0.04, 0.62]
-  const jitter = [4, -2, 3, -5, 1, -3, 5, -1, 2, -4][row]
-  const x = 100 + xFracs[col] * halfW + jitter
-
-  // Drift direction: outward + upward
-  const driftX = col === 0 ? -(3 + row % 4) : col === 2 ? (3 + row % 4) : (row % 2 ? -1.5 : 1.5)
-  const driftY = -(2.5 + (i * 7 % 5))
-
-  // Visual variety
-  const radii  = [1.3, 2.1, 1.6, 2.6, 1.9, 1.4, 2.3, 1.7, 2.0, 1.5]
-  const colors = ['#fff8e1', '#e8c96a', '#ffd700']
-  const durs   = [550, 750, 600, 820, 620, 680, 500, 740, 580, 640]
-
-  return {
-    id: i, x, y, delayMs,
-    r: radii[i % 10],
-    color: colors[i % 3],
-    dur: durs[i % 10],
-    driftX, driftY,
+    dx: Math.round(Math.cos(a) * 90),
+    dy: Math.round(Math.sin(a) * 90),
   }
 })
 
@@ -85,36 +39,34 @@ export default function SplashSVG({ onFinish }) {
 
   // ── Phase schedule ────────────────────────────────────────────
   // Phase 1 (50ms):    logo fades + scales in
-  // Phase 2 (1000ms):  logo pulses, tree begins fading in behind
-  // Phase 3 (2300ms):  gold band sweeps (SMIL runs independently)
-  // Phase 4 (4600ms):  star bursts + sound
-  // Phase 5 (5100ms):  title rises
-  // Phase 6 (8600ms):  fade out
-  // Done  (9400ms):    unmount
+  // Phase 2 (600ms):   logo pulses
+  // Phase 3 (2000ms):  sparkle burst + chime
+  // Phase 4 (2500ms):  hold steady
+  // Phase 5 (3000ms):  fade out
+  // Done  (3300ms):    unmount
   useEffect(() => {
     localStorage.setItem('splashSeen', JSON.stringify({ ts: Date.now() }))
     const T = (ms) => Math.round(ms * sm)
     const timers = [
-      setTimeout(() => setPhase(1), T(50)),     // logo in
-      setTimeout(() => setPhase(2), T(1000)),   // logo pulse + tree fades in
-      setTimeout(() => setPhase(3), T(2300)),   // band sweeps
-      setTimeout(() => setPhase(4), T(4600)),   // star burst + sound
-      setTimeout(() => setPhase(5), T(5100)),   // title rises
-      setTimeout(() => setPhase(6), T(8600)),   // fade out
-      setTimeout(() => { if (!done.current) { done.current = true; onFinish() } }, T(9400)),
+      setTimeout(() => setPhase(1), T(50)),
+      setTimeout(() => setPhase(2), T(600)),
+      setTimeout(() => setPhase(3), T(2000)),
+      setTimeout(() => setPhase(4), T(2500)),
+      setTimeout(() => setPhase(5), T(3000)),
+      setTimeout(() => { if (!done.current) { done.current = true; onFinish() } }, T(3300)),
     ]
     return () => timers.forEach(clearTimeout)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Play sparkle chime at phase 4 (star burst) ───────────────
+  // ── Play sparkle chime at phase 3 ───────────────────────────
   useEffect(() => {
-    if (phase === 4 && audioRef.current) {
+    if (phase === 3 && audioRef.current) {
       audioRef.current.volume = 0.4
       audioRef.current.play().catch(() => {})
     }
   }, [phase])
 
-  // ── First touch: unlock audio before phase 3 fires ───────────
+  // ── First touch: unlock audio ────────────────────────────────
   const handlePointerDown = () => {
     if (audioUnlocked.current || !audioRef.current) return
     audioUnlocked.current = true
@@ -129,9 +81,6 @@ export default function SplashSVG({ onFinish }) {
     done.current = true
     onFinish()
   }
-
-  // SMIL timing (seconds string, scaled by speed)
-  const S = (ms) => `${(ms * sm / 1000).toFixed(3)}s`
 
   return (
     <div
@@ -156,100 +105,18 @@ export default function SplashSVG({ onFinish }) {
         ))}
       </div>
 
-      {/* ── Logo (phases 1–2: hero; phases 3+: fades to corner) ── */}
-      <div className={`splash-logo-wrap splash-logo-p${phase}`} aria-hidden="true">
-        <img src="/logo.png" alt="" className="splash-logo-img" />
-      </div>
+      {/* ── Logo + sparkle burst ─────────────────────────────── */}
+      <div className="splash-logo-wrap" aria-hidden="true">
+        <div className="splash-logo-inner">
+          <img src="/logo.png" alt="" className={`splash-logo-img splash-logo-p${phase}`} />
 
-      {/* ── Stage (tree + title, visible from phase 2 onward) ─── */}
-      <div className="splash-stage">
-        <div className={`splash-tree-wrap splash-tree-body`}>
-
-          {/* Layer 1: full-color emoji (the revealed state) */}
-          <div className="splash-emoji-color" aria-hidden="true">🎄</div>
-
-          {/* Layer 2: dark/purple emoji — clips away bottom→top in sync with band */}
-          <div
-            className={`splash-emoji-dark${phase >= 3 ? ' revealing' : ''}${phase >= 4 ? ' revealed' : ''}`}
-            aria-hidden="true"
-          >🎄</div>
-
-          {/* Layer 3: SVG — band, pixie-dust trail, glow (no star polygon) */}
-          <svg
-            className="splash-tree-svg"
-            viewBox="0 0 200 235"
-            overflow="visible"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <defs>
-              <clipPath id="sp-tree-clip">
-                {TIERS.map((pts, i) => <polygon key={i} points={pts} />)}
-                <rect x="88" y="192" width="24" height="30" />
-              </clipPath>
-
-              {/* Band outer gradient: transparent → gold → white-hot → gold → transparent */}
-              <linearGradient id="sp-sweep-grad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"   stopColor="transparent" />
-                <stop offset="18%"  stopColor="#c9a84c" stopOpacity="0.7" />
-                <stop offset="38%"  stopColor="#e8c96a" stopOpacity="0.95" />
-                <stop offset="50%"  stopColor="#fffde7" />
-                <stop offset="62%"  stopColor="#e8c96a" stopOpacity="0.95" />
-                <stop offset="82%"  stopColor="#c9a84c" stopOpacity="0.7" />
-                <stop offset="100%" stopColor="transparent" />
-              </linearGradient>
-
-              {/* Band glow — stronger blur for magic feel */}
-              <filter id="sp-band-glow" x="-100%" y="-500%" width="300%" height="1100%">
-                <feGaussianBlur stdDeviation="5" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            {/* ── Main sweep band (wide, white-hot core, clipped to tree) ── */}
-            <g clipPath="url(#sp-tree-clip)" filter="url(#sp-band-glow)">
-              {/* Outer band — y="235" hides it below viewBox until animation starts */}
-              <rect x="-10" y="235" width="220" height="32" fill="url(#sp-sweep-grad)">
-                <animate attributeName="y" from="235" to="-32" dur={S(2200)} begin={S(800)} fill="freeze" />
-              </rect>
-              {/* Bright center line */}
-              <rect x="-10" y="248" width="220" height="5" fill="rgba(255,253,231,0.95)">
-                <animate attributeName="y" from="248" to="-5" dur={S(2200)} begin={S(800)} fill="freeze" />
-              </rect>
-            </g>
-
-            {/* ── Pixie-dust wake trail ─────────────────────────── */}
-            {WAKE_DOTS.map(d => (
-              <circle key={d.id} cx={d.x} cy={d.y} r={d.r} fill={d.color} opacity={0}>
-                <animate
-                  attributeName="opacity"
-                  values="0;1;0.85;0"
-                  keyTimes="0;0.12;0.5;1"
-                  dur={S(d.dur)}
-                  begin={S(d.delayMs)}
-                />
-                {/* Drift upward + outward as they fade */}
-                <animateTransform
-                  attributeName="transform" type="translate"
-                  from="0 0" to={`${d.driftX} ${d.driftY}`}
-                  dur={S(d.dur)}
-                  begin={S(d.delayMs)}
-                  additive="sum"
-                />
-              </circle>
-            ))}
-          </svg>
-
-          {/* ── Star glow burst ───────────────────────────────────── */}
-          {phase >= 4 && (
-            <div className="splash-star-glow" aria-hidden="true" />
+          {/* Glow ring at phase 3 */}
+          {phase >= 3 && (
+            <div className="splash-logo-glow" />
           )}
 
-          {/* ── 12 burst sparkles ─────────────────────────────────── */}
-          {phase >= 4 && BURST_SPARKS.map(s => (
+          {/* 12 burst sparkles at phase 3 */}
+          {phase >= 3 && BURST_SPARKS.map(s => (
             <div
               key={s.id}
               className="splash-burst-ptcl"
@@ -257,16 +124,11 @@ export default function SplashSVG({ onFinish }) {
               style={{
                 '--dx': `${s.dx}px`,
                 '--dy': `${s.dy}px`,
-                '--bd': `${s.id * 45}ms`,
+                '--bd': `${s.id * 40}ms`,
               }}
             />
           ))}
-
-        </div>{/* end splash-tree-wrap */}
-
-        <p className={`splash-title${phase >= 5 ? ' splash-title-rise' : ''}`}>
-          Deck My Tree
-        </p>
+        </div>
       </div>
     </div>
   )

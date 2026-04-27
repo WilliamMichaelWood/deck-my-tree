@@ -62,7 +62,7 @@ a { text-decoration: none; color: inherit; }
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  padding-bottom: 120px;
+  padding-bottom: 80px;
 }
 
 /* ─── Header ─────────────────────────────────────────────────── */
