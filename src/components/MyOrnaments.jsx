@@ -3,11 +3,40 @@ import { streamChat } from '../lib/stream'
 import './MyOrnaments.css'
 
 // ─── Constants ────────────────────────────────────────────────
+// Preset ornament types — maps label → internal shape key used by SVG renderer
+const ORNAMENT_TYPES = [
+  { label: 'Ball',         shape: 'ball'      },
+  { label: 'Teardrop',     shape: 'drop'      },
+  { label: 'Pinecone',     shape: 'pinecone'  },
+  { label: 'Star',         shape: 'star'      },
+  { label: 'Snowflake',    shape: 'snowflake' },
+  { label: 'Bow',          shape: 'bow'       },
+  { label: 'Bell',         shape: 'bell'      },
+  { label: 'Berry Cluster',shape: 'berry'     },
+  { label: 'Icicle',       shape: 'drop'      },
+  { label: 'Finial',       shape: 'drop'      },
+  { label: 'Angel',        shape: 'ball'      },
+  { label: 'Reindeer',     shape: 'ball'      },
+  { label: 'Santa',        shape: 'ball'      },
+  { label: 'Drum',         shape: 'ball'      },
+  { label: 'Candy Cane',   shape: 'ball'      },
+  { label: 'Other / Custom', shape: 'ball'    },
+]
+const TYPE_LABELS  = ORNAMENT_TYPES.map(t => t.label)
+// Legacy shape list — kept for filter/display but no longer the primary selector
 const SHAPES    = ['ball', 'drop', 'star', 'snowflake', 'pinecone']
 const MATERIALS = ['Glass', 'Metal', 'Wood', 'Fabric', 'Plastic', 'Ceramic', 'Paper', 'Mixed']
 const STYLE_TAGS  = ['Rustic', 'Modern', 'Elegant', 'Whimsical', 'Maximalist', 'Scandinavian']
 const BUDGET_TAGS = ['Budget', 'Mid-range', 'Premium']
-const BLANK_FORM  = { name: '', colorDesc: '', colorHex: '', shape: 'ball', material: 'Glass', size: 'medium', notes: '' }
+const BLANK_FORM  = { name: '', colorDesc: '', colorHex: '', typeLabel: 'Ball', customType: '', shape: 'ball', material: 'Glass', size: 'medium', notes: '' }
+
+// Returns the display label for a saved ornament (preset or custom)
+function getTypeDisplay(ornament) {
+  if (ornament.customType) return ornament.customType
+  if (ornament.typeLabel)  return ornament.typeLabel
+  if (ornament.type && ornament.type !== 'Topper') return ornament.type
+  return null
+}
 
 const RETAILER_SEARCH = {
   walmart: (q) => `https://www.walmart.com/search?q=${encodeURIComponent(q)}`,
@@ -171,13 +200,19 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
 
       <div className="myo-card-body">
         <h3 className="myo-card-name">{ornament.name}</h3>
-        {(ornament.type || ornament.shape || ornament.material) && (
-          <div className="myo-card-tags">
-            {ornament.type     && <span className="myo-tag myo-tag-topper">{ornament.type.toUpperCase()}</span>}
-            {ornament.shape    && !ornament.type && <span className="myo-tag">{ornament.shape}</span>}
-            {ornament.material && <span className="myo-tag">{ornament.material}</span>}
-          </div>
-        )}
+        {(() => {
+          const typeDisplay = ornament.type === 'Topper' ? 'TOPPER' : getTypeDisplay(ornament)
+          return (typeDisplay || ornament.material) ? (
+            <div className="myo-card-tags">
+              {typeDisplay && (
+                <span className={`myo-tag${ornament.type === 'Topper' ? ' myo-tag-topper' : ' myo-tag-type'}`}>
+                  {typeDisplay.toUpperCase()}
+                </span>
+              )}
+              {ornament.material && <span className="myo-tag">{ornament.material}</span>}
+            </div>
+          ) : null
+        })()}
         {ornament.notes && <p className="myo-card-notes">{ornament.notes}</p>}
         <button className="myo-shop-btn" onClick={handleShopSimilar}>Shop Similar</button>
       </div>
@@ -217,12 +252,15 @@ function AddModal({ onClose, onSave }) {
         const s = raw.indexOf('{'), e = raw.lastIndexOf('}')
         if (s !== -1 && e !== -1) {
           const d = JSON.parse(raw.slice(s, e + 1))
+          // Map AI shape → preset typeLabel
+          const detectedType = ORNAMENT_TYPES.find(t => t.shape === d.shape && !['Angel','Reindeer','Santa','Drum','Candy Cane','Other / Custom'].includes(t.label))
           setForm(f => ({
             ...f,
             name:      d.name      || f.name,
             colorDesc: d.colorDesc || f.colorDesc,
             colorHex:  d.colorHex  || f.colorHex,
-            shape:     SHAPES.includes(d.shape) ? d.shape : f.shape,
+            typeLabel: detectedType ? detectedType.label : f.typeLabel,
+            shape:     detectedType ? detectedType.shape : f.shape,
             material:  MATERIALS.includes(d.material) ? d.material : f.material,
             size:      d.size      || f.size,
             notes:     d.notes     || f.notes,
@@ -236,8 +274,10 @@ function AddModal({ onClose, onSave }) {
 
   const handleSave = () => {
     if (!form.name.trim()) return
+    const isCustom = form.typeLabel === 'Other / Custom'
     onSave({
       ...form,
+      customType: isCustom ? form.customType.trim().slice(0, 30) : '',
       photo,
       id: `orn-${Date.now()}`,
       source: 'owned',
@@ -305,20 +345,30 @@ function AddModal({ onClose, onSave }) {
             />
           </div>
 
-          {/* Shape pills */}
+          {/* Type chip grid */}
           <div className="myo-field">
             <label className="myo-field-label">Type</label>
-            <div className="myo-type-pills">
-              {SHAPES.map(s => (
+            <div className="myo-type-grid">
+              {ORNAMENT_TYPES.map(t => (
                 <button
-                  key={s}
-                  className={`myo-type-pill${form.shape === s ? ' selected' : ''}`}
-                  onClick={() => setForm(f => ({ ...f, shape: s }))}
+                  key={t.label}
+                  className={`myo-type-chip${form.typeLabel === t.label ? ' selected' : ''}`}
+                  onClick={() => setForm(f => ({ ...f, typeLabel: t.label, shape: t.shape, customType: t.label !== 'Other / Custom' ? '' : f.customType }))}
                 >
-                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                  {t.label}
                 </button>
               ))}
             </div>
+            {form.typeLabel === 'Other / Custom' && (
+              <input
+                className="myo-field-input myo-custom-type-input"
+                placeholder="Describe your ornament type (e.g., Vintage Glass, Cowboy Boot)"
+                maxLength={30}
+                value={form.customType}
+                onChange={(e) => setForm(f => ({ ...f, customType: e.target.value }))}
+                autoFocus
+              />
+            )}
           </div>
 
           {/* Color */}
@@ -369,17 +419,24 @@ function AddModal({ onClose, onSave }) {
 
 // ─── EditModal ────────────────────────────────────────────────
 function EditModal({ ornament, onSave, onClose }) {
-  const [name,      setName]      = useState(ornament?.name     || '')
-  const [notes,     setNotes]     = useState(ornament?.notes    || '')
-  const [rating,    setRating]    = useState(ornament?.rating   || 0)
-  const [tags,      setTags]      = useState(ornament?.tags      || [])
-  const [shape,     setShape]     = useState(ornament?.shape    || 'ball')
-  const [colorDesc, setColorDesc] = useState(ornament?.colorDesc || ornament?.color || '')
+  const [name,       setName]       = useState(ornament?.name      || '')
+  const [notes,      setNotes]      = useState(ornament?.notes     || '')
+  const [rating,     setRating]     = useState(ornament?.rating    || 0)
+  const [tags,       setTags]       = useState(ornament?.tags      || [])
+  const [typeLabel,  setTypeLabel]  = useState(ornament?.typeLabel || (() => {
+    // Migrate legacy shape-only ornaments to the nearest preset label
+    const match = ORNAMENT_TYPES.find(t => t.shape === (ornament?.shape || 'ball') && !['Angel','Reindeer','Santa','Drum','Candy Cane','Other / Custom'].includes(t.label))
+    return match?.label || 'Ball'
+  })())
+  const [customType, setCustomType] = useState(ornament?.customType || '')
+  const [colorDesc,  setColorDesc]  = useState(ornament?.colorDesc || ornament?.color || '')
 
   const toggleTag = (tag) => setTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
 
   const save = () => {
-    onSave({ ...ornament, name, notes, rating, tags, shape, colorDesc })
+    const isCustom = typeLabel === 'Other / Custom'
+    const selectedType = ORNAMENT_TYPES.find(t => t.label === typeLabel) || ORNAMENT_TYPES[0]
+    onSave({ ...ornament, name, notes, rating, tags, shape: selectedType.shape, typeLabel, customType: isCustom ? customType.trim().slice(0, 30) : '', colorDesc })
     onClose()
   }
 
@@ -401,10 +458,28 @@ function EditModal({ ornament, onSave, onClose }) {
             <input className="form-input" value={colorDesc} onChange={(e) => setColorDesc(e.target.value)} />
           </div>
           <div className="form-group">
-            <label className="form-label">Shape</label>
-            <select className="form-select" value={shape} onChange={(e) => setShape(e.target.value)}>
-              {SHAPES.map(s => <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-            </select>
+            <label className="form-label">Type</label>
+            <div className="myo-type-grid">
+              {ORNAMENT_TYPES.map(t => (
+                <button
+                  key={t.label}
+                  className={`myo-type-chip${typeLabel === t.label ? ' selected' : ''}`}
+                  onClick={() => { setTypeLabel(t.label); if (t.label !== 'Other / Custom') setCustomType('') }}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            {typeLabel === 'Other / Custom' && (
+              <input
+                className="form-input myo-custom-type-input"
+                placeholder="Describe your ornament type (e.g., Vintage Glass, Cowboy Boot)"
+                maxLength={30}
+                value={customType}
+                onChange={(e) => setCustomType(e.target.value)}
+                autoFocus
+              />
+            )}
           </div>
           <div className="form-group">
             <label className="form-label">Notes</label>
@@ -444,6 +519,7 @@ function FilterDrawer({ isOpen, onClose, onFilter, onSort }) {
   const [priceRange,      setPriceRange]      = useState('')
   const [selectedStyles,  setSelectedStyles]  = useState([])
   const [selectedBudgets, setSelectedBudgets] = useState([])
+  const [selectedTypes,   setSelectedTypes]   = useState([])
   const [searchTerm,      setSearchTerm]      = useState('')
   const [sortBy,          setSortBy]          = useState('recent')
 
@@ -451,13 +527,13 @@ function FilterDrawer({ isOpen, onClose, onFilter, onSort }) {
     setList(list.includes(val) ? list.filter(x => x !== val) : [...list, val])
 
   const apply = () => {
-    onFilter({ priceRange, styles: selectedStyles, budgets: selectedBudgets, search: searchTerm })
+    onFilter({ priceRange, styles: selectedStyles, budgets: selectedBudgets, types: selectedTypes, search: searchTerm })
     onSort(sortBy)
     onClose()
   }
 
   const reset = () => {
-    setPriceRange(''); setSelectedStyles([]); setSelectedBudgets([]); setSearchTerm(''); setSortBy('recent')
+    setPriceRange(''); setSelectedStyles([]); setSelectedBudgets([]); setSelectedTypes([]); setSearchTerm(''); setSortBy('recent')
     onFilter({}); onSort('recent')
   }
 
@@ -474,6 +550,20 @@ function FilterDrawer({ isOpen, onClose, onFilter, onSort }) {
             <label className="myo-filter-label">Search</label>
             <input className="form-input" placeholder="Name, color, note…" value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)} />
+          </div>
+          <div className="myo-filter-section">
+            <label className="myo-filter-label">Type</label>
+            <div className="myo-filter-type-grid">
+              {TYPE_LABELS.map(l => (
+                <button
+                  key={l}
+                  className={`myo-filter-type-chip${selectedTypes.includes(l) ? ' selected' : ''}`}
+                  onClick={() => toggle(selectedTypes, setSelectedTypes, l)}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="myo-filter-section">
             <label className="myo-filter-label">Price Range</label>
@@ -544,6 +634,15 @@ export default function MyOrnaments() {
         if (filters.priceRange === '$20–$50')   return min >= 20 && min < 50
         if (filters.priceRange === '$50+')      return min >= 50
         return true
+      })
+    }
+    if (filters.types?.length) {
+      result = result.filter(o => {
+        const label = getTypeDisplay(o) || ''
+        return filters.types.some(ft => {
+          if (ft === 'Other / Custom') return !!(o.customType)
+          return (o.typeLabel === ft) || (o.type === ft) || label.toLowerCase() === ft.toLowerCase()
+        })
       })
     }
     if (filters.styles?.length)  result = result.filter(o => o.tags?.some(t => filters.styles.includes(t)))

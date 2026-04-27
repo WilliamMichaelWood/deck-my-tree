@@ -444,33 +444,76 @@
   min-height: 64px;
 }
 
-/* ── Type pills ── */
-.myo-type-pills {
-  display: flex;
-  gap: 7px;
-  flex-wrap: wrap;
+/* ── Type chip grid (16 types, 2-col) ── */
+.myo-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 2px;
 }
 
-.myo-type-pill {
-  padding: 7px 14px;
-  border-radius: 20px;
-  border: 1px solid rgba(201, 168, 76, 0.25);
+.myo-type-chip {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(201, 168, 76, 0.22);
   background: transparent;
   color: #7090a8;
-  font-size: 0.8rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
   font-weight: 600;
+  text-align: center;
   cursor: pointer;
-  transition: all 0.18s;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.myo-type-pill:hover {
+.myo-type-chip:hover {
   border-color: rgba(201, 168, 76, 0.5);
   color: #c9a84c;
 }
-.myo-type-pill.selected {
-  background: rgba(201, 168, 76, 0.15);
+.myo-type-chip.selected {
+  background: rgba(201, 168, 76, 0.14);
   border-color: #c9a84c;
   color: #c9a84c;
 }
+
+.myo-custom-type-input {
+  margin-top: 8px;
+}
+
+/* ── Type tag on ornament cards ── */
+.myo-tag-type {
+  background: rgba(201, 168, 76, 0.10);
+  color: #c9a84c;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+}
+
+/* ── Filter type chip grid ── */
+.myo-filter-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin-top: 4px;
+}
+.myo-filter-type-chip {
+  padding: 6px 8px;
+  border-radius: 7px;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  background: transparent;
+  color: #7090a8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.myo-filter-type-chip:hover  { border-color: rgba(201,168,76,0.5); color: #c9a84c; }
+.myo-filter-type-chip.selected { background: rgba(201,168,76,0.14); border-color: #c9a84c; color: #c9a84c; }
 
 /* ── Color row ── */
 .myo-color-row {
