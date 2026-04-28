@@ -1,6 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   Cinderella Logo Reveal — full-screen gold wave sweeps
-   dark overlay away, materializing the logo in gold magic.
+   Splash — gold snow reveal (same particles as CurationModal)
    ═══════════════════════════════════════════════════════════ */
 
 /* ─── Container ──────────────────────────────────────────── */
@@ -18,100 +17,75 @@
   -webkit-user-select: none;
 }
 
-/* Phase 5: fade to app */
-.splash-p5 {
-  animation: splashOut calc(0.4s * var(--sm)) ease forwards;
+/* Phase 4: fade to app */
+.splash-p4 {
+  animation: splashOut calc(0.5s * var(--sm)) ease forwards;
   pointer-events: none;
 }
 @keyframes splashOut { to { opacity: 0; } }
 
-/* ─── Ambient falling particles ──────────────────────────── */
-.splash-particles {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 10;
-}
-.splash-ptcl {
+/* ─── Gold snow (same keyframe as CurationModal's cmSnow) ── */
+.splash-snow {
   position: absolute;
   top: -8px;
   border-radius: 50%;
-  background: #c9a84c;
-  animation: ptclFall linear infinite;
-}
-@keyframes ptclFall {
-  0%   { transform: translateY(0);     opacity: 0;    }
-  8%   {                               opacity: 0.45; }
-  50%  {                               opacity: 0.35; }
-  92%  {                               opacity: 0.2;  }
-  100% { transform: translateY(100vh); opacity: 0;    }
-}
-
-/* ─── Logo wrap (z-index 1 — beneath overlay) ───────────── */
-.splash-logo-wrap {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
+  background: #d4a843;
   pointer-events: none;
+  animation: splashSnow linear infinite;
+}
+@keyframes splashSnow {
+  0%   { transform: translateY(-10px) scale(0.8); opacity: 0;   }
+  10%  {                                           opacity: 1;   }
+  90%  {                                           opacity: 0.6; }
+  100% { transform: translateY(100vh)  scale(1.2); opacity: 0;   }
 }
 
+/* ─── Logo wrap ──────────────────────────────────────────── */
+.splash-logo-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Logo ───────────────────────────────────────────────── */
 .splash-logo {
+  display: block;
   width:  min(72vw, 300px);
   height: min(72vw, 300px);
   object-fit: contain;
   border-radius: 50%;
-  display: block;
+  opacity: 0;
+  transform: scale(0.9);
 }
 
-/* Phase 3: gold glow blooms as logo is fully revealed */
-.splash-lp3 .splash-logo,
-.splash-lp4 .splash-logo,
-.splash-lp5 .splash-logo {
-  animation: logoBoom calc(0.4s * var(--sm)) ease-out forwards;
+/* Phase 1: fade + scale in */
+.splash-lp1 .splash-logo {
+  animation: logoIn calc(0.5s * var(--sm)) ease-out forwards;
 }
-@keyframes logoBoom {
+@keyframes logoIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1.0); }
+}
+
+/* Phase 2: glow blooms (single elegant expansion) */
+.splash-lp2 .splash-logo {
+  opacity: 1;
+  transform: scale(1.0);
+  animation: logoGlow calc(0.7s * var(--sm)) ease-out forwards;
+}
+@keyframes logoGlow {
   0%   { box-shadow: none; }
-  45%  { box-shadow: 0 0 60px 30px rgba(232, 201, 106, 0.8),
-                     0 0 100px 50px rgba(232, 201, 106, 0.35); }
-  100% { box-shadow: 0 0 40px 20px rgba(232, 201, 106, 0.5),
-                     0 0  80px 40px rgba(232, 201, 106, 0.18); }
+  40%  { box-shadow: 0 0 40px 20px rgba(232, 201, 106, 0.6),
+                     0 0 70px 35px rgba(232, 201, 106, 0.25); }
+  100% { box-shadow: 0 0 80px 40px rgba(232, 201, 106, 0.4),
+                     0 0 120px 60px rgba(232, 201, 106, 0.15); }
 }
 
-/* ─── Dark overlay (z-index 2 — on top of logo) ─────────── */
-.splash-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  background: #0f1f35;
-  pointer-events: none;
-  /* Starts covering everything */
-  clip-path: inset(0 0 0% 0);
-}
-
-/* Phase 2: clips away bottom→top in sync with wave center */
-.splash-overlay.sweeping {
-  animation: overlayReveal calc(1.5s * var(--sm)) linear forwards;
-}
-@keyframes overlayReveal {
-  from { clip-path: inset(0 0 0%   0); }
-  to   { clip-path: inset(0 0 100% 0); }
-}
-
-/* Phase 3+: fully clipped (overlay gone) */
-.splash-overlay.swept {
-  animation: none;
-  clip-path: inset(0 0 100% 0);
-}
-
-/* ─── Wave SVG (z-index 3 — full screen, on top) ─────────── */
-.splash-wave-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 3;
-  pointer-events: none;
+/* Phase 3+: hold glow at final value */
+.splash-lp3 .splash-logo,
+.splash-lp4 .splash-logo {
+  opacity: 1;
+  transform: scale(1.0);
+  box-shadow:
+    0 0 80px 40px  rgba(232, 201, 106, 0.4),
+    0 0 120px 60px rgba(232, 201, 106, 0.15);
 }
