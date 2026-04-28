@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import './SplashSVG.css'
 
-// ─── Speed: 1.0 = normal, 2/3 = 1.5× faster on repeat within 24h ─
 function getSplashSpeed() {
   try {
     const data = JSON.parse(localStorage.getItem('splashSeen') || '{}')
@@ -10,19 +9,31 @@ function getSplashSpeed() {
   return 1
 }
 
-// ─── Gold snow — same style as CurationModal ─────────────────────
-// Deterministic (no Math.random) so server + client match.
-// Negative delays = particles already mid-fall on load (no empty screen).
+// ─── Gold snow (identical to CurationModal) ───────────────────────
 const SNOW = Array.from({ length: 22 }, (_, i) => ({
   id:       i,
   left:     ((i * 37.3 + 11)   % 100).toFixed(1),
   size:     (2 + (i * 0.19)    % 3).toFixed(1),
-  delay:    -((i * 0.47 + 0.3) % 7).toFixed(2),   // pre-started
+  delay:    -((i * 0.47 + 0.3) % 7).toFixed(2),
   duration: (4 + (i * 0.31)    % 3).toFixed(1),
   opacity:  (0.3 + (i * 0.023) % 0.5).toFixed(2),
 }))
 
-// ─────────────────────────────────────────────────────────────────
+// ─── Gold sparks that explode outward at the Lumos moment ─────────
+const SPARKS = Array.from({ length: 24 }, (_, i) => {
+  const a    = (i / 24) * 2 * Math.PI
+  const dist = 70 + (i % 6) * 18                                    // 70–178px
+  const SIZES = [12, 4, 3, 7, 10, 3, 5, 4, 11, 3, 8, 4,
+                  3, 12, 3, 6, 5, 9, 3, 5, 4, 10, 3, 6]
+  return {
+    id:    i,
+    dx:    Math.round(Math.cos(a) * dist),
+    dy:    Math.round(Math.sin(a) * dist),
+    size:  SIZES[i],
+    delay: Math.round(i * 18),                                       // stagger per spark
+  }
+})
+
 export default function SplashSVG({ onFinish }) {
   const sm            = useMemo(getSplashSpeed, [])
   const [phase, setPhase] = useState(0)
@@ -31,33 +42,32 @@ export default function SplashSVG({ onFinish }) {
   const done          = useRef(false)
 
   // ── Phase schedule ────────────────────────────────────────────
-  // Phase 1  (50ms):   logo fades in (scale 0.9→1.0, opacity 0→1)
-  // Phase 2 (500ms):   glow blooms behind logo + chime
-  // Phase 3 (1200ms):  hold — logo + glow + snow
-  // Phase 4 (2500ms):  fade to app
-  // Done    (3000ms):  unmount
+  // Phase 1  (50ms):   snow falls, a pinpoint of gold light gathers
+  // Phase 2 (600ms):   LUMOS — logo erupts from the point of light,
+  //                    radial clip-path expands, sparks scatter, chime
+  // Phase 3 (1600ms):  logo fully revealed, warm glow settles
+  // Phase 4 (2400ms):  everything fades to app
+  // Done    (2900ms):  unmount
   useEffect(() => {
     localStorage.setItem('splashSeen', JSON.stringify({ ts: Date.now() }))
     const T = (ms) => Math.round(ms * sm)
     const timers = [
       setTimeout(() => setPhase(1), T(50)),
-      setTimeout(() => setPhase(2), T(500)),
-      setTimeout(() => setPhase(3), T(1200)),
-      setTimeout(() => setPhase(4), T(2500)),
-      setTimeout(() => { if (!done.current) { done.current = true; onFinish() } }, T(3000)),
+      setTimeout(() => setPhase(2), T(600)),
+      setTimeout(() => setPhase(3), T(1600)),
+      setTimeout(() => setPhase(4), T(2400)),
+      setTimeout(() => { if (!done.current) { done.current = true; onFinish() } }, T(2900)),
     ]
     return () => timers.forEach(clearTimeout)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Chime at glow bloom ──────────────────────────────────────
   useEffect(() => {
     if (phase === 2 && audioRef.current) {
-      audioRef.current.volume = 0.4
+      audioRef.current.volume = 0.5
       audioRef.current.play().catch(() => {})
     }
   }, [phase])
 
-  // ── First touch: unlock audio ────────────────────────────────
   const handlePointerDown = () => {
     if (audioUnlocked.current || !audioRef.current) return
     audioUnlocked.current = true
@@ -83,7 +93,7 @@ export default function SplashSVG({ onFinish }) {
     >
       <audio ref={audioRef} src="/sounds/sparkle.mp3" preload="auto" />
 
-      {/* ── Gold snow particles (same as CurationModal) ──────── */}
+      {/* ── Falling gold snow (always) ───────────────────────── */}
       {SNOW.map(p => (
         <div key={p.id} aria-hidden="true" className="splash-snow" style={{
           left:              `${p.left}%`,
@@ -95,10 +105,33 @@ export default function SplashSVG({ onFinish }) {
         }} />
       ))}
 
-      {/* ── Logo ─────────────────────────────────────────────── */}
+      {/* ── Gathering orb — energy concentrating before Lumos ── */}
+      <div className={`splash-gather splash-gather-p${phase}`} aria-hidden="true" />
+
+      {/* ── Logo — revealed by expanding circle of light ─────── */}
       <div className={`splash-logo-wrap splash-lp${phase}`} aria-hidden="true">
         <img src="/logo.png" alt="" className="splash-logo" />
       </div>
+
+      {/* ── Lumos flash — blinding gold burst at reveal moment ── */}
+      {phase >= 2 && (
+        <div className="splash-lumos-flash" aria-hidden="true" />
+      )}
+
+      {/* ── Gold sparks scatter from logo center outward ─────── */}
+      {phase >= 2 && SPARKS.map(s => (
+        <div
+          key={s.id}
+          className="splash-spark"
+          aria-hidden="true"
+          style={{
+            '--dx':    `${s.dx}px`,
+            '--dy':    `${s.dy}px`,
+            '--sz':    `${s.size}px`,
+            '--delay': `${Math.round(s.delay * sm)}ms`,
+          }}
+        />
+      ))}
     </div>
   )
 }
