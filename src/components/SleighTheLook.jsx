@@ -209,7 +209,7 @@ function OrnamentSVG({ shape, color }) {
   switch (shape) {
     case 'drop':
       return (
-        <svg viewBox="0 0 60 84" width="46" height="54" fill="none" aria-hidden="true">
+        <svg viewBox="0 0 60 84" width="100%" height="100%" fill="none" aria-hidden="true">
           <rect x="26" y="0" width="8" height="13" rx="3.5" fill="#c9a84c"/>
           <path d="M30,13 C18,13 7,27 7,45 C7,62 17,76 30,76 C43,76 53,62 53,45 C53,27 42,13 30,13 Z" fill={color}/>
           <ellipse cx="21" cy="32" rx="6" ry="10" fill="rgba(255,255,255,0.44)" transform="rotate(-15 21 32)"/>
@@ -217,7 +217,7 @@ function OrnamentSVG({ shape, color }) {
       )
     case 'star':
       return (
-        <svg viewBox="0 0 60 74" width="54" height="54" fill="none" aria-hidden="true">
+        <svg viewBox="0 0 60 74" width="100%" height="100%" fill="none" aria-hidden="true">
           <rect x="26" y="0" width="8" height="14" rx="3.5" fill="#c9a84c"/>
           <polygon points="30,28 35,42 49,42 38,51 42,64 30,56 18,64 22,51 11,42 25,42" fill={color}/>
           <ellipse cx="23" cy="37" rx="4" ry="3" fill="rgba(255,255,255,0.38)" transform="rotate(-30 23 37)"/>
@@ -225,7 +225,7 @@ function OrnamentSVG({ shape, color }) {
       )
     case 'snowflake':
       return (
-        <svg viewBox="0 0 60 60" width="54" height="54" fill="none" aria-hidden="true">
+        <svg viewBox="0 0 60 60" width="100%" height="100%" fill="none" aria-hidden="true">
           <g stroke={color} strokeWidth="4.5" strokeLinecap="round">
             <line x1="30" y1="6"  x2="30" y2="54"/>
             <line x1="7"  y1="19" x2="53" y2="41"/>
@@ -242,7 +242,7 @@ function OrnamentSVG({ shape, color }) {
       )
     case 'pinecone':
       return (
-        <svg viewBox="0 0 60 80" width="46" height="54" fill="none" aria-hidden="true">
+        <svg viewBox="0 0 60 80" width="100%" height="100%" fill="none" aria-hidden="true">
           <rect x="26" y="0" width="8" height="12" rx="3" fill="#c9a84c"/>
           <ellipse cx="30" cy="48" rx="18" ry="28" fill={color}/>
           <path d="M13,62 Q30,54 47,62" stroke="rgba(255,255,255,0.18)" strokeWidth="2" fill="none"/>
@@ -254,7 +254,7 @@ function OrnamentSVG({ shape, color }) {
       )
     default: // ball
       return (
-        <svg viewBox="0 0 60 74" width="54" height="54" fill="none" aria-hidden="true">
+        <svg viewBox="0 0 60 74" width="100%" height="100%" fill="none" aria-hidden="true">
           <rect x="26" y="0" width="8" height="14" rx="3.5" fill="#c9a84c"/>
           <circle cx="30" cy="46" r="26" fill={color}/>
           <ellipse cx="21" cy="35" rx="8" ry="6" fill="rgba(255,255,255,0.48)" transform="rotate(-20 21 35)"/>

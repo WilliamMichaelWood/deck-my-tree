@@ -1394,6 +1394,13 @@ h3.shop-section-header {
   width:     8%;
   transform: translate(-50%, -50%);
   filter:    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  display:   block;
+  line-height: 0;
+}
+.preview-ornament svg {
+  display: block;
+  width:   100%;
+  height:  auto;
 }
 
 /* ─── Responsive ─────────────────────────────────────────────── */
