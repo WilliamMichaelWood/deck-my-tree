@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { streamChat } from '../lib/stream'
 import CurationModal from './CurationModal'
+import SleighTheLookTree from './SleighTheLookTree'
+import mediumLayout from '../data/treeLayouts/medium_layout.json'
 
 const TREE_STYLES = [
   { id: 'classic',      label: 'Classic'      },
@@ -404,6 +406,32 @@ function StylePreview({ products, topper, size }) {
   const sizeKey  = getSizeKey(size)
   const template = TREE_POSITIONS[sizeKey]
   const [imgOk, setImgOk] = useState(false)
+
+  // Medium tree uses the v1 frozen ornament positioning system
+  if (sizeKey === 'medium') {
+    return (
+      <div className="ornament-shop-section style-preview-section">
+        <h3 className="shop-section-header">✦ Your Style Preview</h3>
+        <p className="preview-caption">Here's how your selections come together. Make it yours below.</p>
+        <div className="style-preview-shell">
+          <div className="style-preview-wrap">
+            <SleighTheLookTree
+              layout={mediumLayout}
+              imageSrc="/trees/tree-medium.jpg"
+            />
+            {topper && (
+              <div
+                className="preview-topper"
+                style={{ left: '50.2%', top: '6%' }}
+              >
+                <TopperSVG type={topper.type || 'star'} color={topper.color || '#c9a84c'} />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="ornament-shop-section style-preview-section">

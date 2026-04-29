@@ -1,0 +1,603 @@
+{
+  "treeId": "medium",
+  "imageDimensions": {
+    "w": 980,
+    "h": 1232
+  },
+  "treeBounds": {
+    "bbox": {
+      "x": 171,
+      "y": 74,
+      "w": 632,
+      "h": 1087
+    },
+    "apex": {
+      "x": 492,
+      "y": 74
+    },
+    "foliageBaseY": 989
+  },
+  "ornaments": [
+    {
+      "ornamentId": "focal_1",
+      "x": 427,
+      "y": 312,
+      "width": 75,
+      "height": 75,
+      "sizeCategory": "focal",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "top"
+    },
+    {
+      "ornamentId": "focal_2",
+      "x": 590,
+      "y": 388,
+      "width": 66,
+      "height": 66,
+      "sizeCategory": "focal",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "top"
+    },
+    {
+      "ornamentId": "focal_4",
+      "x": 603,
+      "y": 671,
+      "width": 65,
+      "height": 65,
+      "sizeCategory": "focal",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "focal_5",
+      "x": 389,
+      "y": 674,
+      "width": 73,
+      "height": 73,
+      "sizeCategory": "focal",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "focal_6",
+      "x": 391,
+      "y": 490,
+      "width": 74,
+      "height": 74,
+      "sizeCategory": "focal",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "focal_9",
+      "x": 625,
+      "y": 974,
+      "width": 71,
+      "height": 71,
+      "sizeCategory": "focal",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "focal_10",
+      "x": 303,
+      "y": 828,
+      "width": 72,
+      "height": 72,
+      "sizeCategory": "focal",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "focal_11",
+      "x": 474,
+      "y": 859,
+      "width": 69,
+      "height": 69,
+      "sizeCategory": "focal",
+      "type": "ball",
+      "color": "#a07744",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "focal_12",
+      "x": 696,
+      "y": 818,
+      "width": 70,
+      "height": 70,
+      "sizeCategory": "focal",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "medium_13",
+      "x": 556,
+      "y": 230,
+      "width": 40,
+      "height": 40,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "top"
+    },
+    {
+      "ornamentId": "medium_14",
+      "x": 467,
+      "y": 231,
+      "width": 38,
+      "height": 38,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "top"
+    },
+    {
+      "ornamentId": "medium_15",
+      "x": 477,
+      "y": 167,
+      "width": 49,
+      "height": 49,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#a07744",
+      "zone": "top"
+    },
+    {
+      "ornamentId": "medium_16",
+      "x": 545,
+      "y": 303,
+      "width": 48,
+      "height": 48,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "top"
+    },
+    {
+      "ornamentId": "medium_17",
+      "x": 496,
+      "y": 394,
+      "width": 50,
+      "height": 50,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "top"
+    },
+    {
+      "ornamentId": "medium_20",
+      "x": 373,
+      "y": 394,
+      "width": 40,
+      "height": 40,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "top"
+    },
+    {
+      "ornamentId": "medium_21",
+      "x": 604,
+      "y": 556,
+      "width": 49,
+      "height": 49,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "medium_22",
+      "x": 289,
+      "y": 663,
+      "width": 45,
+      "height": 45,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "medium_23",
+      "x": 512,
+      "y": 470,
+      "width": 49,
+      "height": 49,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#a07744",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "medium_24",
+      "x": 638,
+      "y": 480,
+      "width": 48,
+      "height": 48,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "medium_25",
+      "x": 693,
+      "y": 683,
+      "width": 48,
+      "height": 48,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "medium_26",
+      "x": 451,
+      "y": 578,
+      "width": 46,
+      "height": 46,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "medium_27",
+      "x": 338,
+      "y": 586,
+      "width": 48,
+      "height": 48,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#a07744",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "medium_28",
+      "x": 531,
+      "y": 534,
+      "width": 43,
+      "height": 43,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "medium_29",
+      "x": 493,
+      "y": 672,
+      "width": 47,
+      "height": 47,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "medium_33",
+      "x": 597,
+      "y": 809,
+      "width": 49,
+      "height": 49,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "medium_34",
+      "x": 223,
+      "y": 979,
+      "width": 47,
+      "height": 47,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "medium_35",
+      "x": 264,
+      "y": 917,
+      "width": 45,
+      "height": 45,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#a07744",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "medium_36",
+      "x": 404,
+      "y": 942,
+      "width": 41,
+      "height": 41,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "medium_37",
+      "x": 748,
+      "y": 938,
+      "width": 49,
+      "height": 49,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "medium_38",
+      "x": 300,
+      "y": 978,
+      "width": 43,
+      "height": 43,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "medium_39",
+      "x": 476,
+      "y": 735,
+      "width": 43,
+      "height": 43,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#a07744",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "medium_40",
+      "x": 460,
+      "y": 983,
+      "width": 49,
+      "height": 49,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "medium_41",
+      "x": 593,
+      "y": 886,
+      "width": 44,
+      "height": 44,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "medium_42",
+      "x": 517,
+      "y": 943,
+      "width": 47,
+      "height": 47,
+      "sizeCategory": "medium",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "accent_43",
+      "x": 511,
+      "y": 220,
+      "width": 21,
+      "height": 21,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#a07744",
+      "zone": "top"
+    },
+    {
+      "ornamentId": "accent_44",
+      "x": 573,
+      "y": 261,
+      "width": 28,
+      "height": 28,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "top"
+    },
+    {
+      "ornamentId": "accent_45",
+      "x": 428,
+      "y": 385,
+      "width": 31,
+      "height": 31,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "top"
+    },
+    {
+      "ornamentId": "accent_46",
+      "x": 449,
+      "y": 201,
+      "width": 27,
+      "height": 27,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "top"
+    },
+    {
+      "ornamentId": "accent_47",
+      "x": 395,
+      "y": 579,
+      "width": 30,
+      "height": 30,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#a07744",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "accent_48",
+      "x": 461,
+      "y": 506,
+      "width": 26,
+      "height": 26,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "accent_49",
+      "x": 386,
+      "y": 603,
+      "width": 28,
+      "height": 28,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "accent_50",
+      "x": 350,
+      "y": 442,
+      "width": 25,
+      "height": 25,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "accent_51",
+      "x": 364,
+      "y": 556,
+      "width": 23,
+      "height": 23,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#a07744",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "accent_52",
+      "x": 550,
+      "y": 437,
+      "width": 31,
+      "height": 31,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "accent_53",
+      "x": 637,
+      "y": 522,
+      "width": 27,
+      "height": 27,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "middle"
+    },
+    {
+      "ornamentId": "accent_54",
+      "x": 649,
+      "y": 750,
+      "width": 31,
+      "height": 31,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "accent_55",
+      "x": 710,
+      "y": 894,
+      "width": 23,
+      "height": 23,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#a07744",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "accent_56",
+      "x": 635,
+      "y": 782,
+      "width": 22,
+      "height": 22,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "accent_57",
+      "x": 546,
+      "y": 798,
+      "width": 26,
+      "height": 26,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#c9a84c",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "accent_58",
+      "x": 334,
+      "y": 939,
+      "width": 26,
+      "height": 26,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#0f1f35",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "accent_59",
+      "x": 365,
+      "y": 949,
+      "width": 20,
+      "height": 20,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#a07744",
+      "zone": "bottom"
+    },
+    {
+      "ornamentId": "accent_60",
+      "x": 326,
+      "y": 718,
+      "width": 20,
+      "height": 20,
+      "sizeCategory": "accent",
+      "type": "ball",
+      "color": "#e8dcc8",
+      "zone": "bottom"
+    }
+  ],
+  "meta": {
+    "algorithm": "positionOrnaments v1",
+    "seed": 42,
+    "counts": {
+      "focal": 12,
+      "medium": 30,
+      "accent": 18
+    }
+  }
+}
