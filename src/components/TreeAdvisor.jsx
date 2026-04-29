@@ -892,25 +892,23 @@ export default function TreeAdvisor() {
     let rawOrnaments = ''
 
     try {
-      // Run all three calls in parallel — detection and analysis are independent
-      await Promise.all([
+      // A — Detection FIRST: bounds must be populated before placement runs
+      try {
+        let detectRaw = ''
+        await streamChat({
+          messages: [{ role: 'user', content: [
+            { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+            { type: 'text', text: DETECT_PROMPT },
+          ]}],
+          maxTokens: 200,
+          onText: (t) => { detectRaw += t },
+        })
+        const s = detectRaw.indexOf('{'), e = detectRaw.lastIndexOf('}')
+        if (s !== -1 && e !== -1) treeBoundsRef.current = JSON.parse(detectRaw.slice(s, e + 1))
+      } catch { /* bounds failure is silent — placement uses defaults */ }
 
-        // A — Tree bounding box detection (silent failure)
-        (async () => {
-          try {
-            let detectRaw = ''
-            await streamChat({
-              messages: [{ role: 'user', content: [
-                { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
-                { type: 'text', text: DETECT_PROMPT },
-              ]}],
-              maxTokens: 200,
-              onText: (t) => { detectRaw += t },
-            })
-            const s = detectRaw.indexOf('{'), e = detectRaw.lastIndexOf('}')
-            if (s !== -1 && e !== -1) treeBoundsRef.current = JSON.parse(detectRaw.slice(s, e + 1))
-          } catch { /* bounds failure is silent — placement uses defaults */ }
-        })(),
+      // B + C — Analysis and ornament generation in parallel (don't need bounds)
+      await Promise.all([
 
         // B — Styling analysis text (failure surfaces as user-visible error)
         streamChat({
@@ -1017,23 +1015,23 @@ export default function TreeAdvisor() {
     let rawOrnaments = ''
 
     try {
+      // A — Detection FIRST: bounds must be populated before placement runs
+      try {
+        let detectRaw = ''
+        await streamChat({
+          messages: [{ role: 'user', content: [
+            { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
+            { type: 'text', text: DETECT_PROMPT },
+          ]}],
+          maxTokens: 200,
+          onText: (t) => { detectRaw += t },
+        })
+        const s = detectRaw.indexOf('{'), e = detectRaw.lastIndexOf('}')
+        if (s !== -1 && e !== -1) treeBoundsRef.current = JSON.parse(detectRaw.slice(s, e + 1))
+      } catch { }
+
+      // B + C — Analysis and ornament generation in parallel (don't need bounds)
       await Promise.all([
-        // A — bounds detection (silent)
-        (async () => {
-          try {
-            let detectRaw = ''
-            await streamChat({
-              messages: [{ role: 'user', content: [
-                { type: 'image', source: { type: 'base64', media_type: image.mediaType, data: image.base64 } },
-                { type: 'text', text: DETECT_PROMPT },
-              ]}],
-              maxTokens: 200,
-              onText: (t) => { detectRaw += t },
-            })
-            const s = detectRaw.indexOf('{'), e = detectRaw.lastIndexOf('}')
-            if (s !== -1 && e !== -1) treeBoundsRef.current = JSON.parse(detectRaw.slice(s, e + 1))
-          } catch { }
-        })(),
 
         // B — analysis with "different look" instruction
         streamChat({
