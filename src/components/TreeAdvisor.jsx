@@ -1236,11 +1236,25 @@ export default function TreeAdvisor() {
             {image ? (
               <img src={image.preview} alt="Your tree" className="tree-preview" />
             ) : (
-              <div className="upload-prompt">
-                <span className="upload-icon">📸</span>
-                <p>Drop your tree photo here or <span className="upload-link">click to browse</span></p>
-                <span className="upload-hint">JPG · PNG · WebP</span>
-              </div>
+              <>
+                <div className="upload-glow" />
+                <div className="upload-prompt">
+                  <div className="upload-icon">
+                    <svg width="36" height="32" viewBox="0 0 36 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      {/* Camera body */}
+                      <rect x="1" y="8" width="34" height="22" rx="3.5" stroke="#c9a84c" strokeWidth="1.6"/>
+                      {/* Viewfinder bump */}
+                      <path d="M12 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" stroke="#c9a84c" strokeWidth="1.6" strokeLinecap="round"/>
+                      {/* Lens circle */}
+                      <circle cx="18" cy="19" r="6" stroke="#c9a84c" strokeWidth="1.6"/>
+                      {/* Flash dot */}
+                      <circle cx="29" cy="13" r="1.5" fill="#c9a84c"/>
+                    </svg>
+                  </div>
+                  <p>Drop your tree photo here or <span className="upload-link">click to browse</span></p>
+                  <span className="upload-hint">JPG · PNG · WebP</span>
+                </div>
+              </>
             )}
             <input
               ref={fileInputRef}
