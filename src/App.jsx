@@ -1,8 +1,7 @@
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import TreeAdvisor from './components/TreeAdvisor'
 import MyOrnaments from './components/MyOrnaments'
 import SleighTheLook from './components/SleighTheLook'
-import SplashSVG from './components/SplashSVG'
 import LegalPage from './components/LegalPages'
 import AppFooter from './components/AppFooter'
 import './App.css'
@@ -60,12 +59,8 @@ const TABS = [
 ]
 
 export default function App() {
-  const [showSplash, setShowSplash] = useState(true)
   const [activeTab, setActiveTab] = useState('advisor')
   const [legalPage, setLegalPage] = useState(null)
-  const handleSplashFinish = useCallback(() => setShowSplash(false), [])
-
-  if (showSplash) return <SplashSVG onFinish={handleSplashFinish} />
 
   return (
     <div className="app">

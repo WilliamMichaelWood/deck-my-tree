@@ -2,7 +2,14 @@ import { useState, useEffect, useRef } from 'react'
 import { streamChat } from '../lib/stream'
 import CurationModal from './CurationModal'
 import SleighTheLookTree from './SleighTheLookTree'
+import SparkleIcon from './icons/SparkleIcon'
+import smallLayout from '../data/treeLayouts/small_layout.json'
 import mediumLayout from '../data/treeLayouts/medium_layout.json'
+import largeLayout from '../data/treeLayouts/large_layout.json'
+import xlargeLayout from '../data/treeLayouts/xlarge_layout.json'
+
+const TREE_LAYOUTS = { small: smallLayout, medium: mediumLayout, large: largeLayout, xlarge: xlargeLayout }
+const TREE_APEX = { small: { x: 49.5, y: 29.0 }, medium: { x: 50.2, y: 6.0 }, large: { x: 50.4, y: 5.4 }, xlarge: { x: 48.7, y: 2.8 } }
 
 const TREE_STYLES = [
   { id: 'classic',      label: 'Classic'      },
@@ -39,33 +46,6 @@ const RETAILERS = [
 // Hand-tuned for the specific tree photo in public/trees/.
 // x/y mark ornament center. size is container width as fraction (0–1).
 // All four sizes use the same photo for now — same coords, same template.
-const TREE_POSITIONS = {
-  medium: {
-    topper: { x: 50, y: 15.5 },
-    ornaments: [
-      // Top zone — small, tight
-      { x: 50,   y: 27,   size: '9%'  },
-      { x: 41,   y: 32,   size: '9%'  },
-      { x: 59,   y: 32,   size: '9%'  },
-      // Upper-middle zone
-      { x: 34,   y: 41,   size: '10%' },
-      { x: 50,   y: 44,   size: '11%' },
-      { x: 66,   y: 41,   size: '10%' },
-      // Middle zone — largest
-      { x: 28,   y: 54,   size: '11%' },
-      { x: 50,   y: 57,   size: '12%' },
-      { x: 72,   y: 54,   size: '11%' },
-      // Lower zone
-      { x: 26,   y: 68,   size: '11%' },
-      { x: 50,   y: 71,   size: '12%' },
-      { x: 74,   y: 68,   size: '11%' },
-    ],
-  },
-}
-// Alias all sizes to medium until size-specific photos are added
-TREE_POSITIONS.small  = TREE_POSITIONS.medium
-TREE_POSITIONS.large  = TREE_POSITIONS.medium
-TREE_POSITIONS.xlarge = TREE_POSITIONS.medium
 
 function getSizeKey(size = '') {
   const s = size.toLowerCase()
@@ -403,84 +383,29 @@ function RecommendationCard({ item, index }) {
 }
 
 function StylePreview({ products, topper, size }) {
-  const sizeKey  = getSizeKey(size)
-  const template = TREE_POSITIONS[sizeKey]
-  const [imgOk, setImgOk] = useState(false)
-
-  // Medium tree uses the v1 frozen ornament positioning system
-  if (sizeKey === 'medium') {
-    return (
-      <div className="ornament-shop-section style-preview-section">
-        <h3 className="shop-section-header">✦ Your Style Preview</h3>
-        <p className="preview-caption">Here's how your selections come together. Make it yours below.</p>
-        <div className="style-preview-shell">
-          <div className="style-preview-wrap">
-            <SleighTheLookTree
-              layout={mediumLayout}
-              imageSrc="/trees/tree-medium.jpg"
-            />
-            {topper && (
-              <div
-                className="preview-topper"
-                style={{ left: '50.2%', top: '6%' }}
-              >
-                <TopperSVG type={topper.type || 'star'} color={topper.color || '#c9a84c'} />
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const sizeKey = getSizeKey(size)
+  const layout  = TREE_LAYOUTS[sizeKey]
+  const apex    = TREE_APEX[sizeKey]
 
   return (
     <div className="ornament-shop-section style-preview-section">
-      <h3 className="shop-section-header">✦ Your Style Preview</h3>
+      <h3 className="shop-section-header"><SparkleIcon size={20} /> Your Style Preview</h3>
       <p className="preview-caption">Here's how your selections come together. Make it yours below.</p>
-
       <div className="style-preview-shell">
         <div className="style-preview-wrap">
-
-          <img
-            src={`/trees/tree-${sizeKey}.jpg`}
-            alt=""
-            className="preview-tree-img"
-            draggable="false"
-            onLoad={() => setImgOk(true)}
-            style={{ opacity: imgOk ? 1 : 0 }}
+          <SleighTheLookTree
+            layout={layout}
+            imageSrc={`/trees/tree-${sizeKey}.jpg`}
+            colors={products.map(p => p.color).filter(Boolean)}
           />
-
-          {!imgOk && (
-            <div className="preview-tree-placeholder">
-              <span>🎄</span>
-              <p>Tree photo loading…</p>
-            </div>
-          )}
-
-          {/* Topper at hardcoded apex */}
-          {topper && imgOk && (
+          {topper && (
             <div
               className="preview-topper"
-              style={{ left: `${template.topper.x}%`, top: `${template.topper.y}%` }}
+              style={{ left: `${apex.x}%`, top: `${apex.y}%` }}
             >
               <TopperSVG type={topper.type || 'star'} color={topper.color || '#c9a84c'} />
             </div>
           )}
-
-          {/* Ornaments: slot i → product i, exact hardcoded position */}
-          {imgOk && template.ornaments.map((slot, i) => {
-            const orn = products[i]
-            if (!orn) return null
-            return (
-              <div
-                key={i}
-                className="preview-ornament"
-                style={{ left: `${slot.x}%`, top: `${slot.y}%`, width: slot.size }}
-              >
-                <OrnamentSVG shape={orn.shape || 'ball'} color={orn.color || '#c9a84c'} />
-              </div>
-            )
-          })}
         </div>
       </div>
     </div>
@@ -658,7 +583,7 @@ export default function SleighTheLook() {
           {loading
             ? <><span className="spin">✦</span> Curating your picks…</>
             : canGenerate
-              ? '✨ Build My Shopping List'
+              ? <><SparkleIcon size={18} color="#0f1f35" /> Build My Shopping List</>
               : '← Complete selections above to continue'}
         </button>
       </div>
@@ -674,7 +599,7 @@ export default function SleighTheLook() {
           )}
           {topper && (
             <div className="ornament-shop-section">
-              <h3 className="shop-section-header">✦ Top It Off</h3>
+              <h3 className="shop-section-header"><SparkleIcon size={20} /> Top It Off</h3>
               <div className="ornament-shop-card topper-card">
                 <div className="shop-card-top">
                   <div className="shop-ornament-preview topper-preview">
@@ -707,7 +632,7 @@ export default function SleighTheLook() {
           )}
           {products.length > 0 && (
             <div className="ornament-shop-section">
-              <h3 className="shop-section-header">✦ Sleigh It — Shop the Look</h3>
+              <h3 className="shop-section-header"><SparkleIcon size={20} /> Sleigh It — Shop the Look</h3>
               <div className="recommendations-list">
                 {products.map((item, i) => (
                   <RecommendationCard key={i} item={item} index={i} />

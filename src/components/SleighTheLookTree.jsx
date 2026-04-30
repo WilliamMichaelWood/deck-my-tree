@@ -22,12 +22,32 @@ import React from 'react';
  *     onOrnamentClick={(orn) => console.log('Tapped:', orn)}
  *   />
  */
-export default function SleighTheLookTree({ layout, imageSrc, onOrnamentClick }) {
+export default function SleighTheLookTree({ layout, imageSrc, colors, onOrnamentClick }) {
   if (!layout || !imageSrc) return null;
 
   const { imageDimensions, ornaments } = layout;
   const imgW = imageDimensions.w;
   const imgH = imageDimensions.h;
+
+  // Build per-ornament color assignments from the products palette.
+  // Focals get the first colors (most prominent), then cycle through all.
+  // Falls back to frozen layout color when no palette provided.
+  const palette = colors && colors.length > 0 ? colors : null;
+  const colorMap = {};
+  if (palette) {
+    const byCategory = { focal: [], medium: [], accent: [] };
+    for (const orn of ornaments) {
+      if (byCategory[orn.sizeCategory]) byCategory[orn.sizeCategory].push(orn.ornamentId);
+    }
+    // Assign colors cycling through palette, focal first
+    let idx = 0;
+    for (const cat of ['focal', 'medium', 'accent']) {
+      for (const id of byCategory[cat]) {
+        colorMap[id] = palette[idx % palette.length];
+        idx++;
+      }
+    }
+  }
 
   return (
     <div
@@ -35,7 +55,6 @@ export default function SleighTheLookTree({ layout, imageSrc, onOrnamentClick })
       style={{
         position: 'relative',
         width: '100%',
-        // Maintain image aspect ratio
         aspectRatio: `${imgW} / ${imgH}`,
         maxWidth: '100%',
       }}
@@ -65,6 +84,7 @@ export default function SleighTheLookTree({ layout, imageSrc, onOrnamentClick })
         }}
       >
         {ornaments.map((orn) => {
+          const color = colorMap[orn.ornamentId] || orn.color;
           // Convert pixel coords to percentages of the image
           const leftPct = ((orn.x - orn.width / 2) / imgW) * 100;
           const topPct = ((orn.y - orn.height / 2) / imgH) * 100;
@@ -74,7 +94,7 @@ export default function SleighTheLookTree({ layout, imageSrc, onOrnamentClick })
           return (
             <Ornament
               key={orn.ornamentId}
-              ornament={orn}
+              ornament={{ ...orn, color }}
               style={{
                 position: 'absolute',
                 left: `${leftPct}%`,

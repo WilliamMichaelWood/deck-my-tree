@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { streamChat } from '../lib/stream'
 import MarkdownContent from './MarkdownContent'
 import CurationModal from './CurationModal'
+import SparkleIcon from './icons/SparkleIcon'
 
 const BASE_ANALYSIS_PROMPT = `You are a professional Christmas tree decorator. Every response must apply the four mandatory rules below — these are non-negotiable constraints, not suggestions. Violation of any rule is an error.
 
@@ -1271,7 +1272,7 @@ export default function TreeAdvisor() {
                 Remove Photo
               </button>
               <button className="btn-analyze" onClick={handleAnalyze} disabled={overlayLoading}>
-                ✨ Analyze My Tree
+                <SparkleIcon size={18} color="#0f1f35" /> Analyze My Tree
               </button>
             </div>
           )}
@@ -1279,7 +1280,7 @@ export default function TreeAdvisor() {
           {/* Recent Trees */}
           {recentTrees.length > 0 && (
             <div className="recent-trees-section">
-              <h3 className="recent-trees-title">✦ My Recent Trees</h3>
+              <h3 className="recent-trees-title"><SparkleIcon size={20} /> My Recent Trees</h3>
               <div className="recent-trees-grid">
                 {recentTrees.map((d) => (
                   <div key={d.id} className="recent-tree-card">
@@ -1330,7 +1331,7 @@ export default function TreeAdvisor() {
 
           {/* 2 — Style direction header + palette reasoning card */}
           <div className="overlay-label-row" style={{ marginTop: 20 }}>
-            <span className="overlay-eyebrow">✦ YOUR STYLE DIRECTION</span>
+            <span className="overlay-eyebrow"><SparkleIcon size={14} /> YOUR STYLE DIRECTION</span>
             <div style={{ display: 'flex', gap: 8 }}>
               <button className="btn-secondary btn-sm" onClick={() => {
                 setResult(''); setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null); setLightStrands([]); setHasLights(false)
@@ -1350,7 +1351,7 @@ export default function TreeAdvisor() {
             <div className="palette-card">
               <span className="palette-card-label">YOUR STYLIST SAYS</span>
               <p className="palette-description">
-                <span className="palette-flourish">✦</span> {palette.description}
+                <SparkleIcon size={14} className="palette-flourish" /> {palette.description}
                 {hasLights && ' Your tree\'s existing lights are already perfect for this palette.'}
               </p>
             </div>
@@ -1360,7 +1361,7 @@ export default function TreeAdvisor() {
           <div className="share-row" style={{ marginTop: 12 }}>
             {ornaments.length > 0 && (
               <button className="btn-share" onClick={handleShare} disabled={shareLoading}>
-                {shareLoading ? <><span className="spin">✦</span> Preparing…</> : '✦ Share Image'}
+                {shareLoading ? <><span className="spin">✦</span> Preparing…</> : <><SparkleIcon size={16} /> Share Image</>}
               </button>
             )}
             <button className="btn-share" onClick={handleShareLink}>Share Link</button>
@@ -1369,7 +1370,7 @@ export default function TreeAdvisor() {
           {/* 3 — Topper card (first) */}
           {topper && (
             <div className="ornament-shop-section" ref={shopRef}>
-              <h3 className="shop-section-header">✦ Top It Off</h3>
+              <h3 className="shop-section-header"><SparkleIcon size={20} /> Top It Off</h3>
               <div className="ornament-shop-card topper-card">
                 <div className="shop-card-top">
                   <div className="shop-ornament-preview topper-preview">
@@ -1414,7 +1415,7 @@ export default function TreeAdvisor() {
           {/* 4 — Ornament shopping cards (12 unique varieties only) */}
           {varieties.length > 0 && (
             <div className="ornament-shop-section" ref={topper ? undefined : shopRef}>
-              <h3 className="shop-section-header">✦ Sleigh It — Shop the Look</h3>
+              <h3 className="shop-section-header"><SparkleIcon size={20} /> Sleigh It — Shop the Look</h3>
               <div className="ornament-shop-list">
                 {varieties.map((o, i) => (
                   <div key={i} className="ornament-shop-card">
