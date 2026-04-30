@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { streamChat } from '../lib/stream'
 import CurationModal from './CurationModal'
 import SleighTheLookTree from './SleighTheLookTree'
 import SparkleIcon from './icons/SparkleIcon'
 import smallLayout from '../data/treeLayouts/small_layout.json'
-import mediumLayout from '../data/treeLayouts/medium_layout.json'
 import largeLayout from '../data/treeLayouts/large_layout.json'
 import xlargeLayout from '../data/treeLayouts/xlarge_layout.json'
+import treeConfigsData from '../data/treeConfigs.json'
+import { generateStyleLayout } from '../utils/generateStyleLayout'
 
-const TREE_LAYOUTS = { small: smallLayout, medium: mediumLayout, large: largeLayout, xlarge: xlargeLayout }
+// Phase 1: medium uses the dynamic generator; other sizes still use frozen layouts
+const TREE_LAYOUTS = { small: smallLayout, large: largeLayout, xlarge: xlargeLayout }
 const TREE_APEX = { small: { x: 49.5, y: 29.0 }, medium: { x: 50.2, y: 6.0 }, large: { x: 50.4, y: 5.4 }, xlarge: { x: 48.7, y: 2.8 } }
 
 const TREE_STYLES = [
@@ -382,10 +384,27 @@ function RecommendationCard({ item, index }) {
   )
 }
 
-function StylePreview({ products, topper, size }) {
+function StylePreview({ products, topper, size, palette }) {
   const sizeKey = getSizeKey(size)
-  const layout  = TREE_LAYOUTS[sizeKey]
   const apex    = TREE_APEX[sizeKey]
+
+  // Phase 1 — hardcoded to Gilded Ever After for medium tree.
+  // Regenerates when styleId or palette changes; stable otherwise.
+  const styleId = 'gilded-ever-after'
+  const generatedLayout = useMemo(
+    () => generateStyleLayout(styleId, treeConfigsData.medium, palette),
+    [styleId, palette]
+  )
+
+  const layout = sizeKey === 'medium'
+    ? generatedLayout
+    : TREE_LAYOUTS[sizeKey]
+
+  // Medium: generator bakes in colors — don't pass colors prop
+  // Other sizes: pass product palette so they still reflect AI recommendations
+  const productColors = sizeKey !== 'medium'
+    ? products.map(p => p.color).filter(Boolean)
+    : []
 
   return (
     <div className="ornament-shop-section style-preview-section">
@@ -396,7 +415,7 @@ function StylePreview({ products, topper, size }) {
           <SleighTheLookTree
             layout={layout}
             imageSrc={`/trees/tree-${sizeKey}.jpg`}
-            colors={products.map(p => p.color).filter(Boolean)}
+            colors={productColors}
           />
           {topper && (
             <div
@@ -595,7 +614,7 @@ export default function SleighTheLook() {
       {(topper || products.length > 0) && (
         <div ref={resultsRef}>
           {products.length > 0 && (
-            <StylePreview products={products} topper={topper} size={size} />
+            <StylePreview products={products} topper={topper} size={size} palette={palette} />
           )}
           {topper && (
             <div className="ornament-shop-section">
