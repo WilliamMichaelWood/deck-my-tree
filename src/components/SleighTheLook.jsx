@@ -38,6 +38,13 @@ const PALETTES = [
 
 const BUDGETS = ['Under $50', '$50–$150', '$150–$300', '$300–$500', '$500+']
 const SIZES   = ['Tabletop (under 3ft)', 'Small (3–5ft)', 'Medium (6–7ft)', 'Large (8–9ft)', 'XL (10ft+)']
+const SIZE_SHORT = {
+  'Tabletop (under 3ft)': 'Tabletop',
+  'Small (3–5ft)':        'Small',
+  'Medium (6–7ft)':       'Medium',
+  'Large (8–9ft)':        'Large',
+  'XL (10ft+)':           'XL',
+}
 
 const RETAILERS = [
   { key: 'walmart', label: 'Walmart', color: '#0071ce' },
@@ -573,77 +580,87 @@ export default function SleighTheLook() {
 
       <div className="shop-form">
         <div className="form-section">
-          <h3 className="form-section-title">Tree Style</h3>
-          <div className="style-grid">
-            {TREE_STYLES.map(s => (
-              <button
-                key={s.id}
-                data-style={s.id}
-                className={`style-btn${style === s.label ? ' selected' : ''}`}
-                onClick={() => { setStyle(s.label); reset() }}
-              >
-                {s.label}
-              </button>
-            ))}
+          <p className="selector-row-label">Tree Style</p>
+          <div className="selector-row-wrap">
+            <div className="selector-row">
+              {TREE_STYLES.map(s => (
+                <button
+                  key={s.id}
+                  data-style={s.id}
+                  className={`selector-tile selector-tile--style${style === s.label ? ' selected' : ''}`}
+                  onClick={() => { setStyle(s.label); reset() }}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            <div className="selector-row-fade" aria-hidden="true" />
           </div>
         </div>
 
         <div className="form-section">
-          <h3 className="form-section-title">Color Palette</h3>
-          <div className="palette-grid">
-            {PALETTES.map(p => (
-              <button
-                key={p.id}
-                className={`palette-btn${palette === p.label ? ' selected' : ''}`}
-                onClick={() => { setPalette(p.label); reset() }}
-              >
-                <div className="palette-swatches">
-                  {p.preview.map((c, i) => (
-                    <span key={i} className="swatch" style={{ background: c }} />
-                  ))}
-                </div>
-                <span className="palette-label">{p.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="form-row-2">
-          <div className="form-section">
-            <h3 className="form-section-title">Tree Size</h3>
-            <div className="pill-group">
-              {SIZES.map(s => (
+          <p className="selector-row-label">Color Palette</p>
+          <div className="selector-row-wrap">
+            <div className="selector-row">
+              {PALETTES.map(p => (
                 <button
-                  key={s}
-                  className={`pill-btn${size === s ? ' selected' : ''}`}
-                  onClick={() => { setSize(s); reset() }}
+                  key={p.id}
+                  className={`selector-tile selector-tile--palette${palette === p.label ? ' selected' : ''}`}
+                  onClick={() => { setPalette(p.label); reset() }}
                 >
-                  {s}
+                  <div className="palette-swatches">
+                    {p.preview.map((c, i) => (
+                      <span key={i} className="swatch" style={{ background: c }} />
+                    ))}
+                  </div>
+                  <span className="palette-tile-label">{p.label}</span>
                 </button>
               ))}
             </div>
+            <div className="selector-row-fade" aria-hidden="true" />
           </div>
+        </div>
 
-          <div className="form-section">
-            <h3 className="form-section-title">Budget</h3>
-            <div className="pill-group">
+        <div className="form-section">
+          <p className="selector-row-label">Tree Size</p>
+          <div className="selector-row-wrap">
+            <div className="selector-row">
+              {SIZES.map(s => (
+                <button
+                  key={s}
+                  className={`selector-tile selector-tile--pill${size === s ? ' selected' : ''}`}
+                  onClick={() => { setSize(s); reset() }}
+                >
+                  {SIZE_SHORT[s] || s}
+                </button>
+              ))}
+            </div>
+            <div className="selector-row-fade" aria-hidden="true" />
+          </div>
+        </div>
+
+        <div className="form-section">
+          <p className="selector-row-label">Budget</p>
+          <div className="selector-row-wrap">
+            <div className="selector-row">
               {BUDGETS.map(b => (
                 <button
                   key={b}
-                  className={`pill-btn${budget === b ? ' selected' : ''}`}
+                  className={`selector-tile selector-tile--pill${budget === b ? ' selected' : ''}`}
                   onClick={() => { setBudget(b); reset() }}
                 >
                   {b}
                 </button>
               ))}
             </div>
+            <div className="selector-row-fade" aria-hidden="true" />
           </div>
         </div>
 
         <div className="form-section">
-          <h3 className="form-section-title">
+          <p className="selector-row-label">
             Additional Context <span className="optional-label">(optional)</span>
-          </h3>
+          </p>
           <textarea
             className="form-textarea"
             placeholder="e.g. Mid-century modern living room, already have lights and a star topper, it's for a child's room…"

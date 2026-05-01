@@ -695,8 +695,8 @@ a { text-decoration: none; color: inherit; }
 .empty-icon { font-size: 2.6rem; }
 
 /* ─── Sleigh the Look — Selector Surfaces ────────────────────── */
-.shop-form { display: flex; flex-direction: column; gap: 24px; }
-.form-section { display: flex; flex-direction: column; gap: 12px; }
+.shop-form { display: flex; flex-direction: column; gap: 16px; }
+.form-section { display: flex; flex-direction: column; gap: 6px; }
 .form-section-title {
   font-size: 0.7rem;
   font-weight: 700;
@@ -712,76 +712,127 @@ a { text-decoration: none; color: inherit; }
   font-size: 0.7rem;
 }
 
-.style-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.style-btn {
+/* Horizontal scroll row */
+.selector-row-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.selector-row-wrap { position: relative; }
+.selector-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 8px;
+  padding-bottom: 3px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.selector-row::-webkit-scrollbar { display: none; }
+.selector-row-fade {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 48px;
+  height: calc(100% - 3px);
+  background: linear-gradient(to right, transparent, var(--navy));
+  pointer-events: none;
+}
+
+/* Tree Style tiles */
+.selector-tile--style {
+  flex: 0 0 140px;
+  height: 80px;
+  border-radius: 14px;
+  background: var(--navy-card);
+  border: 1.5px solid var(--border-soft);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 22px 14px;
-  background: #162840;
-  border: 1px solid rgba(201, 168, 76, 0.15);
-  border-radius: 10px;
-  color: #f8f4ec;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.2rem;
-  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
   transition: all var(--transition);
   cursor: pointer;
 }
-.style-btn:hover {
-  transform: translateY(-2px);
-  border-color: rgba(201, 168, 76, 0.4);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+.selector-tile--style:hover {
+  border-color: rgba(201, 168, 76, 0.35);
+  color: var(--text);
+  background: var(--navy-lift);
 }
-.style-btn.selected {
-  background: #1c3350;
-  border-color: #c9a84c;
-  border-top: 2px solid #c9a84c;
-  color: #c9a84c;
+.selector-tile--style.selected {
+  border: 2px solid var(--gold);
+  background: rgba(201, 168, 76, 0.1);
+  color: var(--gold);
 }
 
-.palette-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.palette-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 7px;
-  padding: 12px 6px;
+/* Palette tiles */
+.selector-tile--palette {
+  flex: 0 0 130px;
+  height: 60px;
+  border-radius: 12px;
   background: var(--navy-card);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius);
+  border: 1.5px solid var(--border-soft);
   color: var(--text-muted);
   font-size: 0.7rem;
-  text-align: center;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition);
-}
-.palette-btn:hover { background: var(--navy-lift); border-color: rgba(201, 168, 76, 0.28); }
-.palette-btn.selected {
-  border-color: var(--gold);
-  background: var(--gold-dim);
-  color: var(--text);
-  box-shadow: var(--shadow-gold);
-}
-.palette-swatches { display: flex; gap: 3px; }
-.swatch { display: block; width: 15px; height: 15px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.1); }
-.palette-label { line-height: 1.35; }
-
-.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
-.pill-group { display: flex; flex-wrap: wrap; gap: 7px; }
-.pill-btn {
-  padding: 8px 16px;
-  border-radius: 20px;
-  background: var(--navy-card);
-  border: 1px solid var(--border-soft);
-  color: var(--text-muted);
-  font-size: 0.81rem;
   font-weight: 500;
-  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  text-align: left;
   transition: all var(--transition);
+  cursor: pointer;
 }
-.pill-btn:hover { background: var(--navy-lift); border-color: rgba(201, 168, 76, 0.28); color: var(--text); }
-.pill-btn.selected { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); font-weight: 600; }
+.selector-tile--palette:hover {
+  border-color: rgba(201, 168, 76, 0.35);
+  background: var(--navy-lift);
+  color: var(--text);
+}
+.selector-tile--palette.selected {
+  border: 2px solid var(--gold);
+  background: rgba(201, 168, 76, 0.08);
+  color: var(--text);
+}
+.palette-swatches { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+.swatch { display: block; width: 10px; height: 10px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, 0.1); }
+.palette-tile-label { line-height: 1.3; flex: 1; min-width: 0; }
+
+/* Size / Budget pill tiles */
+.selector-tile--pill {
+  flex: 0 0 auto;
+  height: 44px;
+  border-radius: 22px;
+  padding: 0 18px;
+  background: var(--navy-card);
+  border: 1.5px solid var(--border-soft);
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  transition: all var(--transition);
+  cursor: pointer;
+}
+.selector-tile--pill:hover {
+  border-color: rgba(201, 168, 76, 0.35);
+  background: var(--navy-lift);
+  color: var(--text);
+}
+.selector-tile--pill.selected {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--navy);
+  font-weight: 600;
+}
 
 /* ─── Curation Loading ───────────────────────────────────────── */
 .curation-loading {
@@ -1621,9 +1672,6 @@ h3.shop-section-header {
   .tab-content { padding: 20px 16px; }
   .header-inner { padding: 14px 16px; }
   .form-grid    { grid-template-columns: 1fr; }
-  .style-grid   { grid-template-columns: repeat(2, 1fr); }
-  .palette-grid { grid-template-columns: repeat(2, 1fr); }
-  .form-row-2   { grid-template-columns: 1fr; }
   .ornament-grid { grid-template-columns: 1fr 1fr; }
   .rec-card-header { padding: 16px 16px 14px; gap: 12px; }
   .rec-card-header { gap: 12px; }
