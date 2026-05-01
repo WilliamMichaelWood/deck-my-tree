@@ -1648,15 +1648,10 @@ h3.shop-section-header {
   .curated-card { flex: 0 0 240px; width: 240px; }
 }
 
-.curated-divider {
-  border: none;
-  border-top: 1px solid rgba(201, 168, 76, 0.10);
-  width: 60%;
-  margin: 24px auto 0;
-}
+.curated-divider { display: none; }
 
 .design-your-own-header {
-  margin: 24px 0 20px;
+  margin: 12px 0 16px;
 }
 .design-your-own-header h2 {
   font-family: 'Playfair Display', Georgia, serif;
