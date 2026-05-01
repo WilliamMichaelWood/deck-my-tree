@@ -15,7 +15,7 @@
  *   Type 5 — wildcard:     5–10% (one unexpected category per style)
  *
  * Color ratio rule:
- *   base 60% / secondary 30% / accent 10%
+ *   base 50% / secondary 25% / accent 25%
  */
 
 import { positionOrnaments } from './positionOrnaments'
@@ -57,12 +57,11 @@ const STYLE_CONFIGS = {
     },
 
     // Color counts per size category (must sum to total pool count for that category)
-    // Focals are prominent — mostly base + secondary, no pearl
-    // Accents are tiny — pearl reads as sparkle highlights
+    // 50% champagne / 25% gold / 25% pearl across all 68 ornaments
     colorCounts: {
-      focal:  { base: 7, secondary: 5, accent: 0  },   // 12 total
-      medium: { base: 20, secondary: 10, accent: 2 },   // 32 total
-      accent: { base: 14, secondary: 5,  accent: 5 },   // 24 total
+      focal:  { base: 6, secondary: 3, accent: 3  },   // 12 total
+      medium: { base: 16, secondary: 8, accent: 8  },   // 32 total
+      accent: { base: 12, secondary: 6, accent: 6  },   // 24 total
     },
 
     // Pixel size ranges — match medium tree image (980×1232)
@@ -156,20 +155,29 @@ export function generateStyleLayout(styleId, treeConfig, palette) {
     console.warn(`generateStyleLayout(${styleId}): ${unplaced.length} ornament(s) could not be placed`)
   }
 
+  // --- Topper exclusion zone: filter ornaments whose visual top edge sits within
+  //     the top 8% of foliage height. positionOrnaments reserves 10% by center,
+  //     but large focal ornaments (radius ~37px) still visually impinge on the topper.
+  //     Filter on top edge (y - height/2) rather than center so size is accounted for.
+  const { bbox, foliageBaseY } = treeConfig.treeBounds
+  const foliageH = foliageBaseY - bbox.y
+  const topExclusionY = bbox.y + 0.08 * foliageH  // top 8% of foliage
+  const filtered = positions.filter(p => (p.y - p.height / 2) >= topExclusionY)
+
   return {
     treeId:         treeConfig.treeId,
     imageDimensions: treeConfig.imageDimensions,
     treeBounds:     treeConfig.treeBounds,
-    ornaments:      positions,
+    ornaments:      filtered,
     meta: {
       algorithm: 'generateStyleLayout v1',
       style:     styleId,
       seed:      config.seed,
       counts: {
-        total:  positions.length,
-        focal:  positions.filter(p => p.sizeCategory === 'focal').length,
-        medium: positions.filter(p => p.sizeCategory === 'medium').length,
-        accent: positions.filter(p => p.sizeCategory === 'accent').length,
+        total:  filtered.length,
+        focal:  filtered.filter(p => p.sizeCategory === 'focal').length,
+        medium: filtered.filter(p => p.sizeCategory === 'medium').length,
+        accent: filtered.filter(p => p.sizeCategory === 'accent').length,
       },
     },
   }
