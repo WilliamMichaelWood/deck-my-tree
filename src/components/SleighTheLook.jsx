@@ -1,14 +1,17 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { streamChat } from '../lib/stream'
 import CurationModal from './CurationModal'
 import SleighTheLookTree from './SleighTheLookTree'
 import SparkleIcon from './icons/SparkleIcon'
 import smallLayout from '../data/treeLayouts/small_layout.json'
-import mediumLayout from '../data/treeLayouts/medium_layout.json'
 import largeLayout from '../data/treeLayouts/large_layout.json'
 import xlargeLayout from '../data/treeLayouts/xlarge_layout.json'
+import treeConfigsData from '../data/treeConfigs.json'
+import { generateStyleLayout } from '../utils/generateStyleLayout'
+import { curatedCollections } from '../data/curatedCollections'
 
-const TREE_LAYOUTS = { small: smallLayout, medium: mediumLayout, large: largeLayout, xlarge: xlargeLayout }
+// Phase 1: medium uses the dynamic generator; other sizes still use frozen layouts
+const TREE_LAYOUTS = { small: smallLayout, large: largeLayout, xlarge: xlargeLayout }
 const TREE_APEX = { small: { x: 49.5, y: 29.0 }, medium: { x: 50.2, y: 6.0 }, large: { x: 50.4, y: 5.4 }, xlarge: { x: 48.7, y: 2.8 } }
 
 const TREE_STYLES = [
@@ -382,10 +385,27 @@ function RecommendationCard({ item, index }) {
   )
 }
 
-function StylePreview({ products, topper, size }) {
+function StylePreview({ products, topper, size, palette }) {
   const sizeKey = getSizeKey(size)
-  const layout  = TREE_LAYOUTS[sizeKey]
   const apex    = TREE_APEX[sizeKey]
+
+  // Phase 1 — hardcoded to Gilded Ever After for medium tree.
+  // Regenerates when styleId or palette changes; stable otherwise.
+  const styleId = 'gilded-ever-after'
+  const generatedLayout = useMemo(
+    () => generateStyleLayout(styleId, treeConfigsData.medium, palette),
+    [styleId, palette]
+  )
+
+  const layout = sizeKey === 'medium'
+    ? generatedLayout
+    : TREE_LAYOUTS[sizeKey]
+
+  // Medium: generator bakes in colors — don't pass colors prop
+  // Other sizes: pass product palette so they still reflect AI recommendations
+  const productColors = sizeKey !== 'medium'
+    ? products.map(p => p.color).filter(Boolean)
+    : []
 
   return (
     <div className="ornament-shop-section style-preview-section">
@@ -396,7 +416,7 @@ function StylePreview({ products, topper, size }) {
           <SleighTheLookTree
             layout={layout}
             imageSrc={`/trees/tree-${sizeKey}.jpg`}
-            colors={products.map(p => p.color).filter(Boolean)}
+            colors={productColors}
           />
           {topper && (
             <div
@@ -408,6 +428,57 @@ function StylePreview({ products, topper, size }) {
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+function CuratedCollections() {
+  return (
+    <div className="curated-section">
+      <div className="curated-header">
+        <h2><SparkleIcon size={18} /> Curated Collections</h2>
+      </div>
+      <p className="curated-subhead">Designer-styled trees, ready to shop</p>
+
+      <div className="curated-carousel-wrap">
+        <div className="curated-carousel">
+        {curatedCollections.map(col => {
+          const isLive = col.status === 'live'
+          return (
+            <div key={col.id} className={`curated-card${isLive ? ' curated-card--live' : ' curated-card--soon'}`}>
+              <div className="curated-card-hero">
+                <span className="curated-card-hero-label">{col.name}</span>
+              </div>
+              <div className="curated-card-body">
+                <p className="curated-card-name">{col.name}</p>
+                <p className="curated-card-author">Curated by {col.author}</p>
+                <p className="curated-card-tagline">{col.tagline}</p>
+                {isLive ? (
+                  <>
+                    <p className="curated-card-price">
+                      {col.bundlePriceRange ?? 'Complete the look — coming soon'}
+                    </p>
+                    <div className="curated-card-cta">
+                      <button
+                        className="btn-primary btn-full"
+                        onClick={() => console.log('See the Look:', col.id)}
+                      >
+                        See the Look
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p className="curated-card-coming-soon">Coming soon</p>
+                )}
+              </div>
+            </div>
+          )
+        })}
+        </div>
+        <div className="curated-carousel-fade" aria-hidden="true" />
+      </div>
+
+      <hr className="curated-divider" />
     </div>
   )
 }
@@ -491,6 +562,13 @@ export default function SleighTheLook() {
       <div className="section-header">
         <h2><svg width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '8px', marginBottom: '3px' }}><path d="M11,0.5 L12.8,9.2 L21.5,11 L12.8,12.8 L11,21.5 L9.2,12.8 L0.5,11 L9.2,9.2 Z" fill="#c9a84c"/><circle cx="17.5" cy="4.5" r="1" fill="#c9a84c" opacity="0.5"/><circle cx="4.5" cy="17.5" r="1" fill="#c9a84c" opacity="0.5"/><circle cx="17.5" cy="17.5" r="1" fill="#c9a84c" opacity="0.38"/><circle cx="4.5" cy="4.5" r="1" fill="#c9a84c" opacity="0.38"/></svg>Sleigh the Look</h2>
         <p>Tell your stylist about your tree and they'll curate a personalized ornament shopping list — shoppable on Walmart, Amazon, and Etsy.</p>
+      </div>
+
+      <CuratedCollections />
+
+      <div className="design-your-own-header">
+        <h2><SparkleIcon size={18} /> Design Your Own</h2>
+        <p>Pick your vibe, palette, size, and budget — your stylist will build a shopping list to match.</p>
       </div>
 
       <div className="shop-form">
@@ -595,7 +673,7 @@ export default function SleighTheLook() {
       {(topper || products.length > 0) && (
         <div ref={resultsRef}>
           {products.length > 0 && (
-            <StylePreview products={products} topper={topper} size={size} />
+            <StylePreview products={products} topper={topper} size={size} palette={palette} />
           )}
           {topper && (
             <div className="ornament-shop-section">
