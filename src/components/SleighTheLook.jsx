@@ -566,6 +566,11 @@ export default function SleighTheLook() {
 
       <CuratedCollections />
 
+      <div className="design-your-own-header">
+        <h2><SparkleIcon size={18} /> Design Your Own</h2>
+        <p>Pick your vibe, palette, size, and budget — your stylist will build a shopping list to match.</p>
+      </div>
+
       <div className="shop-form">
         <div className="form-section">
           <h3 className="form-section-title">Tree Style</h3>

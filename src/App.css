@@ -1590,8 +1590,30 @@ h3.shop-section-header {
 
 .curated-divider {
   border: none;
-  border-top: 1px solid rgba(201, 168, 76, 0.15);
-  margin: 28px 0 24px;
+  border-top: 1px solid rgba(201, 168, 76, 0.10);
+  width: 60%;
+  margin: 24px auto 0;
+}
+
+.design-your-own-header {
+  margin: 24px 0 20px;
+}
+.design-your-own-header h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.design-your-own-header p {
+  font-size: 0.88rem;
+  color: var(--white);
+  opacity: 0.7;
+  font-style: italic;
+  margin: 0;
 }
 
 /* ─── Responsive ─────────────────────────────────────────────── */
