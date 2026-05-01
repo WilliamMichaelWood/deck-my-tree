@@ -51,9 +51,9 @@ const STYLE_CONFIGS = {
 
     // Champagne / Gold / Pearl — luxe, warm, editorial
     colors: {
-      base:      '#E8DCCA',  // warm champagne — 60%
-      secondary: '#C9A84C',  // deep gold — 30%
-      accent:    '#F5F0E8',  // soft pearl — 10%
+      base:      '#D4B896',  // warm champagne — 60%
+      secondary: '#B8924E',  // warm antique gold — 30%
+      accent:    '#EDE4D3',  // cream pearl — 10%
     },
 
     // Color counts per size category (must sum to total pool count for that category)
