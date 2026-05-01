@@ -440,7 +440,8 @@ function CuratedCollections() {
       </div>
       <p className="curated-subhead">Designer-styled trees, ready to shop</p>
 
-      <div className="curated-grid">
+      <div className="curated-carousel-wrap">
+        <div className="curated-carousel">
         {curatedCollections.map(col => {
           const isLive = col.status === 'live'
           return (
@@ -473,6 +474,8 @@ function CuratedCollections() {
             </div>
           )
         })}
+        </div>
+        <div className="curated-carousel-fade" aria-hidden="true" />
       </div>
 
       <hr className="curated-divider" />
