@@ -440,29 +440,39 @@ function CuratedCollections() {
       </div>
       <p className="curated-subhead">Designer-styled trees, ready to shop</p>
 
-      <div className="curated-card-row">
-        {curatedCollections.map(col => (
-          <div key={col.id} className="curated-card">
-            <div className="curated-card-hero">
-              <span className="curated-card-hero-label">{col.name}</span>
-            </div>
-            <div className="curated-card-body">
-              <p className="curated-card-name">{col.name}</p>
-              <p className="curated-card-author">Curated by {col.author}</p>
-              <p className="curated-card-price">
-                {col.bundlePriceRange ?? 'Complete the look — coming soon'}
-              </p>
-              <div className="curated-card-cta">
-                <button
-                  className="btn-primary btn-full"
-                  onClick={() => console.log('See the Look:', col.id)}
-                >
-                  See the Look
-                </button>
+      <div className="curated-grid">
+        {curatedCollections.map(col => {
+          const isLive = col.status === 'live'
+          return (
+            <div key={col.id} className={`curated-card${isLive ? ' curated-card--live' : ' curated-card--soon'}`}>
+              <div className="curated-card-hero">
+                <span className="curated-card-hero-label">{col.name}</span>
+              </div>
+              <div className="curated-card-body">
+                <p className="curated-card-name">{col.name}</p>
+                <p className="curated-card-author">Curated by {col.author}</p>
+                <p className="curated-card-tagline">{col.tagline}</p>
+                {isLive ? (
+                  <>
+                    <p className="curated-card-price">
+                      {col.bundlePriceRange ?? 'Complete the look — coming soon'}
+                    </p>
+                    <div className="curated-card-cta">
+                      <button
+                        className="btn-primary btn-full"
+                        onClick={() => console.log('See the Look:', col.id)}
+                      >
+                        See the Look
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <p className="curated-card-coming-soon">Coming soon</p>
+                )}
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
       <hr className="curated-divider" />

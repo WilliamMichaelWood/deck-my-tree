@@ -1449,29 +1449,62 @@ h3.shop-section-header {
   margin-top: 4px;
 }
 
-.curated-card-row {
-  display: flex;
-  flex-direction: row;
+/* ── Grid layout ──────────────────────────────────────────────── */
+.curated-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
-  overflow-x: auto;
-  padding-bottom: 4px;
+}
+@media (max-width: 1023px) {
+  .curated-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 767px) {
+  .curated-grid { grid-template-columns: 1fr; }
 }
 
+/* ── Base card ────────────────────────────────────────────────── */
 .curated-card {
-  flex: 0 0 280px;
-  background: var(--navy-card);
+  background: #F5EFE0;
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(201, 168, 76, 0.2);
+  border: 1px solid #C9A84C;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18), 0 0 0 0px rgba(201,168,76,0.12);
   display: flex;
   flex-direction: column;
 }
 
+/* ── Live card ────────────────────────────────────────────────── */
+.curated-card--live {
+  background: #F5EFE0;
+  border-color: #C9A84C;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22), 0 0 0 3px rgba(201,168,76,0.10);
+}
+.curated-card--live .curated-card-hero {
+  background: #1a3a2a;
+  opacity: 1;
+}
+.curated-card--live .curated-card-name  { color: #0f1f35; opacity: 1; }
+.curated-card--live .curated-card-author { opacity: 0.75; }
+.curated-card--live .curated-card-tagline { opacity: 0.75; }
+
+/* ── Coming-soon card ─────────────────────────────────────────── */
+.curated-card--soon {
+  background: rgba(245, 239, 224, 0.60);
+  border-color: rgba(201, 168, 76, 0.50);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+.curated-card--soon .curated-card-hero {
+  background: #1a3a2a;
+  opacity: 0.60;
+}
+.curated-card--soon .curated-card-name   { color: #0f1f35; opacity: 0.70; }
+.curated-card--soon .curated-card-author { opacity: 0.70; }
+.curated-card--soon .curated-card-tagline { opacity: 0.70; }
+
+/* ── Hero ─────────────────────────────────────────────────────── */
 .curated-card-hero {
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: #1a3a2a;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1486,46 +1519,52 @@ h3.shop-section-header {
   line-height: 1.3;
 }
 
+/* ── Card body ────────────────────────────────────────────────── */
 .curated-card-body {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   flex: 1;
 }
 .curated-card-name {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 1.05rem;
   font-weight: 700;
-  color: var(--gold);
   margin: 0;
 }
 .curated-card-author {
   font-size: 0.78rem;
   font-style: italic;
-  color: var(--white);
-  opacity: 0.75;
+  color: #3a3028;
+  margin: 0;
+}
+.curated-card-tagline {
+  font-size: 0.75rem;
+  font-style: italic;
+  color: #3a3028;
   margin: 0;
 }
 .curated-card-price {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: #7a6850;
   margin: 0;
+  margin-top: 2px;
+}
+.curated-card-coming-soon {
+  font-size: 0.88rem;
+  font-style: italic;
+  color: #C9A84C;
+  margin: 4px 0 0;
 }
 .curated-card-cta {
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 .curated-divider {
   border: none;
   border-top: 1px solid rgba(201, 168, 76, 0.15);
   margin: 28px 0 24px;
-}
-
-@media (max-width: 600px) {
-  .curated-card {
-    flex: 0 0 calc(100vw - 48px);
-  }
 }
 
 /* ─── Responsive ─────────────────────────────────────────────── */
