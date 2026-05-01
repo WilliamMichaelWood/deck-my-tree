@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react'
 import { streamChat } from '../lib/stream'
 import CurationModal from './CurationModal'
+import GildedLookModal from './GildedLookModal'
 import SleighTheLookTree from './SleighTheLookTree'
 import SparkleIcon from './icons/SparkleIcon'
 import smallLayout from '../data/treeLayouts/small_layout.json'
@@ -439,7 +440,7 @@ function StylePreview({ products, topper, size, palette }) {
   )
 }
 
-function CuratedCollections() {
+function CuratedCollections({ onSeeTheLook }) {
   return (
     <div className="curated-section">
       <div className="curated-header">
@@ -468,7 +469,7 @@ function CuratedCollections() {
                     <div className="curated-card-cta">
                       <button
                         className="btn-primary btn-full"
-                        onClick={() => console.log('See the Look:', col.id)}
+                        onClick={onSeeTheLook}
                       >
                         See the Look
                       </button>
@@ -502,8 +503,27 @@ export default function SleighTheLook() {
   const [topper,       setTopper]       = useState(null)
   const [error,        setError]        = useState('')
 
+  const [gildedModalOpen,   setGildedModalOpen]   = useState(false)
+  const [highlightPrefill,  setHighlightPrefill]  = useState(false)
+
   const resultsRef = useRef(null)
+  const diyRef     = useRef(null)
   const canGenerate = style && palette && budget && size
+
+  const handleGoToDIY = () => {
+    setGildedModalOpen(false)
+    setStyle('Elegant')
+    setPalette('Gold & White')
+    reset()
+    setHighlightPrefill(true)
+    setTimeout(() => setHighlightPrefill(false), 1500)
+    setTimeout(() => {
+      if (diyRef.current) {
+        const y = diyRef.current.getBoundingClientRect().top + window.pageYOffset - 80
+        window.scrollTo({ top: y, behavior: 'smooth' })
+      }
+    }, 100)
+  }
 
   useEffect(() => {
     if (!rawResult || loading) return
@@ -571,9 +591,9 @@ export default function SleighTheLook() {
         <p>Curated collections or build your own — your stylist will help you shop the look.</p>
       </div>
 
-      <CuratedCollections />
+      <CuratedCollections onSeeTheLook={() => setGildedModalOpen(true)} />
 
-      <div className="design-your-own-header">
+      <div className="design-your-own-header" ref={diyRef}>
         <h2><SparkleIcon size={18} /> Design Your Own</h2>
         <p>Pick your vibe, palette, size, and budget — your stylist will build a shopping list to match.</p>
       </div>
@@ -587,7 +607,7 @@ export default function SleighTheLook() {
                 <button
                   key={s.id}
                   data-style={s.id}
-                  className={`selector-tile selector-tile--style${style === s.label ? ' selected' : ''}`}
+                  className={`selector-tile selector-tile--style${style === s.label ? ' selected' : ''}${highlightPrefill && style === s.label ? ' prefill-pulse' : ''}`}
                   onClick={() => { setStyle(s.label); reset() }}
                 >
                   {s.label}
@@ -605,7 +625,7 @@ export default function SleighTheLook() {
               {PALETTES.map(p => (
                 <button
                   key={p.id}
-                  className={`selector-tile selector-tile--palette${palette === p.label ? ' selected' : ''}`}
+                  className={`selector-tile selector-tile--palette${palette === p.label ? ' selected' : ''}${highlightPrefill && palette === p.label ? ' prefill-pulse' : ''}`}
                   onClick={() => { setPalette(p.label); reset() }}
                 >
                   <div className="palette-swatches">
@@ -684,6 +704,11 @@ export default function SleighTheLook() {
       </div>
 
       <CurationModal visible={loading} />
+      <GildedLookModal
+        open={gildedModalOpen}
+        onClose={() => setGildedModalOpen(false)}
+        onGoToDIY={handleGoToDIY}
+      />
 
       {error && <div className="error-card">⚠️ {error}</div>}
 

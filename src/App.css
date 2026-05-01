@@ -834,6 +834,83 @@ a { text-decoration: none; color: inherit; }
   font-weight: 600;
 }
 
+/* ─── Gilded Look Modal ──────────────────────────────────────── */
+.gilded-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 31, 53, 0.70);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.gilded-modal-overlay.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.gilded-modal-card {
+  background: #F5EFE0;
+  border: 1px solid #c9a84c;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35), 0 4px 16px rgba(0, 0, 0, 0.2);
+  transform: scale(0.92);
+  transition: transform 0.2s ease;
+}
+.gilded-modal-overlay.is-open .gilded-modal-card {
+  transform: scale(1);
+}
+.gilded-modal-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #c9a84c;
+  text-align: center;
+  margin-bottom: 14px;
+}
+.gilded-modal-body {
+  font-size: 0.94rem;
+  color: #3a3028;
+  text-align: center;
+  line-height: 1.65;
+  margin-bottom: 0;
+}
+.gilded-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 22px;
+}
+.gilded-modal-close-btn {
+  background: none;
+  border: none;
+  color: #5a4e3e;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: center;
+  padding: 8px;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity var(--transition);
+}
+.gilded-modal-close-btn:hover { opacity: 1; }
+
+/* Prefill pulse — brief gold glow on pre-selected tiles */
+@keyframes prefillPulse {
+  0%   { box-shadow: 0 0 0 0   rgba(201, 168, 76, 0.7); }
+  50%  { box-shadow: 0 0 0 6px rgba(201, 168, 76, 0.3); }
+  100% { box-shadow: 0 0 0 0   rgba(201, 168, 76, 0); }
+}
+.prefill-pulse {
+  animation: prefillPulse 0.6s ease 2;
+}
+
 /* ─── Curation Loading ───────────────────────────────────────── */
 .curation-loading {
   display: flex;
