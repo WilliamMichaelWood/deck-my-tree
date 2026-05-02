@@ -49,14 +49,22 @@ export default function SleighTheLookTree({ layout, imageSrc, colors, onOrnament
     }
   }
 
+  // Constrain height to min(55vh, 640px) by capping width.
+  // maxWidth = maxHeight × (imgW/imgH) preserves aspect-ratio so ornament
+  // percentage positions remain pixel-accurate at every rendered size.
+  // margin: 0 auto centres the (potentially narrower) tree in its shell.
+  const aspect = (imgW / imgH).toFixed(4)
+  const maxW = `min(calc(55vh * ${aspect}), calc(640px * ${aspect}), 100%)`
+
   return (
     <div
       className="sleigh-tree-container"
       style={{
         position: 'relative',
         width: '100%',
+        maxWidth: maxW,
+        margin: '0 auto',
         aspectRatio: `${imgW} / ${imgH}`,
-        maxWidth: '100%',
       }}
     >
       <img
