@@ -57,7 +57,7 @@ export const treeStylePersonalities = {
 
   Scandinavian: {
     ornamentTypeDistribution: { ball: 0.25, textural: 0.50, statement: 0.15, reflective: 0.05, wildcard: 0.05 },
-    densityMultiplier: 0.60,
+    densityMultiplier: 0.75,
     avgOrnamentSizeMultiplier: 0.85,
     colorRatioOverride: [0.75, 0.25],
     placementLooseness: 'standard',
