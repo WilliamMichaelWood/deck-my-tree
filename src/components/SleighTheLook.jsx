@@ -8,7 +8,7 @@ import smallLayout from '../data/treeLayouts/small_layout.json'
 import largeLayout from '../data/treeLayouts/large_layout.json'
 import xlargeLayout from '../data/treeLayouts/xlarge_layout.json'
 import treeConfigsData from '../data/treeConfigs.json'
-import { generateStyleLayout } from '../utils/generateStyleLayout'
+import { generateStyleLayout, generateDynamicStyleConfig } from '../utils/generateStyleLayout'
 import { curatedCollections } from '../data/curatedCollections'
 
 // Phase 1: medium uses the dynamic generator; other sizes still use frozen layouts
@@ -393,21 +393,20 @@ function RecommendationCard({ item, index }) {
   )
 }
 
-function StylePreview({ products, topper, size, palette }) {
+function StylePreview({ products, topper, size, palette, treeStyle }) {
   const sizeKey = getSizeKey(size)
   const apex    = TREE_APEX[sizeKey]
 
-  // All sizes now use the dynamic generator.
-  // Regenerates when sizeKey or palette changes; stable otherwise.
-  const styleId = 'gilded-ever-after'
+  // Dynamic generator: derives a unique layout from the user's actual selections.
+  // Regenerates when treeStyle, palette, or sizeKey changes.
   const generatedLayout = useMemo(
-    () => generateStyleLayout(styleId, treeConfigsData[sizeKey], palette, sizeKey),
-    [styleId, sizeKey, palette]
+    () => generateDynamicStyleConfig(treeStyle, palette, sizeKey),
+    [treeStyle, palette, sizeKey]
   )
 
   const layout = generatedLayout
 
-  // Generator bakes colors into the layout for all sizes — no separate colors prop needed
+  // Generator bakes in palette colors — no separate colors prop needed
   const productColors = []
 
   return (
@@ -710,7 +709,7 @@ export default function SleighTheLook() {
       {(topper || products.length > 0) && (
         <div ref={resultsRef}>
           {products.length > 0 && (
-            <StylePreview products={products} topper={topper} size={size} palette={palette} />
+            <StylePreview products={products} topper={topper} size={size} palette={palette} treeStyle={style} />
           )}
           {topper && (
             <div className="ornament-shop-section">
