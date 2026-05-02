@@ -1494,21 +1494,20 @@ h3.shop-section-header {
   margin-bottom: 16px;
 }
 
-/* Outer shell: enforces 4:5 ratio via padding-top trick */
+/* Outer shell: sizes to content — lets each tree's aspect ratio breathe */
 .style-preview-shell {
   width:          100%;
-  position:       relative;
-  padding-top:    125%; /* 5/4 = 1.25 = 125% → 4:5 portrait */
   border-radius:  var(--radius-lg);
   overflow:       hidden;
   border:         1px solid rgba(201, 168, 76, 0.25);
   box-shadow:     0 0 0 3px rgba(201, 168, 76, 0.07);
 }
 
-/* Inner wrap: fills the shell absolutely */
+/* Inner wrap: normal flow, SleighTheLookTree drives the height via aspectRatio.
+   position: relative keeps .preview-topper anchored to this container. */
 .style-preview-wrap {
-  position: absolute;
-  inset:    0;
+  position: relative;
+  width:    100%;
 }
 
 .preview-tree-img {
