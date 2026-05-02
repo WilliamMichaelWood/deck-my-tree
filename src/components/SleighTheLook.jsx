@@ -397,23 +397,18 @@ function StylePreview({ products, topper, size, palette }) {
   const sizeKey = getSizeKey(size)
   const apex    = TREE_APEX[sizeKey]
 
-  // Phase 1 — hardcoded to Gilded Ever After for medium tree.
-  // Regenerates when styleId or palette changes; stable otherwise.
+  // All sizes now use the dynamic generator.
+  // Regenerates when sizeKey or palette changes; stable otherwise.
   const styleId = 'gilded-ever-after'
   const generatedLayout = useMemo(
-    () => generateStyleLayout(styleId, treeConfigsData.medium, palette),
-    [styleId, palette]
+    () => generateStyleLayout(styleId, treeConfigsData[sizeKey], palette, sizeKey),
+    [styleId, sizeKey, palette]
   )
 
-  const layout = sizeKey === 'medium'
-    ? generatedLayout
-    : TREE_LAYOUTS[sizeKey]
+  const layout = generatedLayout
 
-  // Medium: generator bakes in colors — don't pass colors prop
-  // Other sizes: pass product palette so they still reflect AI recommendations
-  const productColors = sizeKey !== 'medium'
-    ? products.map(p => p.color).filter(Boolean)
-    : []
+  // Generator bakes colors into the layout for all sizes — no separate colors prop needed
+  const productColors = []
 
   return (
     <div className="ornament-shop-section style-preview-section">
