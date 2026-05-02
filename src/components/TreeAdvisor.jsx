@@ -69,11 +69,13 @@ function buildDetectedTri(b) {
   const gcy = (top + bot + bot) / 3
   const pull = (vx, vy) => ({ x: vx + INSET * (gcx - vx), y: vy + INSET * (gcy - vy) })
 
-  return {
+  const tri = {
     apex:  pull(cx,  top),
     baseL: pull(lft, bot),
     baseR: pull(rgt, bot),
   }
+  console.log('[TRIANGLE] vertices:', JSON.stringify(tri))
+  return tri
 }
 
 // Linear interpolation: allowed x range at a given y inside the triangle
@@ -226,6 +228,7 @@ function generateClusteredPlacements(n, bounds) {
     }
   }
 
+  console.log(`[POSITIONS] total: ${positions.length}, first 5:`, positions.slice(0, 5))
   return positions
 }
 
@@ -905,8 +908,16 @@ export default function TreeAdvisor() {
           onText: (t) => { detectRaw += t },
         })
         const s = detectRaw.indexOf('{'), e = detectRaw.lastIndexOf('}')
-        if (s !== -1 && e !== -1) treeBoundsRef.current = JSON.parse(detectRaw.slice(s, e + 1))
-      } catch { /* bounds failure is silent — placement uses defaults */ }
+        if (s !== -1 && e !== -1) {
+          treeBoundsRef.current = JSON.parse(detectRaw.slice(s, e + 1))
+          console.log('[BOUNDS] raw AI response:', detectRaw)
+          console.log('[BOUNDS] parsed bounds:', treeBoundsRef.current)
+        } else {
+          console.warn('[BOUNDS] could not find JSON in AI response:', detectRaw)
+        }
+      } catch (err) {
+        console.warn('[BOUNDS] bounds detection threw an error — using defaults:', err)
+      }
 
       // B + C — Analysis and ornament generation in parallel (don't need bounds)
       await Promise.all([
