@@ -870,7 +870,13 @@ export default function TreeAdvisor() {
     }
     const reader = new FileReader()
     reader.onloadend = () => {
-      setImage({ preview: reader.result, base64: reader.result.split(',')[1], mediaType: file.type })
+      const ACCEPTED = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+      let mediaType = file.type
+      if (!ACCEPTED.includes(mediaType)) {
+        console.warn(`[IMAGE] unsupported media type "${mediaType}" — falling back to image/jpeg`)
+        mediaType = 'image/jpeg'
+      }
+      setImage({ preview: reader.result, base64: reader.result.split(',')[1], mediaType })
       setResult('')
       setError('')
       setOrnaments([]); setVarieties([]); setPalette(null); setTopper(null); setLightStrands([]); setHasLights(false)
