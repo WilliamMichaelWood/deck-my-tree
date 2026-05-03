@@ -48,53 +48,99 @@ const getAnalysisPrompt = () => {
   } catch { return BASE_ANALYSIS_PROMPT }
 }
 
-// ── Triangle placement engine (AI-detected bounds) ────────────────────────
-// Claude vision detects the tree bounding box. We build an inset triangle from
-// those coords and generate all positions client-side — AI supplies metadata only.
+// ── 5-point silhouette placement engine (AI-detected bounds) ─────────────
+// Claude vision detects the tree silhouette as 5 horizontal width samples.
+// We build a piecewise-linear profile from those samples and generate all
+// positions client-side — AI supplies shape metadata only.
 
-const DETECT_PROMPT = `Analyze this image and return ONLY a JSON object with the Christmas tree bounding box as image-percentage coordinates, estimated tree height in feet, and whether the tree has string lights: {"treeTop":N,"treeBottom":N,"treeLeft":N,"treeRight":N,"treeCenterX":N,"treeHeightFt":N,"hasLights":true/false}. Look carefully at the tree branches for ANY signs of lighting — warm glowing points, bright spots between branches, illuminated areas, or a general glow emanating from the tree. If there is ANY indication of lights, return hasLights: true. Only return hasLights: false if the tree is clearly completely dark and unlit. If the tree appears professionally photographed, fully decorated, or is in a well-lit indoor setting where lights would be expected, default to hasLights: true. No other text, just the JSON.`
+const DETECT_PROMPT = `Analyze this Christmas tree image and return ONLY a JSON object describing the tree's foliage silhouette as image-percentage coordinates. Measure only the leafy/branch area — exclude the stand, skirt, and floor. Widths are the total branch width as a percentage of the full image width at each zone of the tree. {"foliageTop":N,"foliageBottom":N,"centerX":N,"widths":{"top":N,"upper":N,"middle":N,"lower":N,"bottom":N},"symmetry":N,"fullness":N,"treeHeightFt":N,"hasLights":true/false}. foliageTop/foliageBottom/centerX are % from image top-left. widths.top is at the very tip, upper at 25% down, middle at 50%, lower at 75%, bottom at the base of foliage (just above stand). symmetry is -1.0 (leans left) to +1.0 (leans right). fullness is 0.0 (sparse/bare) to 1.0 (very dense/full). Look carefully at the tree branches for ANY signs of lighting — warm glowing points, bright spots between branches, illuminated areas, or a general glow. If there is ANY indication of lights, return hasLights: true. Only return hasLights: false if the tree is clearly completely dark and unlit. No other text, just the JSON.`
 
-// Build an inset triangle from Claude's detected bounding box
-function buildDetectedTri(b) {
-  const cl  = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
-  const top = cl(b.treeTop    ?? 10,  0,  50)
-  const bot = cl(b.treeBottom ?? 88, 50, 100)
-  const lft = cl(b.treeLeft   ??  5,  0,  45)
-  const rgt = cl(b.treeRight  ?? 95, 55, 100)
-  const cx  = cl(b.treeCenterX ?? 50, 10, 90)
-
-  // Pull each vertex 8% toward centroid — keeps ornaments off the silhouette edge
-  const INSET = 0.08
-  const gcx = (cx  + lft + rgt) / 3
-  const gcy = (top + bot + bot) / 3
-  const pull = (vx, vy) => ({ x: vx + INSET * (gcx - vx), y: vy + INSET * (gcy - vy) })
-
-  const tri = {
-    apex:  pull(cx,  top),
-    baseL: pull(lft, bot),
-    baseR: pull(rgt, bot),
+// Fallback silhouette — used when AI response fails validation
+function buildFallbackSilhouette() {
+  // Typical 7 ft Fraser fir: narrow tip, widest at upper-middle, tapers at base
+  // Widths are normalized (max=100); scale=0.34 → actual max width = 34% of image
+  return {
+    top: 10, bot: 88, cx: 50,
+    widths: { top: 12.5, upper: 68.75, middle: 100, lower: 87.5, bottom: 62.5 },
+    scale: 0.34,
+    symmetry: 0,
+    fullness: 0.7,
   }
-  console.log('[TRIANGLE] vertices:', JSON.stringify(tri))
-  return tri
 }
 
-// Linear interpolation: allowed x range at a given y inside the triangle
-function xRangeAtY(y, tri) {
-  const h    = tri.baseL.y - tri.apex.y
-  const frac = Math.max(0, Math.min(1, (y - tri.apex.y) / h))
-  const hw   = ((tri.baseR.x - tri.baseL.x) / 2) * frac
-  return { xMin: tri.apex.x - hw, xMax: tri.apex.x + hw }
+// Build a validated, normalized 5-point silhouette from AI-detected bounds
+function buildSilhouette(bounds) {
+  const cl = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
+
+  const top      = cl(bounds.foliageTop    ?? 10,  0, 45)
+  const bot      = cl(bounds.foliageBottom ?? 88, 55, 100)
+  const cx       = cl(bounds.centerX       ?? 50, 10, 90)
+  const symmetry = cl(bounds.symmetry      ??  0, -1,  1)
+  const fullness = cl(bounds.fullness      ?? 0.7, 0,  1)
+
+  const rw = bounds.widths || {}
+  const w = {
+    top:    cl(rw.top    ?? 4,  0, 90),
+    upper:  cl(rw.upper  ?? 22, 0, 90),
+    middle: cl(rw.middle ?? 32, 0, 90),
+    lower:  cl(rw.lower  ?? 28, 0, 90),
+    bottom: cl(rw.bottom ?? 20, 0, 90),
+  }
+
+  // Cone check: widest zone must be upper/middle/lower — not the tip or base
+  const innerMax = Math.max(w.upper, w.middle, w.lower)
+  if (w.top >= innerMax || w.bottom >= innerMax) {
+    console.warn('[SILHOUETTE] cone check failed (top or bottom is widest) — using fallback. widths:', JSON.stringify(w))
+    return buildFallbackSilhouette()
+  }
+
+  // Normalize widths so max = 100; track scale factor to convert back to image %
+  const rawMax = Math.max(w.top, w.upper, w.middle, w.lower, w.bottom)
+  const scale  = rawMax / 100
+  const widths = {
+    top:    (w.top    / rawMax) * 100,
+    upper:  (w.upper  / rawMax) * 100,
+    middle: (w.middle / rawMax) * 100,
+    lower:  (w.lower  / rawMax) * 100,
+    bottom: (w.bottom / rawMax) * 100,
+  }
+
+  // Symmetry offset: shift center x by ±6% of the widest zone's actual width
+  const symOffset = symmetry * 0.06 * rawMax
+  const adjCx = cl(cx + symOffset, 10, 90)
+
+  const sil = { top, bot, cx: adjCx, widths, scale, symmetry, fullness }
+  console.log('[SILHOUETTE]', JSON.stringify(sil))
+  return sil
 }
 
-// Point-in-triangle test (sign method) — final safety check
-function triSign(p1x, p1y, p2x, p2y, p3x, p3y) {
-  return (p1x - p3x) * (p2y - p3y) - (p2x - p3x) * (p1y - p3y)
-}
-function pointInTriangle(px, py, ax, ay, bx, by, cx, cy) {
-  const d1 = triSign(px, py, ax, ay, bx, by)
-  const d2 = triSign(px, py, bx, by, cx, cy)
-  const d3 = triSign(px, py, cx, cy, ax, ay)
-  return !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0))
+// Piecewise-linear x range at a given y, using the 5-point silhouette profile
+function xRangeFromSilhouette(y, sil) {
+  const { top, bot, cx, widths, scale } = sil
+  const treeH = bot - top
+  if (treeH <= 0) return { xMin: cx - 10, xMax: cx + 10 }
+
+  const yF = Math.max(0, Math.min(1, (y - top) / treeH))
+  const pts = [
+    [0.00, widths.top   ],
+    [0.25, widths.upper ],
+    [0.50, widths.middle],
+    [0.75, widths.lower ],
+    [1.00, widths.bottom],
+  ]
+
+  // Find the segment yF falls in and linearly interpolate
+  let w = pts[0][1]
+  for (let i = 0; i < pts.length - 1; i++) {
+    if (yF <= pts[i + 1][0]) {
+      const t = (yF - pts[i][0]) / (pts[i + 1][0] - pts[i][0])
+      w = pts[i][1] + t * (pts[i + 1][1] - pts[i][1])
+      break
+    }
+  }
+
+  const halfWidth = (w * scale) / 2
+  return { xMin: cx - halfWidth, xMax: cx + halfWidth }
 }
 
 // ── Ambient light scatter ─────────────────────────────────────────────────────
@@ -114,8 +160,8 @@ const TWINKLE_CSS = `
 const TWINKLE_CLASSES = ['lt-twinkle-a', 'lt-twinkle-b', 'lt-twinkle-c']
 
 function generateAmbientLights(bounds) {
-  const tri    = buildDetectedTri(bounds || {})
-  const treeH  = tri.baseL.y - tri.apex.y
+  const sil    = buildSilhouette(bounds || {})
+  const treeH  = sil.bot - sil.top
   const heightFt = bounds?.treeHeightFt || 6
   const count    = Math.round(heightFt * 80)   // 80 lights per foot
 
@@ -127,10 +173,10 @@ function generateAmbientLights(bounds) {
     attempts++
     // Random y between top 15% and bottom 95% of tree height
     const yF = 0.15 + Math.random() * 0.80
-    const y  = tri.apex.y + yF * treeH
+    const y  = sil.top + yF * treeH
 
     // Random x within the tree boundary at this y, with a 1% inner margin
-    const { xMin, xMax } = xRangeAtY(y, tri)
+    const { xMin, xMax } = xRangeFromSilhouette(y, sil)
     if (xMax - xMin < 1) continue
     const margin = (xMax - xMin) * 0.01
     const x = xMin + margin + Math.random() * (xMax - xMin - margin * 2)
@@ -158,7 +204,7 @@ function generateAmbientLights(bounds) {
 // left/right/center without being perfectly symmetric. Size graduation follows
 // the tapered silhouette: mid-band (40–60%) gets the largest anchors.
 //
-// Every position is clamped to xRangeAtY() — no ornament can escape the
+// Every position is clamped to xRangeFromSilhouette() — no ornament can escape the
 // silhouette. Color distribution is handled in the caller's mapping step.
 
 const BANDS = [
@@ -173,8 +219,8 @@ const GOLDEN_ANGLE = 2.399963  // radians ≈ 137.5°
 const MIN_DIST     = 5.5
 
 function generateClusteredPlacements(n, bounds) {
-  const tri   = buildDetectedTri(bounds || {})
-  const treeH = tri.baseL.y - tri.apex.y
+  const sil   = buildSilhouette(bounds || {})
+  const treeH = sil.bot - sil.top
   const positions = []
 
   for (const band of BANDS) {
@@ -188,9 +234,9 @@ function generateClusteredPlacements(n, bounds) {
       // yF within this band — spread evenly with slight jitter
       const yF = band.yLo + (i / count) * (band.yHi - band.yLo) + (Math.random() - 0.5) * 0.06
       const yFc = Math.max(band.yLo + 0.01, Math.min(band.yHi - 0.01, yF))
-      const cy  = tri.apex.y + yFc * treeH
+      const cy  = sil.top + yFc * treeH
 
-      const { xMin, xMax } = xRangeAtY(cy, tri)
+      const { xMin, xMax } = xRangeFromSilhouette(cy, sil)
       const hw = (xMax - xMin) / 2
 
       // Spiral x: golden angle maps to a lateral offset fraction of half-width
@@ -199,17 +245,17 @@ function generateClusteredPlacements(n, bounds) {
       // Depth: sin maps ornament forward/back — front ornaments have lower depth value
       const depth = Math.round(15 + Math.abs(Math.sin(spiralAngle)) * 70)
 
-      let safeX = tri.apex.x + hw * lateralFrac
+      let safeX = sil.cx + hw * lateralFrac
       let safeY = cy
 
       // Try up to 12 positions, each with increasing jitter, to avoid overlap
       for (let attempt = 0; attempt < 12; attempt++) {
         const jitter  = attempt * 0.8
-        const rawX    = tri.apex.x + hw * lateralFrac + (Math.random() - 0.5) * jitter
+        const rawX    = sil.cx + hw * lateralFrac + (Math.random() - 0.5) * jitter
         const rawY    = cy + (Math.random() - 0.5) * treeH * 0.04
 
-        const cy2 = Math.max(tri.apex.y + 0.5, Math.min(tri.baseL.y - 0.5, rawY))
-        const { xMin: lo, xMax: hi } = xRangeAtY(cy2, tri)
+        const cy2 = Math.max(sil.top + 0.5, Math.min(sil.bot - 0.5, rawY))
+        const { xMin: lo, xMax: hi } = xRangeFromSilhouette(cy2, sil)
         // Hard clamp: 2.0% inside silhouette on each side
         const clampedX = Math.max(lo + 2.0, Math.min(hi - 2.0, rawX))
 
@@ -553,9 +599,8 @@ function TopperSVG({ type, color }) {
 
 function renderTopperLayer(topper, bounds) {
   if (!topper) return null
-  const tri = buildDetectedTri(bounds || {})
-  const x = tri.apex.x
-  const y = Math.max(0, tri.apex.y - 1.5)
+  const x = bounds?.centerX    ?? 50
+  const y = Math.max(0, (bounds?.foliageTop ?? 10) - 1.5)
   return (
     <div style={{
       position: 'absolute',
@@ -977,7 +1022,9 @@ export default function TreeAdvisor() {
           setTopper(top || null)
 
           const heightFt = treeBoundsRef.current?.treeHeightFt
-          const OVERLAY_COUNT = !heightFt ? 70 : heightFt < 4 ? 40 : heightFt < 6 ? 60 : heightFt < 8 ? 80 : 100
+          const fullness = treeBoundsRef.current?.fullness ?? 0.7
+          const baseCount = !heightFt ? 70 : heightFt < 4 ? 40 : heightFt < 6 ? 60 : heightFt < 8 ? 80 : 100
+          const OVERLAY_COUNT = Math.round(baseCount * (0.75 + fullness * 0.5))
           const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
           const placed = assignOrnamentsToPositions(positions, meta)
           setOrnaments(placed)
@@ -1097,7 +1144,9 @@ export default function TreeAdvisor() {
           setVarieties(meta.slice(0, 12))
           setTopper(top || null)
           const heightFt = treeBoundsRef.current?.treeHeightFt
-          const OVERLAY_COUNT = !heightFt ? 70 : heightFt < 4 ? 40 : heightFt < 6 ? 60 : heightFt < 8 ? 80 : 100
+          const fullness = treeBoundsRef.current?.fullness ?? 0.7
+          const baseCount = !heightFt ? 70 : heightFt < 4 ? 40 : heightFt < 6 ? 60 : heightFt < 8 ? 80 : 100
+          const OVERLAY_COUNT = Math.round(baseCount * (0.75 + fullness * 0.5))
           const positions = generateClusteredPlacements(OVERLAY_COUNT, treeBoundsRef.current)
           const placed = assignOrnamentsToPositions(positions, meta)
           setOrnaments(placed)
