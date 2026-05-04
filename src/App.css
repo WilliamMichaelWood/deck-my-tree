@@ -42,11 +42,15 @@
 /* ─── Reset & Base ───────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body {
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(40,80,140,0.35) 0%, rgba(11,31,58,0.6) 35%, rgba(3,11,23,1) 75%),
-    linear-gradient(180deg, #0b1f3a 0%, #081a2f 50%, #030b17 100%);
+  background: linear-gradient(180deg, #0a1628 0%, #050e1a 50%, #020408 100%);
   background-attachment: fixed;
   color: #f8f0df;
   min-height: 100vh;
@@ -58,14 +62,15 @@ html, body {
 body::before {
   content: "";
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   background:
-    radial-gradient(circle at 15% 20%, rgba(230,184,92,0.10), transparent 30%),
-    radial-gradient(circle at 85% 10%, rgba(230,184,92,0.08), transparent 25%),
-    radial-gradient(circle at 50% 80%, rgba(20,60,120,0.15), transparent 40%);
-  opacity: 0.6;
-  z-index: 0;
+    radial-gradient(circle at 20% 30%, rgba(230, 184, 92, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(40, 80, 140, 0.06) 0%, transparent 50%);
+  z-index: 1;
 }
 
 button { cursor: pointer; font-family: inherit; border: none; outline: none; }
@@ -73,9 +78,10 @@ input, select, textarea { font-family: inherit; outline: none; }
 a { text-decoration: none; color: inherit; }
 
 /* ─── App Shell ──────────────────────────────────────────────── */
-.app, main, .page, .container {
+.app, main, .page, .page-content, .container {
+  background: transparent;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 .app {
@@ -386,6 +392,26 @@ a { text-decoration: none; color: inherit; }
   border-color: rgba(230, 199, 122, 0.65);
 }
 .btn-secondary.btn-sm { padding: 6px 14px; min-height: unset; font-size: 0.8rem; }
+
+/* Button aliases */
+button.primary,
+.primary-button { background: linear-gradient(135deg, #f5d78e 0%, #e6b85c 50%, #c9972f 100%); color: #1a1a1a; border: none; border-radius: 12px; padding: 14px 24px; font-weight: 600; font-size: 14px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 6px 18px rgba(230, 184, 92, 0.25); }
+button.primary:hover,
+.primary-button:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(230, 184, 92, 0.35); }
+button.primary:active,
+.primary-button:active { transform: translateY(0); }
+
+button.secondary,
+.secondary-button { background: transparent; border: 1px solid rgba(230, 199, 122, 0.4); color: #e6c77a; border-radius: 12px; padding: 12px 22px; font-weight: 500; font-size: 14px; cursor: pointer; transition: all 0.2s ease; }
+button.secondary:hover,
+.secondary-button:hover { background: rgba(230, 199, 122, 0.08); border-color: rgba(230, 199, 122, 0.65); }
+
+button.text,
+.btn-text,
+.text-button { background: transparent; border: none; color: #e6c77a; font-weight: 500; cursor: pointer; transition: color 0.2s ease; padding: 8px 0; }
+button.text:hover,
+.btn-text:hover,
+.text-button:hover { color: #f5d78e; }
 
 .btn-ghost {
   background: transparent;
