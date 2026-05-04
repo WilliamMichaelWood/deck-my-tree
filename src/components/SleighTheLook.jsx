@@ -580,7 +580,7 @@ export default function SleighTheLook() {
   const reset = () => { setProducts([]); setRawResult(''); setError(''); setTopper(null) }
 
   return (
-    <div>
+    <>
       <SleighTheLookHero />
 
       <div className="tab-content">
@@ -756,6 +756,6 @@ export default function SleighTheLook() {
         </div>
       )}
       </div>
-    </div>
+    </>
   )
 }
