@@ -9,50 +9,46 @@
  * bundlePriceRange: null until bundle pricing is implemented.
  */
 
+// heroImage: replace placeholder paths with real styled collection photos when available.
 export const curatedCollections = [
   {
     id:               'gilded-ever-after',
     name:             'Gilded Ever After',
-    author:           'Deck My Tree',
     tagline:          'Champagne, gold, and pearl — timeless luxe',
-    heroPlaceholder:  true,
-    bundlePriceRange: null,
+    heroImage:        '/trees/tree-xlarge.jpg',
+    badge:            'NEW',
     status:           'live',
   },
   {
     id:               'crimson-enchantment',
     name:             'Crimson Enchantment',
-    author:           'Deck My Tree',
     tagline:          'Deep red, gold, and cream — classic warmth',
-    heroPlaceholder:  true,
-    bundlePriceRange: null,
+    heroImage:        '/trees/tree-large.jpg',
+    badge:            null,
     status:           'coming-soon',
   },
   {
     id:               'silver-snow',
     name:             'Silver & Snow',
-    author:           'Deck My Tree',
     tagline:          'Crimson, silver, and white — wintery sparkle',
-    heroPlaceholder:  true,
-    bundlePriceRange: null,
+    heroImage:        '/trees/tree-medium.jpg',
+    badge:            null,
     status:           'coming-soon',
   },
   {
     id:               'frozen-in-time',
     name:             'Frozen in Time',
-    author:           'Deck My Tree',
     tagline:          'White, silver, and icy blue — crystalline calm',
-    heroPlaceholder:  true,
-    bundlePriceRange: null,
+    heroImage:        '/trees/tree-small.jpg',
+    badge:            null,
     status:           'coming-soon',
   },
   {
     id:               'hearth-holly',
     name:             'Hearth & Holly',
-    author:           'Deck My Tree',
     tagline:          'Berry red, plaid, and natural — farmhouse charm',
-    heroPlaceholder:  true,
-    bundlePriceRange: null,
+    heroImage:        '/trees/tree-medium.jpg',
+    badge:            null,
     status:           'coming-soon',
   },
 ]

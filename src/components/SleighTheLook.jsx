@@ -438,50 +438,49 @@ function StylePreview({ products, topper, size, palette, treeStyle }) {
 function CuratedCollections({ onSeeTheLook }) {
   return (
     <div className="curated-section">
-      <div className="curated-header">
-        <h2><SparkleIcon size={18} /> Curated Collections</h2>
+      <div className="curated-header-row">
+        <div>
+          <h2 className="curated-heading"><SparkleIcon size={16} /> Curated Collections</h2>
+          <p className="curated-subhead">Designer-styled trees, ready to shop</p>
+        </div>
+        <button className="btn-filter-sort">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+            <line x1="1" y1="3" x2="13" y2="3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="3" y1="7" x2="11" y2="7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="5" y1="11" x2="9" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+          Filter &amp; Sort
+        </button>
       </div>
-      <p className="curated-subhead">Designer-styled trees, ready to shop</p>
 
       <div className="curated-carousel-wrap">
         <div className="curated-carousel">
-        {curatedCollections.map(col => {
-          const isLive = col.status === 'live'
-          return (
-            <div key={col.id} className={`curated-card${isLive ? ' curated-card--live' : ' curated-card--soon'}`}>
-              <div className="curated-card-hero">
-                <span className="curated-card-hero-label">{col.name}</span>
+          {curatedCollections.map(col => {
+            const isLive = col.status === 'live'
+            return (
+              <div key={col.id} className={`cc-card${isLive ? '' : ' cc-card--soon'}`}>
+                <div className="cc-card-photo">
+                  <img src={col.heroImage} alt={col.name} className="cc-card-img" draggable={false} />
+                  {col.badge && <span className="cc-badge">✦ {col.badge}</span>}
+                  {!isLive && <div className="cc-card-soon-overlay"><span>Coming Soon</span></div>}
+                </div>
+                <div className="cc-card-body">
+                  <p className="cc-card-name">{col.name}</p>
+                  <p className="cc-card-tagline">{col.tagline}</p>
+                  <button
+                    className="cc-card-cta"
+                    onClick={isLive ? onSeeTheLook : undefined}
+                    disabled={!isLive}
+                  >
+                    View the Look <span className="cc-cta-arrow">›</span>
+                  </button>
+                </div>
               </div>
-              <div className="curated-card-body">
-                <p className="curated-card-name">{col.name}</p>
-                <p className="curated-card-author">Curated by {col.author}</p>
-                <p className="curated-card-tagline">{col.tagline}</p>
-                {isLive ? (
-                  <>
-                    <p className="curated-card-price">
-                      {col.bundlePriceRange ?? 'Complete the look — coming soon'}
-                    </p>
-                    <div className="curated-card-cta">
-                      <button
-                        className="btn-primary btn-full"
-                        onClick={onSeeTheLook}
-                      >
-                        See the Look
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <p className="curated-card-coming-soon">Coming soon</p>
-                )}
-              </div>
-            </div>
-          )
-        })}
+            )
+          })}
         </div>
         <div className="curated-carousel-fade" aria-hidden="true" />
       </div>
-
-      <hr className="curated-divider" />
     </div>
   )
 }
@@ -586,9 +585,24 @@ export default function SleighTheLook() {
       <div className="tab-content">
       <CuratedCollections onSeeTheLook={() => setGildedModalOpen(true)} />
 
-      <div className="design-your-own-header" ref={diyRef}>
-        <h2><SparkleIcon size={18} /> Design Your Own</h2>
-        <p>Pick your vibe, palette, size, and budget — your stylist will build a shopping list to match.</p>
+      <div className="dyo-banner" ref={diyRef} onClick={() => diyRef.current?.querySelector('.shop-form')?.scrollIntoView({ behavior: 'smooth' })}>
+        <div className="dyo-banner-left">
+          <div className="dyo-banner-icon">
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 3 L15.2 12.8 L25 14 L15.2 15.2 L14 25 L12.8 15.2 L3 14 L12.8 12.8 Z" fill="#e6c77a" opacity="0.9"/>
+              <circle cx="22" cy="6" r="1.2" fill="#e6c77a" opacity="0.5"/>
+              <circle cx="6" cy="22" r="1.2" fill="#e6c77a" opacity="0.5"/>
+              <circle cx="22" cy="22" r="0.9" fill="#e6c77a" opacity="0.35"/>
+            </svg>
+          </div>
+          <div>
+            <h3 className="dyo-banner-title">Design Your Own Tree</h3>
+            <p className="dyo-banner-sub">Tell us your style, we'll build your perfect look.</p>
+          </div>
+        </div>
+        <button className="dyo-banner-btn" onClick={e => { e.stopPropagation(); diyRef.current?.nextElementSibling?.scrollIntoView({ behavior: 'smooth', block: 'start' }) }}>
+          Start Designing <span>›</span>
+        </button>
       </div>
 
       <div className="shop-form">
