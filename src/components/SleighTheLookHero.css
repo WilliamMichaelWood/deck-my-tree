@@ -1,0 +1,291 @@
+/* ============================================
+   SLEIGH THE LOOK - HERO STYLES
+   ============================================ */
+
+/* HEADER */
+.stl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: rgba(5, 15, 31, 0.6);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(230, 199, 122, 0.12);
+  position: relative;
+  z-index: 10;
+}
+
+.stl-header-left {
+  display: flex;
+  align-items: center;
+}
+
+.stl-logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stl-logo {
+  font-size: 28px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(230, 199, 122, 0.3);
+  border-radius: 50%;
+  background: rgba(230, 199, 122, 0.05);
+}
+
+.stl-branding {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stl-brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #e6c77a;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.stl-brand-sub {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.stl-header-right {
+  display: flex;
+  align-items: center;
+}
+
+.stl-email-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(230, 199, 122, 0.35);
+  color: #e6c77a;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(6px);
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.stl-email-button:hover {
+  background: rgba(230, 199, 122, 0.08);
+  border-color: #e6c77a;
+  transform: translateY(-1px);
+}
+
+.stl-email-icon {
+  font-size: 16px;
+}
+
+.stl-email-text {
+  white-space: nowrap;
+}
+
+/* HERO SECTION */
+.stl-hero-section {
+  position: relative;
+  background: radial-gradient(circle at top, #0f2a4a 0%, #081a2f 55%, #050f1f 100%);
+  padding: 80px 20px 100px;
+  text-align: center;
+  overflow: hidden;
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Subtle glow overlay */
+.stl-hero-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(230, 199, 122, 0.06), transparent 70%);
+  pointer-events: none;
+}
+
+/* Background tree (left) */
+.stl-bg-tree {
+  position: absolute;
+  bottom: 0;
+  width: 350px;
+  height: 400px;
+  opacity: 0.18;
+  pointer-events: none;
+  filter: blur(3px);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center bottom;
+}
+
+.stl-bg-tree-left {
+  left: -50px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300"><defs><radialGradient id="treeGrad"><stop offset="0%25" style="stop-color:%23f5d78e;stop-opacity:0.8"/><stop offset="100%25" style="stop-color:%23c9972f;stop-opacity:0.3"/></radialGradient></defs><path d="M100 30 L60 120 L140 120 L50 180 L110 180 L30 270 L100 200 L170 270 L110 180 L170 180 L140 120 L220 120 Z" fill="url(%23treeGrad)" stroke="%23e6b85c" stroke-width="1" opacity="0.9"/></svg>');
+}
+
+.stl-bg-tree-right {
+  right: -80px;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300"><defs><radialGradient id="treeGrad2"><stop offset="0%25" style="stop-color:%23f5d78e;stop-opacity:0.8"/><stop offset="100%25" style="stop-color:%23c9972f;stop-opacity:0.3"/></radialGradient></defs><path d="M100 30 L60 120 L140 120 L50 180 L110 180 L30 270 L100 200 L170 270 L110 180 L170 180 L140 120 L220 120 Z" fill="url(%23treeGrad2)" stroke="%23e6b85c" stroke-width="1" opacity="0.9"/></svg>');
+}
+
+/* Sparkle accents */
+.stl-sparkle {
+  position: absolute;
+  color: #e6c77a;
+  font-size: 24px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.stl-sparkle-1 {
+  top: 15%;
+  left: 12%;
+  animation: twinkle 3s ease-in-out infinite;
+}
+
+.stl-sparkle-2 {
+  top: 35%;
+  right: 15%;
+  animation: twinkle 4s ease-in-out infinite 0.5s;
+  font-size: 18px;
+}
+
+.stl-sparkle-3 {
+  bottom: 20%;
+  left: 18%;
+  animation: twinkle 3.5s ease-in-out infinite 1s;
+  font-size: 16px;
+  opacity: 0.5;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.9; }
+}
+
+/* Hero content (centered) */
+.stl-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.stl-hero-icon {
+  display: block;
+  color: #e6c77a;
+  font-size: 24px;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.stl-hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 72px;
+  font-weight: 400;
+  color: #f4e4b8;
+  margin: 0 0 16px 0;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+}
+
+.stl-hero-subtitle {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .stl-header {
+    padding: 16px 16px;
+  }
+
+  .stl-hero-section {
+    padding: 60px 16px 80px;
+    min-height: 400px;
+  }
+
+  .stl-hero-title {
+    font-size: 48px;
+  }
+
+  .stl-hero-subtitle {
+    font-size: 16px;
+  }
+
+  .stl-brand-name {
+    font-size: 18px;
+  }
+
+  .stl-email-text {
+    display: none;
+  }
+
+  .stl-email-button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .stl-bg-tree {
+    width: 250px;
+    height: 300px;
+  }
+
+  .stl-bg-tree-left {
+    left: -100px;
+  }
+
+  .stl-bg-tree-right {
+    right: -120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stl-header-left {
+    gap: 8px;
+  }
+
+  .stl-logo {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+
+  .stl-brand-name {
+    font-size: 16px;
+  }
+
+  .stl-brand-sub {
+    font-size: 9px;
+  }
+
+  .stl-hero-title {
+    font-size: 40px;
+  }
+
+  .stl-hero-subtitle {
+    font-size: 14px;
+  }
+
+  .stl-bg-tree {
+    display: none;
+  }
+}
