@@ -223,15 +223,57 @@ const BANDS = [
 const GOLDEN_ANGLE = 2.399963  // radians ≈ 137.5°
 const MIN_DIST     = 5.5
 
+// Places ornaments anchored to the outer perimeter of the bottom zone (yF 0.65–1.00).
+// Half on each side at 75–90% of half-width from center. Overlap check uses
+// MIN_DIST × 0.8 so they can sit tighter where branches naturally crowd.
+function generateEdgeAnchors(sil, count, existingPositions) {
+  const treeH    = sil.bot - sil.top
+  const anchors  = []
+  const halfLeft = Math.ceil(count / 2)
+
+  for (let side = 0; side < 2; side++) {
+    const sideCount = side === 0 ? halfLeft : count - halfLeft
+    const sign      = side === 0 ? -1 : 1  // -1 = left, +1 = right
+
+    for (let i = 0; i < sideCount; i++) {
+      const yFc = 0.65 + (sideCount > 1 ? i / (sideCount - 1) : 0.5) * 0.35
+      const cy  = sil.top + yFc * treeH
+      const { xMin, xMax } = xRangeFromSilhouette(cy, sil)
+      const hw  = (xMax - xMin) / 2
+
+      const edgeFrac = 0.75 + Math.random() * 0.15
+      const rawX     = sil.cx + sign * hw * edgeFrac
+      const clampedX = Math.max(xMin + 1.0, Math.min(xMax - 1.0, rawX))
+
+      const depth = Math.round(40 + Math.random() * 40)
+      anchors.push({
+        x: +clampedX.toFixed(1),
+        y: +cy.toFixed(1),
+        r: 1.5,
+        z: depth,
+        yF: yFc,
+        tier: 'anchor',
+      })
+    }
+  }
+
+  console.log(`[ANCHORS] edge anchors placed: ${anchors.length}`,
+    anchors.map(a => ({ x: a.x, y: a.y, side: a.x < sil.cx ? 'L' : 'R' })))
+  return anchors
+}
+
 function generateClusteredPlacements(n, bounds) {
   const sil   = buildSilhouette(bounds || {})
   const treeH = sil.bot - sil.top
   const positions = []
 
-  for (const band of BANDS) {
-    const count = Math.max(1, Math.round(n * band.frac))
-    // Starting angle offset per band so each band's spiral is rotated
-    const angleBase = band.yLo * Math.PI * 7
+  for (let bandIdx = 0; bandIdx < BANDS.length; bandIdx++) {
+    const band = BANDS[bandIdx]
+    // Bottom two bands: reduce by 30% to make room for edge anchors
+    const isBottomZone  = bandIdx >= 3
+    const nominalCount  = Math.max(1, Math.round(n * band.frac))
+    const count         = isBottomZone ? Math.max(1, Math.round(nominalCount * 0.70)) : nominalCount
+    const angleBase     = band.yLo * Math.PI * 7
 
     for (let i = 0; i < count; i++) {
       // Golden-angle spiral: spreads points without repetitive symmetry
@@ -278,6 +320,28 @@ function generateClusteredPlacements(n, bounds) {
       positions.push({ x: +safeX.toFixed(1), y: +safeY.toFixed(1), r, z: depth, yF: yFc })
     }
   }
+
+  // Add edge anchors for the bottom zone (30% of what the bottom two bands would have placed)
+  const edgeCount   = Math.round(n * (0.24 + 0.16) * 0.30)
+  const edgeAnchors = generateEdgeAnchors(sil, edgeCount, positions)
+  positions.push(...edgeAnchors)
+
+  // ── Tier assignment (15% anchor, 50% medium, 35% filler) ─────────────────
+  // Edge anchors are already tagged. For spiral positions, score by anchor-worthiness:
+  // eye-level (yF 0.45–0.60) + proximity to centerX. Top scorers → anchor,
+  // bottom scorers → filler, remainder → medium.
+  const spiralPositions = positions.filter(p => p.tier !== 'anchor')
+  const nAnchorEyeLevel = Math.max(0, Math.round(n * 0.15) - edgeAnchors.length)
+  const nFiller         = Math.round(n * 0.35)
+
+  const scored = spiralPositions
+    .map(p => ({ p, score: (p.yF >= 0.45 && p.yF <= 0.60 ? 2 : 0) - Math.abs(p.x - sil.cx) * 0.1 }))
+    .sort((a, b) => b.score - a.score)
+
+  // Default all spiral positions to medium, then override top/bottom slices
+  scored.forEach(({ p }) => { p.tier = 'medium' })
+  scored.slice(0, nAnchorEyeLevel).forEach(({ p }) => { p.tier = 'anchor' })
+  scored.slice(scored.length - nFiller).forEach(({ p }) => { p.tier = 'filler' })
 
   console.log(`[POSITIONS] total: ${positions.length}, first 5:`, positions.slice(0, 5))
   return positions
@@ -664,6 +728,8 @@ function renderLightLayer(lights) {
   )
 }
 
+const TIER_SCALE = { anchor: 1.6, medium: 1.0, filler: 0.7 }
+
 function renderOrnamentLayer(ornaments) {
   return ornaments.map((o, i) => {
     // Every 4th ornament skipped — intentional human-feeling gaps
@@ -672,21 +738,22 @@ function renderOrnamentLayer(ornaments) {
     const z     = o.z ?? 55
     const yF    = o.yF ?? 0.5
     const shape = resolveOrnamentShape(o.shape, o.name)
+    const tier  = o.tier || 'medium'
 
     // Zone-based depth scaling: top=60%, mid=85%, bottom=100%
     const zoneScale = yF < 0.35 ? 0.60 : yF < 0.65 ? 0.85 : 1.00
-    const w = o.r * 2 * zoneScale                     // width %
+    const w = o.r * 2 * zoneScale * TIER_SCALE[tier]  // width % — tier-scaled
     const aspect = SHAPE_ASPECT[shape] ?? 1.23
     const h = w * aspect                              // height % — preserves each shape's natural ratio
 
-    // Depth layer: opacity + z-index
+    // Depth layer: opacity + z-index (raised minimums so back-depth ornaments stay visible)
     let op, zi
-    if      (z < 34) { op = 0.60; zi = 10 + Math.round(z * 0.7) }
-    else if (z < 67) { op = 0.80; zi = 40 + Math.round((z - 34) * 0.9) }
+    if      (z < 34) { op = 0.85; zi = 10 + Math.round(z * 0.7) }
+    else if (z < 67) { op = 0.93; zi = 40 + Math.round((z - 34) * 0.9) }
     else             { op = 1.00; zi = 70 + Math.round((z - 67) * 0.9) }
 
-    const strokeFilter = 'drop-shadow(0 0 1.5px rgba(255,255,255,0.4)) drop-shadow(0px 3px 6px rgba(0,0,0,0.5))'
-    const svgFilter    = z < 34 ? `brightness(0.65) ${strokeFilter}` : strokeFilter
+    // Stronger shadow + white halo so ornaments pop against foliage
+    const svgFilter = 'drop-shadow(0 0 2px rgba(255,255,255,0.5)) drop-shadow(0px 4px 8px rgba(0,0,0,0.65)) drop-shadow(0px 1px 2px rgba(0,0,0,0.5))'
 
     const isFloating = FLOATING_SHAPES.has(shape)
     const glowRadius = shape === 'drop' ? '40% 40% 55% 55%' : shape === 'bow' ? '30%' : '50%'
