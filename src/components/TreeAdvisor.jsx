@@ -87,11 +87,16 @@ function buildSilhouette(bounds) {
     bottom: cl(rw.bottom ?? 20, 0, 90),
   }
 
-  // Cone check: widest zone must be upper/middle/lower — not the tip or base
-  const innerMax = Math.max(w.upper, w.middle, w.lower)
-  if (w.top >= innerMax || w.bottom >= innerMax) {
-    console.warn('[SILHOUETTE] cone check failed (top or bottom is widest) — using fallback. widths:', JSON.stringify(w))
-    return buildFallbackSilhouette()
+  // Shape check: the tip must be the narrowest point and the tree must clearly widen
+  const tipIsNarrowest = w.top < w.upper && w.top < w.middle && w.top < w.lower && w.top < w.bottom
+  const tipIsPlausible = w.top < 50
+  const treeWidensFromTip = Math.max(w.upper, w.middle, w.lower, w.bottom) > w.top * 2
+  if (!tipIsNarrowest || !tipIsPlausible || !treeWidensFromTip) {
+    console.warn('[SILHOUETTE] shape check failed — using fallback. widths:', JSON.stringify(w),
+      { tipIsNarrowest, tipIsPlausible, treeWidensFromTip })
+    const fb = buildFallbackSilhouette()
+    console.log('[SILHOUETTE]', JSON.stringify({ ...fb, source: 'fallback' }))
+    return fb
   }
 
   // Normalize widths so max = 100; track scale factor to convert back to image %
@@ -110,7 +115,7 @@ function buildSilhouette(bounds) {
   const adjCx = cl(cx + symOffset, 10, 90)
 
   const sil = { top, bot, cx: adjCx, widths, scale, symmetry, fullness }
-  console.log('[SILHOUETTE]', JSON.stringify(sil))
+  console.log('[SILHOUETTE]', JSON.stringify({ ...sil, source: 'ai' }))
   return sil
 }
 
