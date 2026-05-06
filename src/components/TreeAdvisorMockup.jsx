@@ -7,7 +7,6 @@ export default function TreeAdvisorMockup() {
       {/* HEADER */}
       <header className="ta-header">
         <div className="ta-header-left">
-          <button className="ta-back">←</button>
           <div className="ta-logo-section">
             <div className="ta-logo">🌲</div>
             <div className="ta-branding">
