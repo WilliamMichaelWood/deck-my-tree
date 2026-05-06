@@ -1359,7 +1359,7 @@ export default function TreeAdvisor() {
       {!result && !overlayLoading && (
         <div className="ta-hero-header">
           <h1 className="ta-hero-title">Tree Advisor</h1>
-          <p className="ta-hero-subtitle">Upload your tree and let our stylist create a custom look for you.</p>
+          <p className="ta-hero-subtitle">Upload your tree and watch the magic.</p>
         </div>
       )}
 
