@@ -1416,34 +1416,26 @@ export default function TreeAdvisor() {
           {!image && (<>
             <p className="ta-privacy-note">Private. Used only to style your tree.</p>
 
-            <div className="ta-tips-card">
-              <p className="ta-tips-title">Tips for best results</p>
-              <div className="ta-tips-grid">
+            <section className="ta-tips-section">
+              <h2 className="ta-tips-heading">TIPS FOR BEST RESULTS</h2>
+              <div className="ta-tips-container">
                 <div className="ta-tip-item">
-                  <svg className="ta-tip-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-                  </svg>
-                  <div className="ta-tip-text"><h4>Good lighting</h4><p>Use natural light.</p></div>
+                  <div className="ta-tip-icon">☀️</div>
+                  <h3 className="ta-tip-title">Good lighting</h3>
+                  <p className="ta-tip-description">Use natural light if possible</p>
                 </div>
                 <div className="ta-tip-item">
-                  <svg className="ta-tip-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="12,2 8,9 4,9 7,13 5,20 12,16 19,20 17,13 20,9 16,9"/>
-                  </svg>
-                  <div className="ta-tip-text"><h4>Full view</h4><p>Show top to base.</p></div>
+                  <div className="ta-tip-icon">⭐</div>
+                  <h3 className="ta-tip-title">Full view</h3>
+                  <p className="ta-tip-description">Capture the entire tree from top to base</p>
                 </div>
                 <div className="ta-tip-item">
-                  <svg className="ta-tip-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
-                    <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
-                    <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
-                  </svg>
-                  <div className="ta-tip-text"><h4>Clear background</h4><p>Avoid clutter.</p></div>
+                  <div className="ta-tip-icon">🎯</div>
+                  <h3 className="ta-tip-title">Clear background</h3>
+                  <p className="ta-tip-description">Avoid clutter so we can focus on your tree</p>
                 </div>
               </div>
-            </div>
+            </section>
           </>)}
 
           {/* Recent Trees */}
