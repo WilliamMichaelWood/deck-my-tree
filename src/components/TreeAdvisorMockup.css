@@ -1,6 +1,5 @@
 .ta-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #0a1628 0%, #050e1a 50%, #020408 100%);
   display: flex;
   flex-direction: column;
   color: #f8f0df;
@@ -12,28 +11,18 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  background: rgba(10, 22, 40, 0.7);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(230, 199, 122, 0.12);
   position: sticky;
   top: 0;
   z-index: 50;
 }
 
-.ta-header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .ta-back {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   background: transparent;
   border: 1px solid rgba(230, 199, 122, 0.25);
-  border-radius: 8px;
-  color: #e6c77a;
-  font-size: 18px;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -44,199 +33,157 @@
 .ta-back:hover {
   background: rgba(230, 199, 122, 0.08);
   border-color: rgba(230, 199, 122, 0.5);
+  color: #e6c77a;
 }
 
-.ta-logo-section {
+.ta-how-it-works {
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.ta-logo {
-  font-size: 24px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(230, 199, 122, 0.25);
-  border-radius: 50%;
-  background: rgba(230, 199, 122, 0.06);
-}
-
-.ta-branding {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.ta-brand-name {
-  font-family: 'Playfair Display', serif;
-  font-size: 16px;
+  gap: 6px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid rgba(230, 199, 122, 0.28);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 13px;
   font-weight: 500;
-  color: #e6c77a;
-  margin: 0;
-  letter-spacing: 0.3px;
-}
-
-.ta-brand-sub {
-  font-size: 9px;
-  color: rgba(255, 255, 255, 0.55);
-  margin: 0;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-.ta-header-right {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.ta-social-link {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(230, 199, 122, 0.3);
-  border-radius: 8px;
-  background: rgba(230, 199, 122, 0.06);
-  color: #e6c77a;
-  transition: all 0.2s ease;
   cursor: pointer;
-  text-decoration: none;
+  transition: all 0.2s ease;
 }
 
-.ta-social-link:hover {
-  background: rgba(230, 199, 122, 0.15);
-  border-color: rgba(230, 199, 122, 0.6);
-  transform: translateY(-1px);
-}
-
-.ta-icon {
-  width: 18px;
-  height: 18px;
+.ta-how-it-works:hover {
+  background: rgba(230, 199, 122, 0.08);
+  border-color: rgba(230, 199, 122, 0.55);
+  color: #e6c77a;
 }
 
 /* -------- CONTENT -------- */
 .ta-content {
   flex: 1;
-  padding: 40px 20px;
-  text-align: center;
+  padding: 24px 24px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
 }
 
 .ta-title {
   font-family: 'Playfair Display', serif;
-  font-size: 42px;
+  font-size: 44px;
   font-weight: 400;
   color: #f8f0df;
   margin: 0 0 12px 0;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
+  text-align: center;
 }
 
 .ta-subtitle {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.72);
-  margin: 0 0 40px 0;
-  max-width: 500px;
-  line-height: 1.5;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 0 36px 0;
+  max-width: 320px;
+  line-height: 1.6;
+  text-align: center;
 }
 
 /* UPLOAD BOX */
 .ta-upload-box {
   width: 100%;
-  max-width: 320px;
-  padding: 40px 20px;
-  border: 1px dashed rgba(230, 199, 122, 0.35);
-  border-radius: 16px;
+  max-width: 380px;
+  padding: 44px 24px;
+  border: 1.5px dashed rgba(230, 199, 122, 0.3);
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.02);
-  backdrop-filter: blur(6px);
-  margin-bottom: 50px;
+  margin-bottom: 20px;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .ta-upload-box:hover {
-  border-color: #e6c77a;
-  background: rgba(230, 199, 122, 0.08);
+  border-color: rgba(230, 199, 122, 0.6);
+  background: rgba(230, 199, 122, 0.04);
 }
 
-.ta-upload-icon {
-  font-size: 44px;
-  margin-bottom: 16px;
+.ta-upload-icon-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(230, 199, 122, 0.45);
+  background: rgba(230, 199, 122, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 20px;
+  color: #e6c77a;
 }
 
 .ta-upload-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
   color: #f8f0df;
   margin: 0 0 8px 0;
 }
 
 .ta-upload-text {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
   margin: 0;
+  line-height: 1.5;
 }
 
 /* TIPS SECTION */
 .ta-tips {
   width: 100%;
-  max-width: 500px;
-  margin-bottom: 40px;
+  max-width: 380px;
+  padding: 24px 20px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(230, 199, 122, 0.12);
+  margin-bottom: 16px;
 }
 
 .ta-tips-title {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   color: #f8f0df;
-  margin: 0 0 24px 0;
-  letter-spacing: 0.3px;
+  margin: 0 0 20px 0;
+  text-align: center;
+  letter-spacing: 0.2px;
 }
 
 .ta-tips-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 8px;
 }
 
 .ta-tip-card {
-  padding: 16px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(230, 199, 122, 0.15);
-  transition: all 0.2s ease;
-}
-
-.ta-tip-card:hover {
-  background: rgba(230, 199, 122, 0.06);
-  border-color: rgba(230, 199, 122, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 4px;
 }
 
 .ta-tip-icon {
-  font-size: 32px;
-  margin-bottom: 12px;
+  color: #e6c77a;
+  margin-bottom: 10px;
+  opacity: 0.85;
 }
 
 .ta-tip-card h4 {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: #f8f0df;
-  margin: 0 0 6px 0;
+  margin: 0 0 5px 0;
 }
 
 .ta-tip-card p {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
   margin: 0;
   line-height: 1.4;
 }
@@ -244,25 +191,25 @@
 /* INFO BOX */
 .ta-info-box {
   width: 100%;
-  max-width: 500px;
-  padding: 16px 20px;
-  border: 1px solid rgba(230, 199, 122, 0.2);
+  max-width: 380px;
+  padding: 14px 18px;
+  border: 1px solid rgba(230, 199, 122, 0.15);
   border-radius: 12px;
-  background: rgba(230, 199, 122, 0.05);
+  background: rgba(230, 199, 122, 0.04);
   display: flex;
   gap: 12px;
   align-items: flex-start;
 }
 
 .ta-info-icon {
-  font-size: 18px;
+  color: rgba(230, 199, 122, 0.6);
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .ta-info-box p {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.65);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
   margin: 0;
   line-height: 1.5;
 }
@@ -272,65 +219,43 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 16px 0;
-  background: rgba(5, 15, 31, 0.88);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid rgba(230, 199, 122, 0.16);
-  gap: 0;
+  padding: 12px 0 20px;
+  background: rgba(5, 12, 25, 0.92);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid rgba(230, 199, 122, 0.12);
 }
 
 .ta-nav-item {
   flex: 1;
-  height: 50px;
   background: transparent;
   border: none;
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 24px;
+  color: rgba(255, 255, 255, 0.45);
   cursor: pointer;
   transition: color 0.2s ease;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 5px;
+  padding: 4px 0;
+}
+
+.ta-nav-item span {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
 }
 
 .ta-nav-item.active {
   color: #e6c77a;
-  border-top: 3px solid #e6c77a;
 }
 
 /* -------- RESPONSIVE -------- */
 @media (max-width: 480px) {
-  .ta-header {
-    padding: 12px 14px;
-  }
-
-  .ta-brand-name {
-    font-size: 14px;
-  }
-
-  .ta-brand-sub {
-    font-size: 8px;
-  }
-
   .ta-title {
-    font-size: 32px;
-  }
-
-  .ta-subtitle {
-    font-size: 14px;
+    font-size: 36px;
   }
 
   .ta-tips-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .ta-social-link {
-    width: 32px;
-    height: 32px;
-  }
-
-  .ta-icon {
-    width: 16px;
-    height: 16px;
+    gap: 4px;
   }
 }
