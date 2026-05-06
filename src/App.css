@@ -2025,30 +2025,37 @@ h3.shop-section-header {
   .rec-why { padding: 10px 16px; }
 
   /* ── Bottom nav ── */
-  .tab-nav    { max-height: 82px; }
+  .tab-nav    { height: 86px; max-height: 86px; }
   .tab-btn    { gap: 3px; padding: 8px 8px 10px; font-size: 0.6rem; }
   .tab-icon svg { width: 24px; height: 24px; }
   .tab-label  { font-size: 13px; }
-  .app-main   { padding-bottom: calc(82px + env(safe-area-inset-bottom, 0px)); min-height: 0; }
+  .app-main   { padding-bottom: calc(86px + env(safe-area-inset-bottom, 0px)); min-height: 0; }
 
   /* ── Tree Advisor header ── */
   .ta-hero-header   { margin-bottom: 0; }
-  .ta-hero-title    { font-size: 54px; letter-spacing: -0.8px; margin: 0 0 8px; }
-  .ta-hero-subtitle { font-size: 19px; font-weight: 400; margin: 0 auto 24px; line-height: 1.25; }
+  .ta-hero-title    { font-size: 42px; line-height: 1.05; margin: 28px 0 10px; text-align: center; }
+  .ta-hero-subtitle { font-size: 18px; line-height: 1.35; max-width: 90%; margin: 0 auto 26px; text-align: center; color: rgba(248, 240, 223, 0.78); }
 
   /* ── Upload card ── */
-  .upload-zone        { min-height: auto; border-radius: 28px; width: calc(100% - 56px); max-width: none; margin: 0 28px 0; }
-  .upload-prompt      { padding: 30px 20px; gap: 6px; }
-  .upload-icon        { width: 72px; height: 72px; margin-bottom: 0; }
-  .upload-icon svg    { width: 30px; height: 30px; }
-  .upload-main-text   { font-size: 28px; line-height: 1.15; margin-bottom: 4px; }
-  .upload-browse-link { font-size: 19px; }
-  .upload-hint        { font-size: 12px; letter-spacing: 0.16em; margin-top: 10px; }
+  .upload-zone        { min-height: auto; border-radius: 26px; width: calc(100% - 48px); max-width: none; margin: 0 24px 28px; }
+  .upload-prompt      { padding: 44px 22px; gap: 0; }
+  .upload-icon        { width: 86px; height: 86px; margin: 0 auto 22px; }
+  .upload-icon svg    { width: 36px; height: 36px; }
+  .upload-main-text   { font-size: 22px; line-height: 1.2; margin-bottom: 10px; }
+  .upload-browse-link { font-size: 16px; line-height: 1.35; margin-bottom: 12px; }
+  .upload-hint        { font-size: 12px; letter-spacing: 0.18em; }
 
   /* ── Privacy note ── */
-  .ta-privacy-note { font-size: 14px; line-height: 1.25; margin: 14px 0 22px; }
+  .ta-privacy-note { font-size: 14px; line-height: 1.35; margin: 0 24px 14px; width: calc(100% - 48px); padding: 16px 18px; border-radius: 18px; text-align: left; }
 
-  /* ── Tips card — no override at 600px, handled at 480px below ── */
+  /* ── Tips card ── */
+  .ta-tips-section    { width: calc(100% - 48px); max-width: none; margin: 0 24px 24px; padding: 26px 18px; border-radius: 26px; }
+  .ta-tips-heading    { font-size: 13px; letter-spacing: 0.22em; margin-bottom: 22px; text-align: center; }
+  .ta-tips-grid       { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; text-align: center; }
+  .ta-tip-item        { display: flex; flex-direction: column; align-items: center; }
+  .ta-tip-icon        { font-size: 32px; margin-bottom: 10px; line-height: 1; }
+  .ta-tip-title       { font-size: 15px; line-height: 1.15; font-weight: 700; margin-bottom: 7px; }
+  .ta-tip-description { font-size: 13px; line-height: 1.25; color: rgba(248, 240, 223, 0.62); }
 }
 @media (max-width: 380px) {
   .ornament-grid { grid-template-columns: 1fr; }
