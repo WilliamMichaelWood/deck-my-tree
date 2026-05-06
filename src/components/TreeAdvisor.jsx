@@ -1426,13 +1426,13 @@ export default function TreeAdvisor() {
                     <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
                     <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
                   </svg>
-                  <div className="ta-tip-text"><h4>Good lighting</h4><p>Use natural light if possible.</p></div>
+                  <div className="ta-tip-text"><h4>Good lighting</h4><p>Use natural light.</p></div>
                 </div>
                 <div className="ta-tip-item">
                   <svg className="ta-tip-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="12,2 8,9 4,9 7,13 5,20 12,16 19,20 17,13 20,9 16,9"/>
                   </svg>
-                  <div className="ta-tip-text"><h4>Full view</h4><p>Capture the entire tree from top to base.</p></div>
+                  <div className="ta-tip-text"><h4>Full view</h4><p>Show top to base.</p></div>
                 </div>
                 <div className="ta-tip-item">
                   <svg className="ta-tip-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1440,7 +1440,7 @@ export default function TreeAdvisor() {
                     <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
                     <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
                   </svg>
-                  <div className="ta-tip-text"><h4>Clear background</h4><p>Avoid clutter so we can focus on your tree.</p></div>
+                  <div className="ta-tip-text"><h4>Clear background</h4><p>Avoid clutter.</p></div>
                 </div>
               </div>
             </div>

@@ -2018,31 +2018,31 @@ h3.shop-section-header {
 
   /* ── Tree Advisor header ── */
   .ta-hero-header   { margin-bottom: 0; }
-  .ta-hero-title    { font-size: 46px; letter-spacing: -0.8px; margin: 28px 0 8px; }
-  .ta-hero-subtitle { font-size: 18px; font-weight: 400; margin: 0 auto 24px; line-height: 1.25; }
+  .ta-hero-title    { font-size: 54px; letter-spacing: -0.8px; margin: 0 0 8px; }
+  .ta-hero-subtitle { font-size: 19px; font-weight: 400; margin: 0 auto 24px; line-height: 1.25; }
 
   /* ── Upload card ── */
-  .upload-zone        { min-height: auto; border-radius: 24px; margin-bottom: 0; max-width: calc(100% - 40px); margin-left: auto; margin-right: auto; }
-  .upload-prompt      { padding: 26px 18px; gap: 0; }
-  .upload-icon        { width: 66px; height: 66px; margin-bottom: 18px; }
+  .upload-zone        { min-height: auto; border-radius: 28px; width: calc(100% - 56px); max-width: none; margin: 0 28px 0; }
+  .upload-prompt      { padding: 30px 20px; gap: 6px; }
+  .upload-icon        { width: 72px; height: 72px; margin-bottom: 0; }
   .upload-icon svg    { width: 30px; height: 30px; }
-  .upload-main-text   { font-size: 24px; line-height: 1.15; margin-bottom: 8px; }
-  .upload-browse-link { font-size: 18px; }
-  .upload-hint        { font-size: 12px; letter-spacing: 0.16em; margin-top: 12px; }
+  .upload-main-text   { font-size: 28px; line-height: 1.15; margin-bottom: 4px; }
+  .upload-browse-link { font-size: 19px; }
+  .upload-hint        { font-size: 12px; letter-spacing: 0.16em; margin-top: 10px; }
 
   /* ── Privacy note ── */
-  .ta-privacy-note { font-size: 14px; line-height: 1.25; margin: 16px 0 22px; }
+  .ta-privacy-note { font-size: 14px; line-height: 1.25; margin: 14px 0 22px; }
 
   /* ── Tips card ── */
-  .ta-tips-card   { padding: 20px 18px; border-radius: 24px; margin-bottom: 0; max-width: calc(100% - 40px); margin-left: auto; margin-right: auto; }
-  .ta-tips-title  { font-size: 12px; letter-spacing: 0.18em; margin: 0 0 18px; text-align: center; }
-  .ta-tips-grid   { display: flex; flex-direction: column; gap: 13px; }
-  .ta-tip-item    { display: grid; grid-template-columns: 36px 1fr; column-gap: 14px; align-items: start; text-align: left; }
-  .ta-tip-icon    { width: 28px; height: 28px; margin-top: 2px; }
+  .ta-tips-card   { padding: 20px 14px; border-radius: 26px; margin-bottom: 0; width: calc(100% - 56px); max-width: none; margin-left: 28px; margin-right: 28px; }
+  .ta-tips-title  { font-size: 12px; letter-spacing: 0.18em; margin: 0 0 16px; text-align: center; }
+  .ta-tips-grid   { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; }
+  .ta-tip-item    { display: flex; flex-direction: column; align-items: center; gap: 0; text-align: center; }
+  .ta-tip-icon    { width: 28px; height: 28px; margin-bottom: 6px; }
   .ta-tip-icon svg { width: 28px; height: 28px; }
-  .ta-tip-text    { display: flex; flex-direction: column; gap: 2px; }
-  .ta-tip-item h4 { font-size: 16px; font-weight: 700; color: #f7efe0; margin: 0 0 2px; }
-  .ta-tip-item p  { display: block; font-size: 13.5px; line-height: 1.25; color: rgba(248, 240, 223, 0.68); margin: 0; }
+  .ta-tip-text    { display: flex; flex-direction: column; align-items: center; }
+  .ta-tip-item h4 { font-size: 15px; font-weight: 700; line-height: 1.1; color: #f7efe0; margin: 0 0 5px; }
+  .ta-tip-item p  { display: block; font-size: 12px; line-height: 1.25; color: rgba(248, 240, 223, 0.62); margin: 0; }
 }
 @media (max-width: 380px) {
   .ornament-grid { grid-template-columns: 1fr; }
