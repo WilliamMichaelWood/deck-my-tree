@@ -6,7 +6,7 @@ import LegalPage from './components/LegalPages'
 import AppFooter from './components/AppFooter'
 import './App.css'
 
-const GREEN = '#3d8c5c'
+const GREEN = 'rgba(255, 245, 220, 0.55)'
 const GOLD  = '#c9a84c'
 
 function TreeIcon({ active }) {
@@ -19,14 +19,14 @@ function TreeIcon({ active }) {
         fill={c}
       />
       {/* Trunk */}
-      <rect x="7.5" y="19" width="3" height="3" rx="1" fill={active ? '#a07828' : '#2a6642'}/>
+      <rect x="7.5" y="19" width="3" height="3" rx="1" fill={active ? '#a07828' : 'rgba(255, 245, 220, 0.55)'}/>
     </svg>
   )
 }
 
 function OrnamentIcon({ active }) {
   const ball = active ? GOLD  : GREEN
-  const cap  = active ? '#a07828' : '#2a6642'
+  const cap  = active ? '#a07828' : 'rgba(255, 245, 220, 0.55)'
   return (
     <svg width="18" height="22" viewBox="0 0 18 22" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
       {/* Cap */}
