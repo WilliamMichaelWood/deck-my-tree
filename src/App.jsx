@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import TreeAdvisor from './components/TreeAdvisorMockup'
+import TreeAdvisor from './components/TreeAdvisor'
 import MyOrnaments from './components/MyOrnaments'
 import SleighTheLook from './components/SleighTheLook'
 import LegalPage from './components/LegalPages'
