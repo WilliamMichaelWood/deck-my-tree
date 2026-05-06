@@ -80,28 +80,6 @@ export default function TreeAdvisorMockup() {
         </div>
       </div>
 
-      {/* BOTTOM NAV */}
-      <nav className="ta-bottom-nav">
-        <button className="ta-nav-item">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="12,2 8,9 4,9 7,13 5,20 12,16 19,20 17,13 20,9 16,9"/>
-          </svg>
-          <span>Curated Looks</span>
-        </button>
-        <button className="ta-nav-item active">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-          </svg>
-          <span>Tree Advisor</span>
-        </button>
-        <button className="ta-nav-item">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 2 C8 2 5 5 5 9 C5 13 8 17 12 22 C16 17 19 13 19 9 C19 5 16 2 12 2Z"/>
-            <line x1="12" y1="6" x2="12" y2="7"/>
-          </svg>
-          <span>My Ornaments</span>
-        </button>
-      </nav>
 
     </div>
   );
