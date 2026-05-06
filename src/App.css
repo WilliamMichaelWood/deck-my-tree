@@ -1998,17 +1998,36 @@ h3.shop-section-header {
   .rec-card-header { gap: 12px; }
   .rec-why { padding: 10px 16px; }
 
-  /* Tree Advisor — mobile sizing */
-  .ta-hero-title  { font-size: 26px; letter-spacing: -0.5px; margin: 0 0 8px; }
-  .ta-hero-subtitle { font-size: 14.5px; font-weight: 500; margin-bottom: 14px; }
-  .upload-zone    { min-height: 260px; border-radius: 18px; margin-bottom: 8px; }
-  .upload-prompt  { padding: 40px 20px; gap: 8px; }
+  /* ── Bottom nav ── */
+  .tab-nav    { max-height: 82px; }
+  .tab-btn    { gap: 3px; padding: 8px 8px 10px; font-size: 0.6rem; }
+  .tab-icon svg { width: 24px; height: 24px; }
+  .tab-label  { font-size: 13px; }
+
+  /* ── Tree Advisor header ── */
+  .ta-hero-header   { margin-bottom: 0; }
+  .ta-hero-title    { font-size: 42px; letter-spacing: -0.8px; margin: 0 0 6px; }
+  .ta-hero-subtitle { font-size: 15px; font-weight: 500; margin: 0 auto 12px; line-height: 1.4; }
+
+  /* ── Upload card ── */
+  .upload-zone    { min-height: auto; border-radius: 24px; margin-bottom: 26px; }
+  .upload-prompt  { padding: 30px 20px; gap: 8px; }
   .upload-icon    { width: 72px; height: 72px; }
   .upload-icon svg { width: 30px; height: 30px; }
-  .upload-prompt p { font-size: 0.9rem; }
-  .ta-tips-card   { padding: 16px 18px; border-radius: 18px; }
-  .ta-tips-title  { margin: 0 0 10px; }
-  .ta-privacy-card { padding: 10px 14px; }
+  .upload-prompt p { font-size: 20px; }
+  .upload-hint    { font-size: 13px; }
+
+  /* ── Tips card ── */
+  .ta-tips-card   { padding: 22px 16px; border-radius: 18px; margin-bottom: 24px; }
+  .ta-tips-title  { font-size: 14px; letter-spacing: 0.18em; margin: 0 0 12px; }
+  .ta-tip-icon svg { width: 30px; height: 30px; }
+  .ta-tip-item    { gap: 3px; }
+  .ta-tip-item h4 { font-size: 16px; }
+  .ta-tip-item p  { font-size: 15px; }
+
+  /* ── Privacy card ── */
+  .ta-privacy-card   { padding: 18px 20px; border-radius: 14px; margin-bottom: 16px; }
+  .ta-privacy-card p { font-size: 16px; line-height: 1.35; }
 }
 @media (max-width: 380px) {
   .ornament-grid { grid-template-columns: 1fr; }
