@@ -5,22 +5,6 @@ export default function TreeAdvisorMockup() {
   return (
     <div className="ta-page">
 
-      {/* HEADER */}
-      <header className="ta-header">
-        <button className="ta-back" aria-label="Back">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 5l-7 7 7 7"/>
-          </svg>
-        </button>
-        <button className="ta-how-it-works">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>
-          </svg>
-          How it works
-        </button>
-      </header>
-
       {/* MAIN CONTENT */}
       <div className="ta-content">
         <h1 className="ta-title">Tree Advisor</h1>
