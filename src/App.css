@@ -113,10 +113,10 @@ a { text-decoration: none; color: inherit; }
   padding: 16px 24px;
 }
 .header-brand { display: flex; align-items: center; gap: 14px; }
-.header-socials { display: flex; align-items: center; gap: 8px; }
+.header-socials { display: flex; align-items: center; gap: 6px; }
 .header-social-link {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -133,8 +133,8 @@ a { text-decoration: none; color: inherit; }
   transform: translateY(-1px);
 }
 .header-logo {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
@@ -146,18 +146,19 @@ a { text-decoration: none; color: inherit; }
 }
 .header-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.55rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--gold);
   letter-spacing: 0.4px;
   line-height: 1.2;
 }
 .header-sub {
-  font-size: 0.69rem;
+  font-size: 0.6rem;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.55);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  white-space: nowrap;
   margin-top: 2px;
 }
 
