@@ -2033,12 +2033,15 @@ h3.shop-section-header {
   .ta-privacy-note { font-size: 13px; margin: 0 0 28px; }
 
   /* ── Tips card ── */
-  .ta-tips-card   { padding: 24px 16px; border-radius: 18px; margin-bottom: 18px; }
-  .ta-tips-title  { font-size: 13px; letter-spacing: 0.2em; margin: 0 0 14px; }
-  .ta-tip-icon svg { width: 30px; height: 30px; }
-  .ta-tip-item    { gap: 6px; }
-  .ta-tip-item h4 { font-size: 16px; }
-  .ta-tip-item p  { display: none; }
+  .ta-tips-card   { padding: 24px 22px; border-radius: 26px; margin-bottom: 18px; }
+  .ta-tips-title  { font-size: 13px; letter-spacing: 0.2em; margin: 0 0 18px; text-align: center; }
+  .ta-tips-grid   { display: flex; flex-direction: column; gap: 18px; }
+  .ta-tip-item    { display: grid; grid-template-columns: 42px 1fr; column-gap: 14px; align-items: start; text-align: left; }
+  .ta-tip-icon    { width: 34px; height: 34px; margin-top: 2px; }
+  .ta-tip-icon svg { width: 34px; height: 34px; }
+  .ta-tip-text    { display: flex; flex-direction: column; gap: 3px; }
+  .ta-tip-item h4 { font-size: 17px; font-weight: 700; color: #f7efe0; margin: 0; }
+  .ta-tip-item p  { display: block; font-size: 14.5px; line-height: 1.35; color: rgba(248, 240, 223, 0.68); margin: 0; }
 }
 @media (max-width: 380px) {
   .ornament-grid { grid-template-columns: 1fr; }
