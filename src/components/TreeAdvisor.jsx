@@ -1357,9 +1357,9 @@ export default function TreeAdvisor() {
     <div className="tab-content">
       {/* Upload section — hidden once results are ready or loading */}
       {!result && !overlayLoading && (
-        <div className="section-header">
-          <h2>🌲 Tree Advisor</h2>
-          <p>Upload a photo of your Christmas tree and your stylist will craft a personalized decoration plan — then show you exactly how it could look, fully decorated.</p>
+        <div className="ta-hero-header">
+          <h1 className="ta-hero-title">Tree Advisor</h1>
+          <p className="ta-hero-subtitle">Upload your tree and let our stylist create a custom look for you.</p>
         </div>
       )}
 
@@ -1380,14 +1380,10 @@ export default function TreeAdvisor() {
                 <div className="upload-prompt">
                   <div className="upload-icon">
                     <svg width="36" height="32" viewBox="0 0 36 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                      {/* Camera body */}
-                      <rect x="1" y="8" width="34" height="22" rx="3.5" stroke="#c9a84c" strokeWidth="1.6"/>
-                      {/* Viewfinder bump */}
-                      <path d="M12 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" stroke="#c9a84c" strokeWidth="1.6" strokeLinecap="round"/>
-                      {/* Lens circle */}
-                      <circle cx="18" cy="19" r="6" stroke="#c9a84c" strokeWidth="1.6"/>
-                      {/* Flash dot */}
-                      <circle cx="29" cy="13" r="1.5" fill="#c9a84c"/>
+                      <rect x="1" y="8" width="34" height="22" rx="3.5" stroke="#7a5014" strokeWidth="1.6"/>
+                      <path d="M12 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2" stroke="#7a5014" strokeWidth="1.6" strokeLinecap="round"/>
+                      <circle cx="18" cy="19" r="6" stroke="#7a5014" strokeWidth="1.6"/>
+                      <circle cx="29" cy="13" r="1.5" fill="#7a5014"/>
                     </svg>
                   </div>
                   <p>Drop your tree photo here or <span className="upload-link">click to browse</span></p>
@@ -1414,6 +1410,48 @@ export default function TreeAdvisor() {
               </button>
             </div>
           )}
+
+          {/* Tips + Privacy — only shown before a photo is selected */}
+          {!image && (<>
+            <div className="ta-tips-card">
+              <p className="ta-tips-title">Tips for best results</p>
+              <div className="ta-tips-grid">
+                <div className="ta-tip-item">
+                  <svg className="ta-tip-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                  </svg>
+                  <h4>Good lighting</h4>
+                  <p>Use natural light if possible</p>
+                </div>
+                <div className="ta-tip-item">
+                  <svg className="ta-tip-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="12,2 8,9 4,9 7,13 5,20 12,16 19,20 17,13 20,9 16,9"/>
+                  </svg>
+                  <h4>Full view</h4>
+                  <p>Capture the entire tree from top to base</p>
+                </div>
+                <div className="ta-tip-item">
+                  <svg className="ta-tip-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
+                    <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
+                    <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
+                  </svg>
+                  <h4>Clear background</h4>
+                  <p>Avoid clutter so we can focus on your tree</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="ta-privacy-card">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <p>Your photo is only used to create your personalized design and is never shared.</p>
+            </div>
+          </>)}
 
           {/* Recent Trees */}
           {recentTrees.length > 0 && (
