@@ -2000,8 +2000,8 @@ h3.shop-section-header {
   /* Tree Advisor — mobile sizing */
   .ta-hero-title  { font-size: 26px; letter-spacing: -0.5px; margin: 0 0 8px; }
   .ta-hero-subtitle { font-size: 13px; margin-bottom: 14px; }
-  .upload-zone    { min-height: 140px; border-radius: 18px; }
-  .upload-prompt  { padding: 22px 20px; gap: 8px; }
+  .upload-zone    { min-height: 200px; border-radius: 18px; }
+  .upload-prompt  { padding: 32px 20px; gap: 8px; }
   .upload-icon    { width: 72px; height: 72px; }
   .upload-icon svg { width: 30px; height: 30px; }
   .upload-prompt p { font-size: 0.9rem; }
