@@ -1931,3 +1931,75 @@ h3.shop-section-header {
 @media (max-width: 380px) {
   .ornament-grid { grid-template-columns: 1fr; }
 }
+
+/* ─── App Footer ──────────────────────────────────────────────── */
+.app-footer {
+  background: rgba(5, 14, 26, 0.92);
+  border-top: 1px solid rgba(230, 199, 122, 0.16);
+  padding: 28px 24px 100px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px 4px;
+}
+
+.footer-links button {
+  background: transparent;
+  border: none;
+  color: #e6c77a;
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 2px 4px;
+  transition: color 0.2s ease;
+}
+
+.footer-links button:hover { color: #f5d78e; }
+
+.footer-links span {
+  color: rgba(230, 199, 122, 0.3);
+  font-size: 0.78rem;
+}
+
+.footer-disclosure {
+  font-size: 0.72rem;
+  color: rgba(248, 240, 223, 0.4);
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.footer-social {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-social a {
+  color: #e6c77a;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-social a:hover { color: #f5d78e; }
+
+.footer-social span {
+  color: rgba(230, 199, 122, 0.3);
+  font-size: 0.7rem;
+}
+
+.footer-copy {
+  font-size: 0.7rem;
+  color: rgba(248, 240, 223, 0.3);
+}
