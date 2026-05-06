@@ -1989,13 +1989,25 @@ h3.shop-section-header {
 
 /* ─── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 600px) {
-  .tab-content { padding: 20px 16px; }
+  .tab-content { padding: 16px 14px; gap: 14px; }
   .header-inner { padding: 14px 16px; }
   .form-grid    { grid-template-columns: 1fr; }
   .ornament-grid { grid-template-columns: 1fr 1fr; }
   .rec-card-header { padding: 16px 16px 14px; gap: 12px; }
   .rec-card-header { gap: 12px; }
   .rec-why { padding: 10px 16px; }
+
+  /* Tree Advisor — mobile sizing */
+  .ta-hero-title  { font-size: 26px; letter-spacing: -0.5px; margin: 0 0 8px; }
+  .ta-hero-subtitle { font-size: 13px; margin-bottom: 14px; }
+  .upload-zone    { min-height: 140px; border-radius: 18px; }
+  .upload-prompt  { padding: 22px 20px; gap: 8px; }
+  .upload-icon    { width: 72px; height: 72px; }
+  .upload-icon svg { width: 30px; height: 30px; }
+  .upload-prompt p { font-size: 0.9rem; }
+  .ta-tips-card   { padding: 16px 18px; border-radius: 18px; }
+  .ta-tips-title  { margin: 0 0 10px; }
+  .ta-privacy-card { padding: 10px 14px; }
 }
 @media (max-width: 380px) {
   .ornament-grid { grid-template-columns: 1fr; }
