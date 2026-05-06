@@ -38,12 +38,6 @@ export default function TreeAdvisorMockup() {
             </svg>
           </a>
 
-          {/* PINTEREST */}
-          <a href="https://pinterest.com/cowboysurferstyle" target="_blank" rel="noopener noreferrer" className="ta-social-link" title="Pinterest">
-            <svg className="ta-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 19c-3.859 0-7-3.141-7-7s3.141-7 7-7 7 3.141 7 7-3.141 7-7 7zm2.5-11.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>
-            </svg>
-          </a>
         </div>
       </header>
 
