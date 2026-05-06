@@ -1359,7 +1359,7 @@ export default function TreeAdvisor() {
       {!result && !overlayLoading && (
         <div className="ta-hero-header">
           <h1 className="ta-hero-title">Tree Advisor</h1>
-          <p className="ta-hero-subtitle">Upload your tree. We'll style it.</p>
+          <p className="ta-hero-subtitle">Upload your tree and let our stylist create a custom look for you.</p>
         </div>
       )}
 
@@ -1386,8 +1386,7 @@ export default function TreeAdvisor() {
                       <circle cx="29" cy="13" r="1.5" fill="#7a5014"/>
                     </svg>
                   </div>
-                  <p className="upload-main-text">Upload your tree photo</p>
-                  <span className="upload-link upload-browse-link">click to browse</span>
+                  <p className="upload-main-text">Drop your tree photo here or <span className="upload-link">click to browse</span></p>
                   <span className="upload-hint">JPG · PNG · WEBP</span>
                 </div>
               </>
@@ -1412,30 +1411,46 @@ export default function TreeAdvisor() {
             </div>
           )}
 
-          {/* Tips — only shown before a photo is selected */}
+          {/* Tips + Privacy — only shown before a photo is selected */}
           {!image && (<>
-            <p className="ta-privacy-note">Private. Used only to style your tree.</p>
-
             <section className="ta-tips-section">
               <h2 className="ta-tips-heading">TIPS FOR BEST RESULTS</h2>
               <div className="ta-tips-grid">
                 <div className="ta-tip-item">
-                  <div className="ta-tip-icon">☀️</div>
+                  <svg className="ta-tip-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                  </svg>
                   <h3 className="ta-tip-title">Good lighting</h3>
                   <p className="ta-tip-description">Use natural light if possible</p>
                 </div>
                 <div className="ta-tip-item">
-                  <div className="ta-tip-icon">⭐</div>
+                  <svg className="ta-tip-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="12,2 8,9 4,9 7,13 5,20 12,16 19,20 17,13 20,9 16,9"/>
+                  </svg>
                   <h3 className="ta-tip-title">Full view</h3>
                   <p className="ta-tip-description">Capture the entire tree from top to base</p>
                 </div>
                 <div className="ta-tip-item">
-                  <div className="ta-tip-icon">⊙</div>
+                  <svg className="ta-tip-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
+                    <line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/>
+                    <line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/>
+                  </svg>
                   <h3 className="ta-tip-title">Clear background</h3>
                   <p className="ta-tip-description">Avoid clutter so we can focus on your tree</p>
                 </div>
               </div>
             </section>
+
+            <div className="ta-privacy-card">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <p>Your photo is only used to create your personalized design and is never shared.</p>
+            </div>
           </>)}
 
           {/* Recent Trees */}
