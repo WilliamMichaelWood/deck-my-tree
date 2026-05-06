@@ -92,7 +92,7 @@
 .ta-upload-box {
   width: 100%;
   max-width: 100%;
-  padding: 36px 24px;
+  padding: 46px 24px;
   border: 1.5px dashed rgba(230, 199, 122, 0.3);
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.02);
@@ -143,8 +143,8 @@
   max-width: 100%;
   padding: 14px 16px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(230, 199, 122, 0.12);
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid rgba(230, 199, 122, 0.07);
   margin-bottom: 12px;
 }
 
@@ -197,9 +197,9 @@
   width: 100%;
   max-width: 100%;
   padding: 14px 18px;
-  border: 1px solid rgba(230, 199, 122, 0.15);
+  border: 1px solid rgba(230, 199, 122, 0.07);
   border-radius: 12px;
-  background: rgba(230, 199, 122, 0.04);
+  background: rgba(255, 255, 255, 0.015);
   display: flex;
   gap: 12px;
   align-items: flex-start;
