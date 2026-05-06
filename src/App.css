@@ -109,9 +109,29 @@ a { text-decoration: none; color: inherit; }
 .header-inner {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   padding: 16px 24px;
 }
 .header-brand { display: flex; align-items: center; gap: 14px; }
+.header-socials { display: flex; align-items: center; gap: 8px; }
+.header-social-link {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(230, 199, 122, 0.3);
+  border-radius: 8px;
+  background: rgba(230, 199, 122, 0.06);
+  color: #e6c77a;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.header-social-link:hover {
+  background: rgba(230, 199, 122, 0.14);
+  border-color: rgba(230, 199, 122, 0.6);
+  transform: translateY(-1px);
+}
 .header-logo {
   width: 48px;
   height: 48px;
