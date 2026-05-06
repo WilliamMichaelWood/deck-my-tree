@@ -1418,7 +1418,7 @@ export default function TreeAdvisor() {
 
             <section className="ta-tips-section">
               <h2 className="ta-tips-heading">TIPS FOR BEST RESULTS</h2>
-              <div className="ta-tips-container">
+              <div className="ta-tips-grid">
                 <div className="ta-tip-item">
                   <div className="ta-tip-icon">☀️</div>
                   <h3 className="ta-tip-title">Good lighting</h3>
@@ -1430,7 +1430,7 @@ export default function TreeAdvisor() {
                   <p className="ta-tip-description">Capture the entire tree from top to base</p>
                 </div>
                 <div className="ta-tip-item">
-                  <div className="ta-tip-icon">🎯</div>
+                  <div className="ta-tip-icon">⊙</div>
                   <h3 className="ta-tip-title">Clear background</h3>
                   <p className="ta-tip-description">Avoid clutter so we can focus on your tree</p>
                 </div>

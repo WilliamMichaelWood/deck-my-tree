@@ -347,9 +347,9 @@ a { text-decoration: none; color: inherit; }
 /* ─── Tips Section ───────────────────────────────────────────── */
 .ta-tips-section {
   width: 100%;
-  max-width: 600px;
-  margin: 50px auto;
-  padding: 32px 24px;
+  max-width: 100%;
+  margin: 50px 0;
+  padding: 40px 24px;
   border: 1px solid rgba(230, 199, 122, 0.18);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.02);
@@ -357,7 +357,7 @@ a { text-decoration: none; color: inherit; }
   -webkit-backdrop-filter: blur(6px);
 }
 .ta-tips-heading {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 1.5px;
   color: rgba(255, 255, 255, 0.65);
@@ -365,21 +365,32 @@ a { text-decoration: none; color: inherit; }
   text-transform: uppercase;
   text-align: center;
 }
-.ta-tips-container {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
+.ta-tips-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 }
 .ta-tip-item {
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
 }
-.ta-tip-icon       { font-size: 48px; line-height: 1; }
-.ta-tip-title      { font-size: 18px; font-weight: 600; color: #f8f0df; margin: 0; letter-spacing: 0.3px; }
-.ta-tip-description { font-size: 14px; color: rgba(255, 255, 255, 0.65); margin: 0; line-height: 1.5; max-width: 280px; }
+.ta-tip-icon        { font-size: 44px; margin-bottom: 16px; line-height: 1; }
+.ta-tip-title       { font-size: 16px; font-weight: 600; color: #f8f0df; margin: 0 0 8px; letter-spacing: 0.3px; }
+.ta-tip-description { font-size: 13px; color: rgba(255, 255, 255, 0.65); margin: 0; line-height: 1.5; }
+@media (max-width: 768px) {
+  .ta-tips-grid       { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .ta-tip-icon        { font-size: 36px; margin-bottom: 12px; }
+  .ta-tip-title       { font-size: 14px; }
+  .ta-tip-description { font-size: 12px; }
+}
+@media (max-width: 480px) {
+  .ta-tips-grid       { grid-template-columns: 1fr; gap: 20px; }
+  .ta-tip-icon        { font-size: 40px; }
+  .ta-tip-title       { font-size: 15px; }
+  .ta-tip-description { font-size: 13px; }
+}
 
 /* ─── Privacy Note (inline, below upload zone) ───────────────── */
 .ta-privacy-note {
@@ -2038,14 +2049,6 @@ h3.shop-section-header {
   .ta-privacy-note { font-size: 14px; line-height: 1.25; margin: 14px 0 22px; }
 
   /* ── Tips card — no override at 600px, handled at 480px below ── */
-}
-@media (max-width: 480px) {
-  .ta-tips-section    { padding: 24px 18px; margin: 40px auto; }
-  .ta-tips-heading    { font-size: 13px; margin-bottom: 24px; }
-  .ta-tips-container  { gap: 24px; }
-  .ta-tip-icon        { font-size: 40px; }
-  .ta-tip-title       { font-size: 16px; }
-  .ta-tip-description { font-size: 13px; }
 }
 @media (max-width: 380px) {
   .ornament-grid { grid-template-columns: 1fr; }
