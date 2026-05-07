@@ -59,6 +59,22 @@ body,
 }
 
 
+/* Gold sparkle overlay */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: url('/sparkle-bg.jpg');
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  filter: invert(1) hue-rotate(180deg);
+  mix-blend-mode: screen;
+  opacity: 0.75;
+}
+
 /* Atmospheric light layer */
 body::before {
   content: "";
