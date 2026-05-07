@@ -72,10 +72,10 @@ body::after {
   background-position: center top;
   background-repeat: no-repeat;
   mix-blend-mode: screen;
-  opacity: 0.22;
-  filter: blur(1.6px);
-  mask-image: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.75) 16%, rgba(0,0,0,0.12) 38%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.12) 62%, rgba(0,0,0,0.75) 84%, rgba(0,0,0,1) 100%);
-  -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.75) 16%, rgba(0,0,0,0.12) 38%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.12) 62%, rgba(0,0,0,0.75) 84%, rgba(0,0,0,1) 100%);
+  opacity: 0.30;
+  filter: blur(0.4px) brightness(0.75);
+  mask-image: radial-gradient(circle at center, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.65) 42%, rgba(0,0,0,1) 100%);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.65) 42%, rgba(0,0,0,1) 100%);
 }
 
 /* Atmospheric light layer */
