@@ -1386,7 +1386,7 @@ export default function TreeAdvisor() {
                       <circle cx="29" cy="13" r="1.5" fill="#7a5014"/>
                     </svg>
                   </div>
-                  <p className="upload-main-text">Choose a tree photo</p>
+                  <p className="upload-main-text">Drop your tree photo here or <span className="upload-link">click to browse</span></p>
                   <span className="upload-hint">JPG · PNG · WEBP</span>
                 </div>
               </>
