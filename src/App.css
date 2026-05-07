@@ -72,10 +72,7 @@ body::after {
   background-position: center top;
   background-repeat: no-repeat;
   mix-blend-mode: screen;
-  opacity: 0.30;
-  filter: blur(0.4px) brightness(0.75);
-  mask-image: radial-gradient(circle at center, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.65) 42%, rgba(0,0,0,1) 100%);
-  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0.18) 0%, rgba(0,0,0,0.65) 42%, rgba(0,0,0,1) 100%);
+  opacity: 0.55;
 }
 
 /* Atmospheric light layer */
