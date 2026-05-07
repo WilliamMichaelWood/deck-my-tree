@@ -66,36 +66,50 @@ body::after {
   pointer-events: none;
   z-index: 1;
   background:
-    /* left edge ribbon */
-    radial-gradient(circle at 4%  12%, rgba(230,184,92,0.70) 0px, transparent 2px),
-    radial-gradient(circle at 7%  22%, rgba(230,184,92,0.50) 0px, transparent 1.5px),
-    radial-gradient(circle at 3%  35%, rgba(230,184,92,0.60) 0px, transparent 2px),
-    radial-gradient(circle at 8%  47%, rgba(230,184,92,0.45) 0px, transparent 1.5px),
-    radial-gradient(circle at 5%  58%, rgba(230,184,92,0.55) 0px, transparent 2px),
-    radial-gradient(circle at 10% 70%, rgba(230,184,92,0.40) 0px, transparent 1.5px),
-    radial-gradient(circle at 6%  82%, rgba(230,184,92,0.50) 0px, transparent 2px),
-    radial-gradient(circle at 14% 18%, rgba(230,184,92,0.35) 0px, transparent 1.5px),
-    radial-gradient(circle at 12% 42%, rgba(230,184,92,0.45) 0px, transparent 2px),
-    radial-gradient(circle at 16% 65%, rgba(230,184,92,0.30) 0px, transparent 1.5px),
-    /* right edge ribbon */
-    radial-gradient(circle at 96% 10%, rgba(230,184,92,0.65) 0px, transparent 2px),
-    radial-gradient(circle at 93% 24%, rgba(230,184,92,0.45) 0px, transparent 1.5px),
-    radial-gradient(circle at 97% 38%, rgba(230,184,92,0.55) 0px, transparent 2px),
-    radial-gradient(circle at 91% 52%, rgba(230,184,92,0.40) 0px, transparent 1.5px),
-    radial-gradient(circle at 95% 64%, rgba(230,184,92,0.50) 0px, transparent 2px),
-    radial-gradient(circle at 89% 76%, rgba(230,184,92,0.35) 0px, transparent 1.5px),
-    radial-gradient(circle at 94% 88%, rgba(230,184,92,0.45) 0px, transparent 2px),
-    radial-gradient(circle at 86% 30%, rgba(230,184,92,0.30) 0px, transparent 1.5px),
-    radial-gradient(circle at 84% 55%, rgba(230,184,92,0.40) 0px, transparent 2px),
-    /* scattered mid */
-    radial-gradient(circle at 28% 8%,  rgba(230,184,92,0.35) 0px, transparent 1.5px),
-    radial-gradient(circle at 52% 5%,  rgba(230,184,92,0.30) 0px, transparent 1.5px),
-    radial-gradient(circle at 74% 9%,  rgba(230,184,92,0.35) 0px, transparent 1.5px),
-    radial-gradient(circle at 38% 92%, rgba(230,184,92,0.30) 0px, transparent 1.5px),
-    radial-gradient(circle at 62% 95%, rgba(230,184,92,0.35) 0px, transparent 1.5px),
-    radial-gradient(circle at 22% 50%, rgba(230,184,92,0.20) 0px, transparent 1.5px),
-    radial-gradient(circle at 78% 48%, rgba(230,184,92,0.20) 0px, transparent 1.5px);
-  filter: blur(0.6px);
+    /* left edge ribbon — bright */
+    radial-gradient(circle at 4%  8%,  rgba(255,210,100,1.0) 0px, transparent 3px),
+    radial-gradient(circle at 7%  16%, rgba(255,210,100,0.9) 0px, transparent 2.5px),
+    radial-gradient(circle at 2%  24%, rgba(255,210,100,1.0) 0px, transparent 3px),
+    radial-gradient(circle at 9%  31%, rgba(255,210,100,0.8) 0px, transparent 2px),
+    radial-gradient(circle at 4%  40%, rgba(255,210,100,1.0) 0px, transparent 3.5px),
+    radial-gradient(circle at 11% 49%, rgba(255,210,100,0.9) 0px, transparent 2.5px),
+    radial-gradient(circle at 5%  57%, rgba(255,210,100,1.0) 0px, transparent 3px),
+    radial-gradient(circle at 13% 63%, rgba(255,210,100,0.8) 0px, transparent 2px),
+    radial-gradient(circle at 6%  72%, rgba(255,210,100,1.0) 0px, transparent 3px),
+    radial-gradient(circle at 10% 80%, rgba(255,210,100,0.9) 0px, transparent 2.5px),
+    radial-gradient(circle at 3%  88%, rgba(255,210,100,1.0) 0px, transparent 3px),
+    radial-gradient(circle at 15% 20%, rgba(255,210,100,0.7) 0px, transparent 2px),
+    radial-gradient(circle at 18% 38%, rgba(255,210,100,0.8) 0px, transparent 2.5px),
+    radial-gradient(circle at 14% 55%, rgba(255,210,100,0.7) 0px, transparent 2px),
+    radial-gradient(circle at 19% 74%, rgba(255,210,100,0.8) 0px, transparent 2.5px),
+    /* right edge ribbon — bright */
+    radial-gradient(circle at 96% 6%,  rgba(255,210,100,1.0) 0px, transparent 3px),
+    radial-gradient(circle at 93% 14%, rgba(255,210,100,0.9) 0px, transparent 2.5px),
+    radial-gradient(circle at 98% 22%, rgba(255,210,100,1.0) 0px, transparent 3px),
+    radial-gradient(circle at 91% 30%, rgba(255,210,100,0.8) 0px, transparent 2px),
+    radial-gradient(circle at 96% 39%, rgba(255,210,100,1.0) 0px, transparent 3.5px),
+    radial-gradient(circle at 89% 48%, rgba(255,210,100,0.9) 0px, transparent 2.5px),
+    radial-gradient(circle at 95% 56%, rgba(255,210,100,1.0) 0px, transparent 3px),
+    radial-gradient(circle at 87% 65%, rgba(255,210,100,0.8) 0px, transparent 2px),
+    radial-gradient(circle at 94% 73%, rgba(255,210,100,1.0) 0px, transparent 3px),
+    radial-gradient(circle at 90% 82%, rgba(255,210,100,0.9) 0px, transparent 2.5px),
+    radial-gradient(circle at 97% 90%, rgba(255,210,100,1.0) 0px, transparent 3px),
+    radial-gradient(circle at 85% 18%, rgba(255,210,100,0.7) 0px, transparent 2px),
+    radial-gradient(circle at 82% 36%, rgba(255,210,100,0.8) 0px, transparent 2.5px),
+    radial-gradient(circle at 83% 58%, rgba(255,210,100,0.7) 0px, transparent 2px),
+    radial-gradient(circle at 81% 77%, rgba(255,210,100,0.8) 0px, transparent 2.5px),
+    /* scattered across */
+    radial-gradient(circle at 30% 6%,  rgba(255,210,100,0.8) 0px, transparent 2.5px),
+    radial-gradient(circle at 50% 4%,  rgba(255,210,100,0.7) 0px, transparent 2px),
+    radial-gradient(circle at 70% 7%,  rgba(255,210,100,0.8) 0px, transparent 2.5px),
+    radial-gradient(circle at 25% 94%, rgba(255,210,100,0.8) 0px, transparent 2.5px),
+    radial-gradient(circle at 55% 96%, rgba(255,210,100,0.7) 0px, transparent 2px),
+    radial-gradient(circle at 75% 93%, rgba(255,210,100,0.8) 0px, transparent 2.5px),
+    radial-gradient(circle at 35% 50%, rgba(255,210,100,0.5) 0px, transparent 2px),
+    radial-gradient(circle at 65% 45%, rgba(255,210,100,0.5) 0px, transparent 2px),
+    radial-gradient(circle at 45% 75%, rgba(255,210,100,0.4) 0px, transparent 1.5px),
+    radial-gradient(circle at 55% 25%, rgba(255,210,100,0.4) 0px, transparent 1.5px);
+  filter: blur(0.4px);
 }
 
 /* Atmospheric light layer */
