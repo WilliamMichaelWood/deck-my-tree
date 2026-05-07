@@ -66,13 +66,16 @@ body::after {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
   background-image: url('/sparkle-bg.jpg');
   background-size: cover;
   background-position: center top;
   background-repeat: no-repeat;
   mix-blend-mode: screen;
-  opacity: 0.85;
+  opacity: 0.22;
+  filter: blur(1.6px);
+  mask-image: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.75) 16%, rgba(0,0,0,0.12) 38%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.12) 62%, rgba(0,0,0,0.75) 84%, rgba(0,0,0,1) 100%);
+  -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.75) 16%, rgba(0,0,0,0.12) 38%, rgba(0,0,0,0.04) 50%, rgba(0,0,0,0.12) 62%, rgba(0,0,0,0.75) 84%, rgba(0,0,0,1) 100%);
 }
 
 /* Atmospheric light layer */
@@ -98,7 +101,7 @@ a { text-decoration: none; color: inherit; }
 .app, main, .page, .page-content, .container {
   background: transparent;
   position: relative;
-  z-index: 2;
+  z-index: 1;
 }
 
 .app {
