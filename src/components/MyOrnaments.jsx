@@ -672,81 +672,126 @@ export default function MyOrnaments() {
       {ornaments.length === 0 && (
         <div className="myo-archive">
 
-          {/* Hero */}
+          {/* Hero — swap /hero-ornaments.jpg in once you have the photo */}
           <div className="myo-archive-hero">
-            <div className="myo-archive-bokeh" aria-hidden="true" />
+            <div className="myo-archive-hero-overlay" aria-hidden="true" />
             <div className="myo-archive-emblem">
-              <svg width="36" height="42" viewBox="0 0 36 42" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="14.5" y="0" width="7" height="7.5" rx="2.2" fill="none"/>
-                <path d="M18 7.5 C18 7.5 22 7.5 22 4"/>
-                <circle cx="18" cy="27" r="14"/>
-                <ellipse cx="12.5" cy="21.5" rx="3" ry="1.8" opacity="0.3" stroke="currentColor"/>
+              {/* Orbiting sparkle stars */}
+              <svg className="myo-archive-emblem-ring" width="96" height="96" viewBox="0 0 96 96" fill="none">
+                {/* 4 small sparkle stars at cardinal-ish positions */}
+                <path d="M48,4 L48.7,7.3 L52,8 L48.7,8.7 L48,12 L47.3,8.7 L44,8 L47.3,7.3 Z" fill="#c9a84c" opacity="0.9"/>
+                <path d="M88,48 L88.7,51.3 L92,52 L88.7,52.7 L88,56 L87.3,52.7 L84,52 L87.3,51.3 Z" fill="#c9a84c" opacity="0.9"/>
+                <path d="M48,84 L48.7,87.3 L52,88 L48.7,88.7 L48,92 L47.3,88.7 L44,88 L47.3,87.3 Z" fill="#c9a84c" opacity="0.9"/>
+                <path d="M4,48 L4.7,51.3 L8,52 L4.7,52.7 L4,56 L3.3,52.7 L0,52 L3.3,51.3 Z" fill="#c9a84c" opacity="0.9"/>
+              </svg>
+              {/* Bauble with sparkle detail */}
+              <svg width="38" height="44" viewBox="0 0 38 44" fill="none" stroke="#e6c77a" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="15" y="0" width="8" height="8" rx="2.5" fill="none"/>
+                <path d="M19 8 C19 8 23 8 23 4.5"/>
+                <circle cx="19" cy="29" r="14"/>
+                {/* Sparkle inside bauble */}
+                <path d="M19,22 L19.6,24.4 L22,25 L19.6,25.6 L19,28 L18.4,25.6 L16,25 L18.4,24.4 Z" strokeWidth="0.8"/>
               </svg>
             </div>
-            <h1 className="myo-archive-headline">Your Collection Starts Here</h1>
+            <h1 className="myo-archive-headline">Your Collection<br/>Starts Here</h1>
             <p className="myo-archive-sub">Save ornaments, colors, and styles that inspire your perfect tree.</p>
             <button className="myo-archive-cta" onClick={() => setAddModal(true)}>+ Add Ornament</button>
           </div>
 
-          {/* Divider */}
-          <div className="myo-archive-divider">
-            <span className="myo-archive-divider-line" />
-            <svg width="16" height="16" viewBox="0 0 20 20" fill="#c9a84c" opacity="0.7">
-              <path d="M10,1 L11.6,8.4 L19,10 L11.6,11.6 L10,19 L8.4,11.6 L1,10 L8.4,8.4 Z"/>
-            </svg>
-            <span className="myo-archive-divider-line" />
+          {/* Divider + label */}
+          <div className="myo-archive-divider-wrap">
+            <div className="myo-archive-divider">
+              <span className="myo-archive-divider-line" />
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="#c9a84c" opacity="0.85">
+                <path d="M10,1 L11.6,8.4 L19,10 L11.6,11.6 L10,19 L8.4,11.6 L1,10 L8.4,8.4 Z"/>
+              </svg>
+              <span className="myo-archive-divider-line" />
+            </div>
+            <p className="myo-archive-collections-label">YOUR COLLECTIONS</p>
           </div>
 
           {/* Collection preview */}
           <div className="myo-archive-collections">
-            <p className="myo-archive-collections-label">YOUR COLLECTIONS</p>
             <div className="myo-archive-scroll">
-              <div className="myo-archive-card myo-archive-card--champagne">
-                <div className="myo-archive-card-swatch">
-                  <span style={{background:'#f5d78e'}}/>
-                  <span style={{background:'#e6b85c'}}/>
-                  <span style={{background:'#c9972f'}}/>
-                  <span style={{background:'#fff8e7'}}/>
+
+              {/* Champagne & Gold — swap bg: url('/collection-champagne.jpg') */}
+              <div className="myo-archive-card">
+                <div className="myo-archive-card-photo myo-archive-card-photo--champagne">
+                  <button className="myo-archive-card-bookmark" aria-label="Save collection">
+                    <svg width="13" height="16" viewBox="0 0 13 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 1h11v14l-5.5-3.5L1 15V1z"/>
+                    </svg>
+                  </button>
                 </div>
-                <p className="myo-archive-card-name">Champagne &amp; Gold</p>
-                <p className="myo-archive-card-mood">Glam · Luminous</p>
-              </div>
-              <div className="myo-archive-card myo-archive-card--woodland">
-                <div className="myo-archive-card-swatch">
-                  <span style={{background:'#7a5c3a'}}/>
-                  <span style={{background:'#a67c52'}}/>
-                  <span style={{background:'#4a6741'}}/>
-                  <span style={{background:'#d4b896'}}/>
+                <div className="myo-archive-card-body">
+                  <p className="myo-archive-card-name">Champagne &amp; Gold</p>
+                  <p className="myo-archive-card-mood">Warm · Elegant · Timeless</p>
+                  <div className="myo-archive-card-count">
+                    <svg width="13" height="15" viewBox="0 0 13 15" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"><circle cx="6.5" cy="10" r="4"/><rect x="5" y="0" width="3" height="3" rx="1"/><path d="M6.5 3v2"/></svg>
+                    <span>24 items</span>
+                  </div>
                 </div>
-                <p className="myo-archive-card-name">Woodland Warmth</p>
-                <p className="myo-archive-card-mood">Cozy · Organic</p>
               </div>
-              <div className="myo-archive-card myo-archive-card--silver">
-                <div className="myo-archive-card-swatch">
-                  <span style={{background:'#c8d6e0'}}/>
-                  <span style={{background:'#8fa8bb'}}/>
-                  <span style={{background:'#e8eef2'}}/>
-                  <span style={{background:'#5b7a90'}}/>
+
+              {/* Woodland Warmth — swap bg: url('/collection-woodland.jpg') */}
+              <div className="myo-archive-card">
+                <div className="myo-archive-card-photo myo-archive-card-photo--woodland">
+                  <button className="myo-archive-card-bookmark" aria-label="Save collection">
+                    <svg width="13" height="16" viewBox="0 0 13 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 1h11v14l-5.5-3.5L1 15V1z"/>
+                    </svg>
+                  </button>
                 </div>
-                <p className="myo-archive-card-name">Silver &amp; Snow</p>
-                <p className="myo-archive-card-mood">Classic · Crisp</p>
+                <div className="myo-archive-card-body">
+                  <p className="myo-archive-card-name">Woodland Warmth</p>
+                  <p className="myo-archive-card-mood">Natural · Cozy · Inviting</p>
+                  <div className="myo-archive-card-count">
+                    <svg width="13" height="15" viewBox="0 0 13 15" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"><circle cx="6.5" cy="10" r="4"/><rect x="5" y="0" width="3" height="3" rx="1"/><path d="M6.5 3v2"/></svg>
+                    <span>18 items</span>
+                  </div>
+                </div>
               </div>
+
+              {/* Silver & Snow — swap bg: url('/collection-silver.jpg') */}
+              <div className="myo-archive-card">
+                <div className="myo-archive-card-photo myo-archive-card-photo--silver">
+                  <button className="myo-archive-card-bookmark" aria-label="Save collection">
+                    <svg width="13" height="16" viewBox="0 0 13 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 1h11v14l-5.5-3.5L1 15V1z"/>
+                    </svg>
+                  </button>
+                </div>
+                <div className="myo-archive-card-body">
+                  <p className="myo-archive-card-name">Silver &amp; Snow</p>
+                  <p className="myo-archive-card-mood">Crisp · Classic · Serene</p>
+                  <div className="myo-archive-card-count">
+                    <svg width="13" height="15" viewBox="0 0 13 15" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"><circle cx="6.5" cy="10" r="4"/><rect x="5" y="0" width="3" height="3" rx="1"/><path d="M6.5 3v2"/></svg>
+                    <span>16 items</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
-            <p className="myo-archive-collections-hint">Your personal collections will appear here as you save ornaments.</p>
           </div>
 
           {/* Stylist value block */}
           <div className="myo-archive-value">
             <div className="myo-archive-value-icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e6c77a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#e6c77a" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 4l5 5-9.5 9.5-5.5 1 1-5.5L15 4z"/><path d="M18 7l-1-1"/>
-                <path d="M3 21l3-1"/>
+                {/* sparkle top-right */}
+                <path d="M20,2 L20.4,3.6 L22,4 L20.4,4.4 L20,6 L19.6,4.4 L18,4 L19.6,3.6 Z" strokeWidth="0.8"/>
+                {/* sparkle bottom-left */}
+                <path d="M4,18 L4.3,19.1 L5.4,19.4 L4.3,19.7 L4,20.8 L3.7,19.7 L2.6,19.4 L3.7,19.1 Z" strokeWidth="0.8"/>
               </svg>
             </div>
-            <div>
+            <div className="myo-archive-value-body">
               <p className="myo-archive-value-title">Built for Your Perfect Tree</p>
-              <p className="myo-archive-value-text">Your stylist uses every piece you save to craft recommendations around what you already own and love.</p>
+              <p className="myo-archive-value-text">Your stylist uses your saved ornaments and collections to create personalized looks just for you.</p>
             </div>
+            <svg className="myo-archive-value-chevron" width="9" height="16" viewBox="0 0 9 16" fill="none" stroke="rgba(201,168,76,0.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1 1l7 7-7 7"/>
+            </svg>
           </div>
 
         </div>
