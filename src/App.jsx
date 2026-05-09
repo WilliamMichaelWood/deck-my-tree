@@ -13,13 +13,16 @@ function TreeIcon({ active }) {
   const c = active ? GOLD : GREEN
   return (
     <svg width="18" height="22" viewBox="0 0 18 22" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
-      {/* Three-tier tree */}
-      <path
-        d="M9,1 L13,7 H11 L15,13 H12.5 L16,19 H2 L5.5,13 H3 L7,7 H5 Z"
-        fill={c}
-      />
+      {/* Topper */}
+      <ellipse cx="9" cy="1.5" rx="1.1" ry="1.5" fill={c}/>
+      {/* Tier 1 — top (small) */}
+      <path d="M9,3.2 L6,7.8 L12,7.8 Z" fill="none" stroke={c} strokeWidth="1.1" strokeLinejoin="round"/>
+      {/* Tier 2 — middle */}
+      <path d="M9,6.2 L3.5,13 L14.5,13 Z" fill="none" stroke={c} strokeWidth="1.1" strokeLinejoin="round"/>
+      {/* Tier 3 — bottom (wide) */}
+      <path d="M9,11.2 L1,19.2 L17,19.2 Z" fill="none" stroke={c} strokeWidth="1.1" strokeLinejoin="round"/>
       {/* Trunk */}
-      <rect x="7.5" y="19" width="3" height="3" rx="1" fill={active ? '#a07828' : 'rgba(255, 245, 220, 0.55)'}/>
+      <rect x="7.8" y="19.2" width="2.4" height="2.4" rx="0.5" fill={c}/>
     </svg>
   )
 }
