@@ -40,19 +40,21 @@
 
 /* Emblem with orbiting sparkles */
 .myo-archive-emblem {
-  width: 96px;
-  height: 96px;
+  width: 76px;
+  height: 76px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
   z-index: 1;
 }
 
 .myo-archive-emblem-ring {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
 }
 
@@ -60,11 +62,11 @@
 .myo-archive-emblem::before {
   content: "";
   position: absolute;
-  inset: 10px;
+  inset: 8px;
   border-radius: 50%;
   border: 1px solid rgba(201, 168, 76, 0.5);
   background: rgba(201, 168, 76, 0.06);
-  box-shadow: 0 0 36px rgba(201, 168, 76, 0.15), inset 0 1px 0 rgba(255,255,255,0.08);
+  box-shadow: 0 0 28px rgba(201, 168, 76, 0.15), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .myo-archive-emblem svg:last-child {
@@ -75,11 +77,11 @@
 
 .myo-archive-headline {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: clamp(38px, 7vw, 64px);
+  font-size: clamp(30px, 7vw, 64px);
   font-weight: 400;
   color: #e6c77a;
   line-height: 1.08;
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   letter-spacing: -0.3px;
   position: relative;
   z-index: 1;
@@ -90,7 +92,7 @@
   color: rgba(248, 240, 223, 0.72);
   line-height: 1.5;
   max-width: 340px;
-  margin: 0 auto 24px;
+  margin: 0 auto 20px;
   position: relative;
   z-index: 1;
 }
@@ -122,7 +124,7 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding: 18px 24px 14px;
+  padding: 14px 24px 10px;
 }
 
 .myo-archive-divider {
@@ -314,21 +316,32 @@
 }
 
 @media (max-width: 600px) {
-  .myo-archive-hero      { padding: 32px 20px 30px; }
-  .myo-archive-headline  { font-size: 38px; }
-  .myo-archive-sub       { font-size: 15px; max-width: 300px; }
+  .myo-archive-hero         { padding: 22px 20px 24px; }
+  .myo-archive-emblem       { width: 64px; height: 64px; margin-bottom: 10px; }
+  .myo-archive-headline     { font-size: 30px; margin: 0 0 6px; }
+  .myo-archive-sub          { font-size: 13px; max-width: 280px; margin: 0 auto 16px; }
+  .myo-archive-cta          { min-height: 48px; font-size: 0.95rem; }
+  .myo-archive-divider-wrap { padding: 12px 20px 8px; }
+  .myo-archive-collections  { padding: 0 12px; margin-bottom: 16px; }
   .myo-archive-scroll {
-    grid-template-columns: repeat(3, minmax(130px, 1fr));
+    grid-template-columns: repeat(3, minmax(110px, 1fr));
     overflow-x: auto;
-    gap: 10px;
+    gap: 8px;
     padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
   .myo-archive-scroll::-webkit-scrollbar { display: none; }
-  .myo-archive-card-photo { height: 100px; }
-  .myo-archive-card-name  { font-size: 12px; }
-  .myo-archive-card-mood  { font-size: 9px; }
+  .myo-archive-card-photo   { height: 90px; }
+  .myo-archive-card-body    { padding: 8px 10px 9px; gap: 3px; }
+  .myo-archive-card-name    { font-size: 11px; }
+  .myo-archive-card-mood    { font-size: 9px; }
+  .myo-archive-card-count   { margin-top: 2px; }
+  .myo-archive-card-count span { font-size: 10px; }
+  .myo-archive-value        { margin: 0 12px; padding: 12px 14px; gap: 12px; }
+  .myo-archive-value-icon   { width: 38px; height: 38px; }
+  .myo-archive-value-title  { font-size: 0.88rem; }
+  .myo-archive-value-text   { font-size: 0.75rem; }
 }
 
 /* ── Collection header ── */
