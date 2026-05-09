@@ -19,7 +19,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 52px 24px 48px;
+  padding: 38px 24px 36px;
   position: relative;
   overflow: hidden;
   /* placeholder gradient — replace with: background-image: url('/hero-ornaments.jpg'); */
@@ -46,7 +46,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 26px;
+  margin-bottom: 18px;
   z-index: 1;
 }
 
@@ -79,7 +79,7 @@
   font-weight: 400;
   color: #e6c77a;
   line-height: 1.08;
-  margin: 0 0 16px;
+  margin: 0 0 10px;
   letter-spacing: -0.3px;
   position: relative;
   z-index: 1;
@@ -90,7 +90,7 @@
   color: rgba(248, 240, 223, 0.72);
   line-height: 1.5;
   max-width: 340px;
-  margin: 0 auto 32px;
+  margin: 0 auto 24px;
   position: relative;
   z-index: 1;
 }
@@ -122,7 +122,7 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding: 28px 24px 20px;
+  padding: 18px 24px 14px;
 }
 
 .myo-archive-divider {
@@ -225,7 +225,7 @@
 
 /* Card body */
 .myo-archive-card-body {
-  padding: 12px 13px 14px;
+  padding: 10px 12px 11px;
   display: flex;
   flex-direction: column;
   gap: 5px;
@@ -253,7 +253,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-top: 4px;
+  margin-top: 2px;
   color: rgba(248, 240, 223, 0.38);
 }
 .myo-archive-card-count span {
@@ -270,16 +270,16 @@
   background: rgba(8, 14, 26, 0.85);
   border: 1px solid rgba(201, 168, 76, 0.2);
   border-radius: 18px;
-  padding: 18px 20px;
+  padding: 14px 16px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .myo-archive-value-icon {
   flex-shrink: 0;
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(201, 168, 76, 0.08);
   border: 1px solid rgba(201, 168, 76, 0.24);
@@ -314,7 +314,7 @@
 }
 
 @media (max-width: 600px) {
-  .myo-archive-hero      { padding: 44px 20px 44px; }
+  .myo-archive-hero      { padding: 32px 20px 30px; }
   .myo-archive-headline  { font-size: 38px; }
   .myo-archive-sub       { font-size: 15px; max-width: 300px; }
   .myo-archive-scroll {
