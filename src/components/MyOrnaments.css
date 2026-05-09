@@ -282,13 +282,9 @@
   flex-shrink: 0;
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  background: rgba(201, 168, 76, 0.08);
-  border: 1px solid rgba(201, 168, 76, 0.24);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 20px rgba(201, 168, 76, 0.1);
 }
 
 .myo-archive-value-body {
@@ -339,7 +335,7 @@
   .myo-archive-card-count   { margin-top: 1px; }
   .myo-archive-card-count span { font-size: 10px; }
   .myo-archive-value        { margin: 0 12px; padding: 10px 14px; gap: 12px; }
-  .myo-archive-value-icon   { width: 36px; height: 36px; }
+  .myo-archive-value-icon   { width: 40px; height: 40px; }
   .myo-archive-value-title  { font-size: 0.85rem; }
   .myo-archive-value-text   { font-size: 0.73rem; }
 }
