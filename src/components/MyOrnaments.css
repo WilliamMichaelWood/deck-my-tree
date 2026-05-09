@@ -21,41 +21,59 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-top: 36px;
-  margin-bottom: 10px;
+  margin-top: 34px;
+  margin-bottom: 34px;
   gap: 0;
+  position: relative;
+}
+
+.myo-vault-hero::before {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  background:
+    radial-gradient(circle at 50% 25%, rgba(230,184,92,0.08), transparent 38%),
+    radial-gradient(circle at 50% 10%, rgba(255,255,255,0.035), transparent 28%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .myo-vault-icon {
-  width: 96px;
-  height: 96px;
+  width: 84px;
+  height: 84px;
   border-radius: 999px;
-  border: 1px solid rgba(230, 184, 92, 0.42);
-  background: rgba(230, 184, 92, 0.08);
+  border: 1px solid rgba(230, 184, 92, 0.36);
+  background: rgba(230, 184, 92, 0.06);
   color: #e6c77a;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 42px rgba(230, 184, 92, 0.16);
-  margin-bottom: 28px;
+  box-shadow: 0 0 32px rgba(230, 184, 92, 0.12);
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .myo-vault-headline {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: clamp(42px, 6vw, 64px);
+  font-size: clamp(38px, 6vw, 64px);
   font-weight: 400;
   color: #e6c77a;
   line-height: 1.05;
-  margin: 0 0 16px;
+  margin: 0 0 14px;
   letter-spacing: -0.5px;
+  position: relative;
+  z-index: 1;
 }
 
 .myo-vault-subtitle {
-  font-size: 18px;
+  font-size: 17px;
   color: rgba(248, 240, 223, 0.72);
   line-height: 1.45;
-  max-width: 620px;
-  margin: 0 auto 28px;
+  max-width: 580px;
+  margin: 0 auto 26px;
+  position: relative;
+  z-index: 1;
 }
 
 .myo-vault-btn {
@@ -63,7 +81,7 @@
   color: #1a1208;
   border: none;
   border-radius: 18px;
-  min-height: 58px;
+  min-height: 56px;
   padding: 0 34px;
   font-size: 1rem;
   font-weight: 700;
@@ -71,6 +89,8 @@
   box-shadow: 0 14px 32px rgba(230, 184, 92, 0.25);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
   letter-spacing: 0.02em;
+  position: relative;
+  z-index: 1;
 }
 .myo-vault-btn:hover {
   transform: translateY(-2px);
@@ -80,13 +100,15 @@
 .myo-vault-micro {
   font-size: 14px;
   color: rgba(248, 240, 223, 0.52);
-  margin: 14px 0 0;
+  margin: 12px 0 0;
+  position: relative;
+  z-index: 1;
 }
 
 /* Section title shared */
 .myo-vault-section-title {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: #e6c77a;
   margin: 0 0 6px;
@@ -96,9 +118,9 @@
 /* Style Profile panel */
 .myo-vault-panel {
   background: rgba(5, 15, 28, 0.78);
-  border: 1px solid rgba(230, 184, 92, 0.18);
+  border: 1px solid rgba(230, 184, 92, 0.16);
   border-radius: 26px;
-  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.24);
   padding: 24px;
 }
 
@@ -146,33 +168,42 @@
 .myo-vault-learn-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 14px;
 }
 
 .myo-vault-learn-card {
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(230, 184, 92, 0.12);
   border-radius: 18px;
-  padding: 18px;
+  padding: 16px 18px;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.myo-vault-learn-icon {
+  color: #e6c77a;
+  flex-shrink: 0;
 }
 
 .myo-vault-learn-title {
-  font-size: 0.85rem;
+  font-size: 18px;
   font-weight: 700;
   color: rgba(248, 240, 223, 0.9);
-  margin: 0 0 6px;
+  margin: 0;
+  line-height: 1.2;
 }
 .myo-vault-learn-text {
-  font-size: 0.78rem;
+  font-size: 15px;
   color: rgba(248, 240, 223, 0.5);
   margin: 0;
-  line-height: 1.45;
+  line-height: 1.35;
 }
 
 @media (max-width: 600px) {
   .myo-vault-learn-grid { grid-template-columns: 1fr; gap: 10px; }
-  .myo-vault-headline   { font-size: 42px; }
+  .myo-vault-headline   { font-size: 38px; }
   .myo-vault-subtitle   { font-size: 16px; }
 }
 

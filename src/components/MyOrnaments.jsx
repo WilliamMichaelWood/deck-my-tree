@@ -675,9 +675,15 @@ export default function MyOrnaments() {
           {/* Hero */}
           <div className="myo-vault-hero">
             <div className="myo-vault-icon">
-              <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2C8.5 2 6 4.5 6 7c0 1.5.6 2.8 1.5 3.8L12 22l4.5-11.2C17.4 9.8 18 8.5 18 7c0-2.5-2.5-5-6-5z"/>
-                <circle cx="12" cy="7" r="2"/>
+              <svg width="38" height="44" viewBox="0 0 38 44" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                {/* Cap */}
+                <rect x="16" y="0" width="6" height="7" rx="2" fill="none"/>
+                {/* Hook */}
+                <path d="M19 7 C19 7 22 7 22 4"/>
+                {/* Bauble */}
+                <circle cx="19" cy="28" r="15"/>
+                {/* Highlight */}
+                <ellipse cx="13.5" cy="22" rx="3" ry="2" opacity="0.35" stroke="currentColor"/>
               </svg>
             </div>
             <h1 className="myo-vault-headline">Your Ornament Vault</h1>
@@ -723,14 +729,23 @@ export default function MyOrnaments() {
             <h2 className="myo-vault-section-title">What Your Stylist Will Learn</h2>
             <div className="myo-vault-learn-grid">
               <div className="myo-vault-learn-card">
+                <svg className="myo-vault-learn-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e6c77a" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="13.5" cy="6.5" r="2.5"/><circle cx="6.5" cy="11.5" r="2.5"/><circle cx="17.5" cy="14.5" r="2.5"/><circle cx="10" cy="18" r="2"/>
+                </svg>
                 <p className="myo-vault-learn-title">Colors You Love</p>
                 <p className="myo-vault-learn-text">We'll learn your preferred palette.</p>
               </div>
               <div className="myo-vault-learn-card">
+                <svg className="myo-vault-learn-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e6c77a" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="15" r="7"/><path d="M10 6V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/><path d="M12 8v2"/>
+                </svg>
                 <p className="myo-vault-learn-title">Pieces You Own</p>
                 <p className="myo-vault-learn-text">We'll style around your real ornaments.</p>
               </div>
               <div className="myo-vault-learn-card">
+                <svg className="myo-vault-learn-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e6c77a" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M15 4l5 5-9.5 9.5-5.5 1 1-5.5L15 4z"/><path d="M18 7l-1-1"/>
+                </svg>
                 <p className="myo-vault-learn-title">Looks That Fit</p>
                 <p className="myo-vault-learn-text">We'll suggest additions that complete the tree.</p>
               </div>
