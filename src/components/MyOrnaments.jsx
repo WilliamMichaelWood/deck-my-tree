@@ -777,20 +777,7 @@ export default function MyOrnaments() {
           {/* Stylist value block */}
           <div className="myo-archive-value">
             <div className="myo-archive-value-icon">
-              <svg width="100%" height="100%" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* Circle with gold border */}
-                <circle cx="24" cy="24" r="22.5" fill="#0e1625" stroke="#c9a84c" strokeWidth="1.2"/>
-                {/* Wand handle */}
-                <line x1="11" y1="39" x2="29" y2="19" stroke="#c9a84c" strokeWidth="2.2" strokeLinecap="round"/>
-                {/* Wand tip */}
-                <circle cx="30" cy="18" r="1.8" fill="#f0dfa0"/>
-                {/* Large 4-pointed sparkle (left of tip) */}
-                <path d="M 20,12 L 21.5,16.5 L 26,18 L 21.5,19.5 L 20,24 L 18.5,19.5 L 14,18 L 18.5,16.5 Z" fill="#f0e0b0"/>
-                {/* Medium 4-pointed sparkle (upper right of tip) */}
-                <path d="M 32,12 L 32.9,14.9 L 35.8,15.8 L 32.9,16.7 L 32,19.6 L 31.1,16.7 L 28.2,15.8 L 31.1,14.9 Z" fill="#f5eac8"/>
-                {/* Small 4-pointed sparkle (lower right) */}
-                <path d="M 34,26 L 34.7,27.9 L 36.6,28.6 L 34.7,29.3 L 34,31.2 L 33.3,29.3 L 31.4,28.6 L 33.3,27.9 Z" fill="#e6c77a" opacity="0.85"/>
-              </svg>
+              <img src="/icon-tree.jpg" alt="" className="myo-archive-value-icon-img"/>
             </div>
             <div className="myo-archive-value-body">
               <p className="myo-archive-value-title">Built for Your Perfect Tree</p>
