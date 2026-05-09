@@ -670,85 +670,82 @@ export default function MyOrnaments() {
 
       {/* ── Empty state ── */}
       {ornaments.length === 0 && (
-        <div className="myo-vault">
+        <div className="myo-archive">
 
           {/* Hero */}
-          <div className="myo-vault-hero">
-            <div className="myo-vault-icon">
-              <svg width="38" height="44" viewBox="0 0 38 44" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                {/* Cap */}
-                <rect x="16" y="0" width="6" height="7" rx="2" fill="none"/>
-                {/* Hook */}
-                <path d="M19 7 C19 7 22 7 22 4"/>
-                {/* Bauble */}
-                <circle cx="19" cy="28" r="15"/>
-                {/* Highlight */}
-                <ellipse cx="13.5" cy="22" rx="3" ry="2" opacity="0.35" stroke="currentColor"/>
+          <div className="myo-archive-hero">
+            <div className="myo-archive-bokeh" aria-hidden="true" />
+            <div className="myo-archive-emblem">
+              <svg width="36" height="42" viewBox="0 0 36 42" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="14.5" y="0" width="7" height="7.5" rx="2.2" fill="none"/>
+                <path d="M18 7.5 C18 7.5 22 7.5 22 4"/>
+                <circle cx="18" cy="27" r="14"/>
+                <ellipse cx="12.5" cy="21.5" rx="3" ry="1.8" opacity="0.3" stroke="currentColor"/>
               </svg>
             </div>
-            <h1 className="myo-vault-headline">Your Ornament Vault</h1>
-            <p className="myo-vault-subtitle">Save ornaments, colors, and textures your stylist can design around.</p>
-            <button className="myo-vault-btn" onClick={() => setAddModal(true)}>Add Ornament</button>
-            <p className="myo-vault-micro">Start with pieces you own or love.</p>
+            <h1 className="myo-archive-headline">Your Collection Starts Here</h1>
+            <p className="myo-archive-sub">Save ornaments, colors, and styles that inspire your perfect tree.</p>
+            <button className="myo-archive-cta" onClick={() => setAddModal(true)}>+ Add Ornament</button>
           </div>
 
-          {/* Style Profile */}
-          <div className="myo-vault-panel">
-            <h2 className="myo-vault-section-title">Your Style Profile</h2>
-            <p className="myo-vault-panel-sub">Once you save ornaments, we'll start building your holiday style profile.</p>
-            <div className="myo-vault-insights">
-              <div className="myo-vault-insight-row">
-                <div className="myo-vault-insight-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
-                  </svg>
+          {/* Divider */}
+          <div className="myo-archive-divider">
+            <span className="myo-archive-divider-line" />
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="#c9a84c" opacity="0.7">
+              <path d="M10,1 L11.6,8.4 L19,10 L11.6,11.6 L10,19 L8.4,11.6 L1,10 L8.4,8.4 Z"/>
+            </svg>
+            <span className="myo-archive-divider-line" />
+          </div>
+
+          {/* Collection preview */}
+          <div className="myo-archive-collections">
+            <p className="myo-archive-collections-label">YOUR COLLECTIONS</p>
+            <div className="myo-archive-scroll">
+              <div className="myo-archive-card myo-archive-card--champagne">
+                <div className="myo-archive-card-swatch">
+                  <span style={{background:'#f5d78e'}}/>
+                  <span style={{background:'#e6b85c'}}/>
+                  <span style={{background:'#c9972f'}}/>
+                  <span style={{background:'#fff8e7'}}/>
                 </div>
-                <div><p className="myo-vault-insight-label">Palette</p><p className="myo-vault-insight-hint">Waiting for your first colors</p></div>
+                <p className="myo-archive-card-name">Champagne &amp; Gold</p>
+                <p className="myo-archive-card-mood">Glam · Luminous</p>
               </div>
-              <div className="myo-vault-insight-row">
-                <div className="myo-vault-insight-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/>
-                  </svg>
+              <div className="myo-archive-card myo-archive-card--woodland">
+                <div className="myo-archive-card-swatch">
+                  <span style={{background:'#7a5c3a'}}/>
+                  <span style={{background:'#a67c52'}}/>
+                  <span style={{background:'#4a6741'}}/>
+                  <span style={{background:'#d4b896'}}/>
                 </div>
-                <div><p className="myo-vault-insight-label">Texture</p><p className="myo-vault-insight-hint">Glass, matte, velvet, metallic</p></div>
+                <p className="myo-archive-card-name">Woodland Warmth</p>
+                <p className="myo-archive-card-mood">Cozy · Organic</p>
               </div>
-              <div className="myo-vault-insight-row myo-vault-insight-row--last">
-                <div className="myo-vault-insight-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
-                  </svg>
+              <div className="myo-archive-card myo-archive-card--silver">
+                <div className="myo-archive-card-swatch">
+                  <span style={{background:'#c8d6e0'}}/>
+                  <span style={{background:'#8fa8bb'}}/>
+                  <span style={{background:'#e8eef2'}}/>
+                  <span style={{background:'#5b7a90'}}/>
                 </div>
-                <div><p className="myo-vault-insight-label">Mood</p><p className="myo-vault-insight-hint">Classic, cozy, glam, woodland</p></div>
+                <p className="myo-archive-card-name">Silver &amp; Snow</p>
+                <p className="myo-archive-card-mood">Classic · Crisp</p>
               </div>
             </div>
+            <p className="myo-archive-collections-hint">Your personal collections will appear here as you save ornaments.</p>
           </div>
 
-          {/* What your stylist will learn */}
-          <div className="myo-vault-learn">
-            <h2 className="myo-vault-section-title">What Your Stylist Will Learn</h2>
-            <div className="myo-vault-learn-grid">
-              <div className="myo-vault-learn-card">
-                <svg className="myo-vault-learn-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e6c77a" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="13.5" cy="6.5" r="2.5"/><circle cx="6.5" cy="11.5" r="2.5"/><circle cx="17.5" cy="14.5" r="2.5"/><circle cx="10" cy="18" r="2"/>
-                </svg>
-                <p className="myo-vault-learn-title">Colors You Love</p>
-                <p className="myo-vault-learn-text">We'll learn your preferred palette.</p>
-              </div>
-              <div className="myo-vault-learn-card">
-                <svg className="myo-vault-learn-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e6c77a" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="15" r="7"/><path d="M10 6V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/><path d="M12 8v2"/>
-                </svg>
-                <p className="myo-vault-learn-title">Pieces You Own</p>
-                <p className="myo-vault-learn-text">We'll style around your real ornaments.</p>
-              </div>
-              <div className="myo-vault-learn-card">
-                <svg className="myo-vault-learn-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e6c77a" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M15 4l5 5-9.5 9.5-5.5 1 1-5.5L15 4z"/><path d="M18 7l-1-1"/>
-                </svg>
-                <p className="myo-vault-learn-title">Looks That Fit</p>
-                <p className="myo-vault-learn-text">We'll suggest additions that complete the tree.</p>
-              </div>
+          {/* Stylist value block */}
+          <div className="myo-archive-value">
+            <div className="myo-archive-value-icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#e6c77a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M15 4l5 5-9.5 9.5-5.5 1 1-5.5L15 4z"/><path d="M18 7l-1-1"/>
+                <path d="M3 21l3-1"/>
+              </svg>
+            </div>
+            <div>
+              <p className="myo-archive-value-title">Built for Your Perfect Tree</p>
+              <p className="myo-archive-value-text">Your stylist uses every piece you save to craft recommendations around what you already own and love.</p>
             </div>
           </div>
 

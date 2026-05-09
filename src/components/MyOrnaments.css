@@ -5,206 +5,239 @@
   min-height: 60vh;
 }
 
-/* ── Vault empty state ── */
-.myo-vault {
+/* ── Archive empty state ── */
+.myo-archive {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  padding: 32px 0 120px;
-  max-width: 920px;
+  gap: 0;
+  padding: 0 0 120px;
+  max-width: 860px;
   margin: 0 auto;
 }
 
 /* Hero */
-.myo-vault-hero {
+.myo-archive-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-top: 34px;
-  margin-bottom: 34px;
-  gap: 0;
+  padding: 52px 24px 44px;
   position: relative;
+  overflow: hidden;
 }
 
-.myo-vault-hero::before {
-  content: "";
+.myo-archive-bokeh {
   position: absolute;
-  inset: -40px;
+  inset: 0;
   background:
-    radial-gradient(circle at 50% 25%, rgba(230,184,92,0.08), transparent 38%),
-    radial-gradient(circle at 50% 10%, rgba(255,255,255,0.035), transparent 28%);
+    radial-gradient(ellipse 70% 52% at 50% 0%, rgba(230,184,92,0.13) 0%, transparent 100%),
+    radial-gradient(circle at 30% 60%, rgba(201,168,76,0.06), transparent 45%),
+    radial-gradient(circle at 70% 55%, rgba(245,215,142,0.07), transparent 40%);
   pointer-events: none;
-  z-index: 0;
 }
 
-.myo-vault-icon {
-  width: 84px;
-  height: 84px;
+.myo-archive-emblem {
+  width: 80px;
+  height: 80px;
   border-radius: 999px;
-  border: 1px solid rgba(230, 184, 92, 0.36);
-  background: rgba(230, 184, 92, 0.06);
+  border: 1px solid rgba(230, 184, 92, 0.32);
+  background: rgba(230, 184, 92, 0.055);
   color: #e6c77a;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 32px rgba(230, 184, 92, 0.12);
-  margin-bottom: 24px;
+  box-shadow: 0 0 40px rgba(230, 184, 92, 0.14), inset 0 1px 0 rgba(255,255,255,0.07);
+  margin-bottom: 26px;
   position: relative;
   z-index: 1;
 }
 
-.myo-vault-headline {
+.myo-archive-headline {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: clamp(38px, 6vw, 64px);
+  font-size: clamp(34px, 5.5vw, 58px);
   font-weight: 400;
   color: #e6c77a;
-  line-height: 1.05;
+  line-height: 1.08;
   margin: 0 0 14px;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.3px;
   position: relative;
   z-index: 1;
 }
 
-.myo-vault-subtitle {
-  font-size: 17px;
-  color: rgba(248, 240, 223, 0.72);
-  line-height: 1.45;
-  max-width: 580px;
-  margin: 0 auto 26px;
+.myo-archive-sub {
+  font-size: 16px;
+  color: rgba(248, 240, 223, 0.68);
+  line-height: 1.5;
+  max-width: 500px;
+  margin: 0 auto 30px;
   position: relative;
   z-index: 1;
 }
 
-.myo-vault-btn {
+.myo-archive-cta {
   background: linear-gradient(135deg, #f5d78e 0%, #e6b85c 50%, #c9972f 100%);
   color: #1a1208;
   border: none;
   border-radius: 18px;
-  min-height: 56px;
+  min-height: 54px;
   padding: 0 34px;
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 14px 32px rgba(230, 184, 92, 0.25);
+  box-shadow: 0 12px 28px rgba(230, 184, 92, 0.28);
   transition: transform 0.18s ease, box-shadow 0.18s ease;
   letter-spacing: 0.02em;
   position: relative;
   z-index: 1;
 }
-.myo-vault-btn:hover {
+.myo-archive-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 18px 38px rgba(230, 184, 92, 0.35);
+  box-shadow: 0 18px 36px rgba(230, 184, 92, 0.38);
 }
 
-.myo-vault-micro {
-  font-size: 14px;
-  color: rgba(248, 240, 223, 0.52);
-  margin: 12px 0 0;
-  position: relative;
-  z-index: 1;
-}
-
-/* Section title shared */
-.myo-vault-section-title {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #e6c77a;
-  margin: 0 0 6px;
-  letter-spacing: 0.2px;
-}
-
-/* Style Profile panel */
-.myo-vault-panel {
-  background: rgba(5, 15, 28, 0.78);
-  border: 1px solid rgba(230, 184, 92, 0.16);
-  border-radius: 26px;
-  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.24);
-  padding: 24px;
-}
-
-.myo-vault-panel-sub {
-  font-size: 0.82rem;
-  color: rgba(248, 240, 223, 0.5);
-  margin: 0 0 18px;
-  line-height: 1.5;
-}
-
-.myo-vault-insights { display: flex; flex-direction: column; }
-
-.myo-vault-insight-row {
+/* Divider */
+.myo-archive-divider {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  align-items: center;
+  gap: 12px;
+  padding: 0 24px;
+  margin-bottom: 28px;
 }
-.myo-vault-insight-row--last { border-bottom: none; }
-
-.myo-vault-insight-icon {
-  color: #e6c77a;
-  opacity: 0.75;
-  flex-shrink: 0;
-  margin-top: 2px;
+.myo-archive-divider-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.3), transparent);
 }
 
-.myo-vault-insight-label {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: rgba(248, 240, 223, 0.88);
-  margin: 0 0 2px;
-}
-.myo-vault-insight-hint {
-  font-size: 0.78rem;
-  color: rgba(248, 240, 223, 0.45);
-  margin: 0;
-  line-height: 1.4;
+/* Collections */
+.myo-archive-collections {
+  padding: 0 20px;
+  margin-bottom: 28px;
 }
 
-/* What your stylist will learn */
-.myo-vault-learn { display: flex; flex-direction: column; gap: 14px; }
+.myo-archive-collections-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(201, 168, 76, 0.65);
+  text-transform: uppercase;
+  margin: 0 0 14px 4px;
+}
 
-.myo-vault-learn-grid {
+.myo-archive-scroll {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 14px;
 }
 
-.myo-vault-learn-card {
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(230, 184, 92, 0.12);
-  border-radius: 18px;
-  padding: 16px 18px;
-  text-align: left;
+.myo-archive-card {
+  background: rgba(5, 15, 28, 0.72);
+  border: 1px solid rgba(230, 184, 92, 0.14);
+  border-radius: 22px;
+  padding: 20px 18px 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.myo-archive-card:hover {
+  border-color: rgba(230, 184, 92, 0.28);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.22);
 }
 
-.myo-vault-learn-icon {
-  color: #e6c77a;
+.myo-archive-card-swatch {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 2px;
+}
+.myo-archive-card-swatch span {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.08);
+  display: block;
   flex-shrink: 0;
 }
 
-.myo-vault-learn-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: rgba(248, 240, 223, 0.9);
+.myo-archive-card-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: rgba(248, 240, 223, 0.92);
   margin: 0;
   line-height: 1.2;
 }
-.myo-vault-learn-text {
-  font-size: 15px;
-  color: rgba(248, 240, 223, 0.5);
+
+.myo-archive-card-mood {
+  font-size: 11px;
+  color: rgba(201, 168, 76, 0.7);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   margin: 0;
-  line-height: 1.35;
+  font-weight: 500;
+}
+
+.myo-archive-collections-hint {
+  font-size: 12px;
+  color: rgba(248, 240, 223, 0.35);
+  margin: 14px 0 0 4px;
+  line-height: 1.45;
+}
+
+/* Stylist value block */
+.myo-archive-value {
+  margin: 0 20px;
+  background: rgba(5, 15, 28, 0.6);
+  border: 1px solid rgba(230, 184, 92, 0.12);
+  border-radius: 20px;
+  padding: 20px 22px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.myo-archive-value-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(230, 184, 92, 0.07);
+  border: 1px solid rgba(230, 184, 92, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+}
+
+.myo-archive-value-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: rgba(248, 240, 223, 0.88);
+  margin: 0 0 5px;
+}
+
+.myo-archive-value-text {
+  font-size: 0.82rem;
+  color: rgba(248, 240, 223, 0.48);
+  margin: 0;
+  line-height: 1.5;
 }
 
 @media (max-width: 600px) {
-  .myo-vault-learn-grid { grid-template-columns: 1fr; gap: 10px; }
-  .myo-vault-headline   { font-size: 38px; }
-  .myo-vault-subtitle   { font-size: 16px; }
+  .myo-archive-hero      { padding: 40px 20px 36px; }
+  .myo-archive-headline  { font-size: 34px; }
+  .myo-archive-sub       { font-size: 15px; }
+  .myo-archive-scroll {
+    grid-template-columns: repeat(3, minmax(140px, 1fr));
+    overflow-x: auto;
+    gap: 10px;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .myo-archive-scroll::-webkit-scrollbar { display: none; }
+  .myo-archive-collections { padding: 0 16px; }
+  .myo-archive-value       { margin: 0 16px; }
 }
 
 /* ── Collection header ── */
