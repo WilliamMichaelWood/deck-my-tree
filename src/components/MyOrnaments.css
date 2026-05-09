@@ -321,8 +321,8 @@
   .myo-archive-headline     { font-size: 30px; margin: 0 0 6px; }
   .myo-archive-sub          { font-size: 13px; max-width: 280px; margin: 0 auto 16px; }
   .myo-archive-cta          { min-height: 48px; font-size: 0.95rem; }
-  .myo-archive-divider-wrap { padding: 12px 20px 8px; }
-  .myo-archive-collections  { padding: 0 12px; margin-bottom: 16px; }
+  .myo-archive-divider-wrap { padding: 8px 20px 6px; }
+  .myo-archive-collections  { padding: 0 12px; margin-bottom: 10px; }
   .myo-archive-scroll {
     grid-template-columns: repeat(3, minmax(110px, 1fr));
     overflow-x: auto;
