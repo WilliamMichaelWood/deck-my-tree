@@ -5,33 +5,175 @@
   min-height: 60vh;
 }
 
-/* ── Empty state ── */
-.myo-empty {
+/* ── Vault empty state ── */
+.myo-vault {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px 0 120px;
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+/* Hero */
+.myo-vault-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 55vh;
   text-align: center;
-  padding: 48px 28px 80px;
-  gap: 14px;
+  margin-top: 36px;
+  margin-bottom: 10px;
+  gap: 0;
 }
 
-.myo-empty-headline {
+.myo-vault-icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 999px;
+  border: 1px solid rgba(230, 184, 92, 0.42);
+  background: rgba(230, 184, 92, 0.08);
+  color: #e6c77a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 42px rgba(230, 184, 92, 0.16);
+  margin-bottom: 28px;
+}
+
+.myo-vault-headline {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1.55rem;
-  font-weight: 700;
-  color: #c9a84c;
-  margin: 4px 0 0;
-  line-height: 1.25;
+  font-size: clamp(42px, 6vw, 64px);
+  font-weight: 400;
+  color: #e6c77a;
+  line-height: 1.05;
+  margin: 0 0 16px;
+  letter-spacing: -0.5px;
 }
 
-.myo-empty-sub {
-  font-size: 0.92rem;
-  color: #7090a8;
-  line-height: 1.65;
-  max-width: 300px;
-  margin: 0 0 8px;
+.myo-vault-subtitle {
+  font-size: 18px;
+  color: rgba(248, 240, 223, 0.72);
+  line-height: 1.45;
+  max-width: 620px;
+  margin: 0 auto 28px;
+}
+
+.myo-vault-btn {
+  background: linear-gradient(135deg, #f5d78e 0%, #e6b85c 50%, #c9972f 100%);
+  color: #1a1208;
+  border: none;
+  border-radius: 18px;
+  min-height: 58px;
+  padding: 0 34px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 14px 32px rgba(230, 184, 92, 0.25);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  letter-spacing: 0.02em;
+}
+.myo-vault-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 38px rgba(230, 184, 92, 0.35);
+}
+
+.myo-vault-micro {
+  font-size: 14px;
+  color: rgba(248, 240, 223, 0.52);
+  margin: 14px 0 0;
+}
+
+/* Section title shared */
+.myo-vault-section-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #e6c77a;
+  margin: 0 0 6px;
+  letter-spacing: 0.2px;
+}
+
+/* Style Profile panel */
+.myo-vault-panel {
+  background: rgba(5, 15, 28, 0.78);
+  border: 1px solid rgba(230, 184, 92, 0.18);
+  border-radius: 26px;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.28);
+  padding: 24px;
+}
+
+.myo-vault-panel-sub {
+  font-size: 0.82rem;
+  color: rgba(248, 240, 223, 0.5);
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+
+.myo-vault-insights { display: flex; flex-direction: column; }
+
+.myo-vault-insight-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.myo-vault-insight-row--last { border-bottom: none; }
+
+.myo-vault-insight-icon {
+  color: #e6c77a;
+  opacity: 0.75;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.myo-vault-insight-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(248, 240, 223, 0.88);
+  margin: 0 0 2px;
+}
+.myo-vault-insight-hint {
+  font-size: 0.78rem;
+  color: rgba(248, 240, 223, 0.45);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* What your stylist will learn */
+.myo-vault-learn { display: flex; flex-direction: column; gap: 14px; }
+
+.myo-vault-learn-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.myo-vault-learn-card {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(230, 184, 92, 0.12);
+  border-radius: 18px;
+  padding: 18px;
+  text-align: left;
+}
+
+.myo-vault-learn-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: rgba(248, 240, 223, 0.9);
+  margin: 0 0 6px;
+}
+.myo-vault-learn-text {
+  font-size: 0.78rem;
+  color: rgba(248, 240, 223, 0.5);
+  margin: 0;
+  line-height: 1.45;
+}
+
+@media (max-width: 600px) {
+  .myo-vault-learn-grid { grid-template-columns: 1fr; gap: 10px; }
+  .myo-vault-headline   { font-size: 42px; }
+  .myo-vault-subtitle   { font-size: 16px; }
 }
 
 /* ── Collection header ── */

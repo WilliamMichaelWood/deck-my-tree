@@ -670,15 +670,73 @@ export default function MyOrnaments() {
 
       {/* ── Empty state ── */}
       {ornaments.length === 0 && (
-        <div className="myo-empty">
-          <EmptyIllustration />
-          <h2 className="myo-empty-headline">Your Collection Awaits</h2>
-          <p className="myo-empty-sub">
-            Photograph ornaments you own or love — your stylist will help you build around them
-          </p>
-          <button className="btn-primary" onClick={() => setAddModal(true)}>
-            Add Your First Ornament
-          </button>
+        <div className="myo-vault">
+
+          {/* Hero */}
+          <div className="myo-vault-hero">
+            <div className="myo-vault-icon">
+              <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 2C8.5 2 6 4.5 6 7c0 1.5.6 2.8 1.5 3.8L12 22l4.5-11.2C17.4 9.8 18 8.5 18 7c0-2.5-2.5-5-6-5z"/>
+                <circle cx="12" cy="7" r="2"/>
+              </svg>
+            </div>
+            <h1 className="myo-vault-headline">Your Ornament Vault</h1>
+            <p className="myo-vault-subtitle">Save ornaments, colors, and textures your stylist can design around.</p>
+            <button className="myo-vault-btn" onClick={() => setAddModal(true)}>Add Ornament</button>
+            <p className="myo-vault-micro">Start with pieces you own or love.</p>
+          </div>
+
+          {/* Style Profile */}
+          <div className="myo-vault-panel">
+            <h2 className="myo-vault-section-title">Your Style Profile</h2>
+            <p className="myo-vault-panel-sub">Once you save ornaments, we'll start building your holiday style profile.</p>
+            <div className="myo-vault-insights">
+              <div className="myo-vault-insight-row">
+                <div className="myo-vault-insight-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
+                  </svg>
+                </div>
+                <div><p className="myo-vault-insight-label">Palette</p><p className="myo-vault-insight-hint">Waiting for your first colors</p></div>
+              </div>
+              <div className="myo-vault-insight-row">
+                <div className="myo-vault-insight-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2l2 7h7l-5.5 4 2 7L12 16l-5.5 4 2-7L3 9h7z"/>
+                  </svg>
+                </div>
+                <div><p className="myo-vault-insight-label">Texture</p><p className="myo-vault-insight-hint">Glass, matte, velvet, metallic</p></div>
+              </div>
+              <div className="myo-vault-insight-row myo-vault-insight-row--last">
+                <div className="myo-vault-insight-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+                  </svg>
+                </div>
+                <div><p className="myo-vault-insight-label">Mood</p><p className="myo-vault-insight-hint">Classic, cozy, glam, woodland</p></div>
+              </div>
+            </div>
+          </div>
+
+          {/* What your stylist will learn */}
+          <div className="myo-vault-learn">
+            <h2 className="myo-vault-section-title">What Your Stylist Will Learn</h2>
+            <div className="myo-vault-learn-grid">
+              <div className="myo-vault-learn-card">
+                <p className="myo-vault-learn-title">Colors You Love</p>
+                <p className="myo-vault-learn-text">We'll learn your preferred palette.</p>
+              </div>
+              <div className="myo-vault-learn-card">
+                <p className="myo-vault-learn-title">Pieces You Own</p>
+                <p className="myo-vault-learn-text">We'll style around your real ornaments.</p>
+              </div>
+              <div className="myo-vault-learn-card">
+                <p className="myo-vault-learn-title">Looks That Fit</p>
+                <p className="myo-vault-learn-text">We'll suggest additions that complete the tree.</p>
+              </div>
+            </div>
+          </div>
+
         </div>
       )}
 
