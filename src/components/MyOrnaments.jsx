@@ -686,7 +686,7 @@ export default function MyOrnaments() {
           </svg>
         </div>
         <h1 className="myo-archive-headline">Your Collection<br/>Starts Here</h1>
-        <p className="myo-archive-sub">Save ornaments, ribbon, florals, and styles that inspire your perfect tree.</p>
+        <p className="myo-archive-sub">Save ornaments, colors, and styles that inspire your perfect tree.</p>
         <button className="myo-archive-cta" onClick={() => setAddModal(true)}>+ Add Ornament</button>
       </div>
 

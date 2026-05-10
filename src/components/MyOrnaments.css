@@ -25,9 +25,10 @@
 .myo-archive-hero-overlay {
   position: absolute;
   inset: 0;
-  /* Minimal — image is already dark. Just a bottom fade for text. */
+  /* Left: ornaments show through. Center/right: deep dark for text. Bottom: heavy fade. */
   background:
-    linear-gradient(to bottom, rgba(4,8,18,0.0) 0%, rgba(4,8,18,0.15) 60%, rgba(4,8,18,0.72) 100%);
+    linear-gradient(to right, rgba(4,8,18,0.0) 0%, rgba(4,8,18,0.0) 25%, rgba(4,8,18,0.55) 55%, rgba(4,8,18,0.82) 100%),
+    linear-gradient(to bottom, rgba(4,8,18,0.0) 0%, rgba(4,8,18,0.2) 55%, rgba(4,8,18,0.90) 100%);
   pointer-events: none;
   z-index: 0;
 }
