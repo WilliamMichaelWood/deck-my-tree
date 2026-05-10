@@ -666,13 +666,11 @@ export default function MyOrnaments() {
     setOrnaments(prev => prev.map(o => o.id === updated.id ? updated : o))
 
   return (
-    <div className="tab-content myo-root">
+    <div className="ornaments-page myo-root">
 
-      {/* ── Hero — two-column split ── */}
+      {/* ── Hero — full-bleed, centered ── */}
       <section className="ornaments-hero">
-        <div className="ornaments-hero-image">
-          <div className="ornaments-hero-image-overlay" />
-        </div>
+        <div className="ornaments-hero-overlay" />
         <div className="ornaments-hero-content">
           <div className="ornaments-hero-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -691,18 +689,8 @@ export default function MyOrnaments() {
         </div>
       </section>
 
-      {/* ── Empty state OR saved decor grid ── */}
-      {ornaments.length === 0 ? (
-        <section className="ornaments-empty">
-          <div className="ornaments-empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-              <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z"/>
-            </svg>
-          </div>
-          <h2 className="ornaments-empty-title">Build your collection.</h2>
-          <p className="ornaments-empty-text">Your saved ornaments. Styled into something beautiful.</p>
-        </section>
-      ) : (
+      {/* ── Saved decor grid — only when populated ── */}
+      {ornaments.length > 0 && (
         <>
           <div className="myo-collection-header">
             <span className="myo-count">
