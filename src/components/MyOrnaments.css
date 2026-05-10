@@ -82,7 +82,7 @@
   border: 1px solid #a8843a;
   border-radius: 50px;
   padding: 13px 0;
-  width: min(290px, 82vw);
+  width: min(240px, 72vw);
   font-family: inherit;
   font-size: 15px;
   font-weight: 700;
