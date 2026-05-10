@@ -6,128 +6,142 @@
   background: linear-gradient(180deg, #050e1a 0%, #07111e 100%);
 }
 
-/* Hero — cinematic banner, breaks out of tab-content padding */
-.myo-archive-hero {
+/* Hero — two-column split, escapes tab-content padding */
+.ornaments-hero {
   position: relative;
+  display: grid;
+  grid-template-columns: 40% 60%;
+  align-items: center;
+  min-height: 380px;
   overflow: hidden;
+  border-bottom: 1px solid rgba(230, 199, 122, 0.1);
+  margin: -28px -24px 0;
+}
+
+.ornaments-hero-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 380px;
   background-image: url('/hero-ornaments.jpg');
   background-size: cover;
-  background-position: left center;
-  /* escape tab-content padding */
-  margin: -28px -24px 0;
-  height: clamp(520px, 62vh, 560px);
+  background-position: center;
 }
 
-.myo-archive-hero-overlay {
+.ornaments-hero-image-overlay {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(to right, rgba(2,8,18,0.25) 0%, rgba(2,8,18,0.55) 42%, rgba(2,8,18,0.75) 100%),
-    radial-gradient(circle at center, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.45) 75%);
-  pointer-events: none;
-  z-index: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(5, 14, 26, 0) 0%,
+    rgba(5, 14, 26, 0.4) 60%,
+    rgba(5, 14, 26, 0.95) 100%
+  );
 }
 
-/* Absolute-positioned content block over hero */
-.myo-archive-content {
-  position: absolute;
-  top: 70px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 78%;
-  max-width: 420px;
+.ornaments-hero-content {
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  z-index: 2;
+}
+
+.ornaments-hero-icon {
+  width: 44px;
+  height: 44px;
+  color: #e6c77a;
+  margin-bottom: 20px;
+}
+.ornaments-hero-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.ornaments-hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 38px;
+  font-weight: 400;
+  color: #f4e4b8;
+  margin: 0 0 14px 0;
+  letter-spacing: 0.5px;
+  line-height: 1.15;
+}
+
+.ornaments-hero-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.72);
+  margin: 0 0 28px 0;
+  line-height: 1.5;
+  max-width: 360px;
+}
+
+.ornaments-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #f5d78e 0%, #e6b85c 50%, #c9972f 100%);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 26px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow:
+    0 6px 18px rgba(230, 184, 92, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.3px;
+}
+.ornaments-add-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 10px 24px rgba(230, 184, 92, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.ornaments-add-icon {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* Empty state */
+.ornaments-empty {
+  padding: 80px 32px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  z-index: 1;
 }
-
-/* Empty body — below hero when no ornaments */
-.myo-empty-body {
-  padding: 28px 24px 100px;
-  text-align: center;
+.ornaments-empty-icon {
+  width: 56px;
+  height: 56px;
+  color: #e6c77a;
+  opacity: 0.7;
+  margin-bottom: 24px;
 }
-.myo-empty-label {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 1rem;
-  color: rgba(248, 240, 223, 0.55);
-  margin: 0 0 6px;
-  font-weight: 400;
-}
-.myo-empty-hint {
-  font-size: 0.8rem;
-  color: rgba(248, 240, 223, 0.3);
-  margin: 0;
-  line-height: 1.5;
-}
-
-/* Emblem with orbiting sparkles */
-.myo-archive-emblem {
-  width: 110px;
-  height: 110px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.myo-archive-emblem-ring {
-  position: absolute;
-  inset: 0;
+.ornaments-empty-icon svg {
   width: 100%;
   height: 100%;
-  pointer-events: none;
 }
-
-/* Inner circle border — removed, SVG handles the ring now */
-.myo-archive-emblem::before { display: none; }
-
-.myo-archive-emblem svg:last-child {
-  position: relative;
-  z-index: 1;
-  color: #e6c77a;
-}
-
-.myo-archive-headline {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 48px;
+.ornaments-empty-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
   font-weight: 400;
-  color: #E9C976;
-  line-height: 0.95;
-  margin: 0 0 16px;
-  letter-spacing: -0.3px;
-  text-shadow: 0 2px 12px rgba(0,0,0,0.7), 0 1px 4px rgba(0,0,0,0.5);
+  color: #f4e4b8;
+  margin: 0 0 14px 0;
+  letter-spacing: 0.4px;
 }
-
-.myo-archive-sub {
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.82);
-  line-height: 1.4;
-  max-width: 330px;
-  margin: 0 0 34px;
-  text-shadow: 0 1px 8px rgba(0,0,0,0.9), 0 2px 20px rgba(0,0,0,0.7);
-}
-
-.myo-archive-cta {
-  background: linear-gradient(180deg, #F5D982 0%, #D9A62E 100%);
-  color: #1a0e00;
-  border: none;
-  border-radius: 18px;
-  height: 74px;
-  width: 100%;
-  max-width: 360px;
-  font-size: 24px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 10px 30px rgba(180, 130, 30, 0.4);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-  letter-spacing: 0.02em;
-}
-.myo-archive-cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 38px rgba(180, 130, 30, 0.5);
+.ornaments-empty-text {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+  max-width: 320px;
+  line-height: 1.6;
+  font-style: italic;
 }
 
 /* Divider + label wrapper */
@@ -336,13 +350,34 @@
 }
 
 @media (max-width: 600px) {
-  .myo-archive-hero      { margin: -16px -14px 0; height: clamp(480px, 58vh, 540px); }
-  .myo-archive-content   { top: 50px; width: 82%; }
-  .myo-archive-emblem    { width: 90px; height: 90px; margin-bottom: 12px; }
-  .myo-archive-headline  { font-size: 38px; margin: 0 0 12px; }
-  .myo-archive-sub       { font-size: 15px; max-width: 280px; margin: 0 0 24px; }
-  .myo-archive-cta       { height: 60px; font-size: 19px; border-radius: 14px; }
-  .myo-empty-body        { padding: 20px 20px 100px; }
+  .ornaments-hero {
+    grid-template-columns: 1fr;
+    min-height: auto;
+    margin: -16px -14px 0;
+  }
+  .ornaments-hero-image {
+    height: 220px;
+    min-height: 220px;
+  }
+  .ornaments-hero-image-overlay {
+    background: linear-gradient(
+      180deg,
+      rgba(5, 14, 26, 0) 0%,
+      rgba(5, 14, 26, 0.5) 60%,
+      rgba(5, 14, 26, 1) 100%
+    );
+  }
+  .ornaments-hero-content {
+    padding: 0 24px 36px;
+    margin-top: -40px;
+    align-items: center;
+    text-align: center;
+  }
+  .ornaments-hero-title   { font-size: 28px; }
+  .ornaments-hero-subtitle { font-size: 14px; }
+  .ornaments-add-btn      { padding: 13px 22px; font-size: 14px; }
+  .ornaments-empty        { padding: 60px 20px; }
+  .ornaments-empty-title  { font-size: 22px; }
   .myo-archive-scroll {
     grid-template-columns: repeat(3, minmax(110px, 1fr));
     overflow-x: auto;
