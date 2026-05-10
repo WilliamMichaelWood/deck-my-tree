@@ -694,7 +694,7 @@ export default function MyOrnaments() {
             </svg>
           </div>
           <h1 className="ornaments-hero-title">Your Ornament Vault</h1>
-          <p className="ornaments-hero-subtitle">Save ornaments you own or love. Your stylist will design around what inspires you.</p>
+          <p className="ornaments-hero-subtitle">Save ornaments you own or love.<br />Your stylist will design around<br />what inspires you.</p>
           <button className="ornaments-add-btn" onClick={() => setAddModal(true)}>
             <span className="ornaments-add-icon">+</span>
             Add Ornament
