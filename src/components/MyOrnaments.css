@@ -77,9 +77,9 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--gold-gradient);
-  color: #1a1000;
-  border: none;
+  background: var(--gold);
+  color: var(--navy);
+  border: 1px solid #a8843a;
   border-radius: 50px;
   padding: 13px 0;
   width: min(290px, 82vw);
@@ -88,12 +88,11 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: var(--shadow-gold);
+  box-shadow: 0 0 24px rgba(200, 160, 80, 0.25);
   letter-spacing: 0.2px;
 }
 .ornaments-add-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 28px rgba(230, 184, 92, 0.38);
+  box-shadow: 0 0 32px rgba(200, 160, 80, 0.35);
 }
 .ornaments-add-icon {
   font-size: 18px;
