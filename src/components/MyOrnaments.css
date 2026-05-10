@@ -11,9 +11,9 @@
   position: relative;
   width: calc(100% + 48px);
   min-height: 345px;
-  background-image: url('/hero-ornaments.jpg');
+  background-image: url('/hero-vault.jpg');
   background-size: cover;
-  background-position: 20% 80%;
+  background-position: 40% center;
   background-repeat: no-repeat;
   display: flex;
   align-items: center;
@@ -22,17 +22,9 @@
   margin: -28px -24px 0;
 }
 
-/* Top-down gradient — darkens where headline lives, clears at bottom */
+/* Overlay removed — new hero image has dark center built in */
 .ornaments-hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(10, 15, 30, 0.55) 0%,
-    rgba(10, 15, 30, 0.25) 60%,
-    transparent 100%
-  );
-  z-index: 1;
+  display: none;
 }
 
 .ornaments-hero-content {
