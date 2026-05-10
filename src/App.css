@@ -7,11 +7,11 @@
   --navy-lift:      #0d1a2e;
   --forest:         #1d5c3a;
   --cranberry:      #9b1c2c;
-  --gold:           #e6c77a;
-  --gold-light:     #f5d78e;
-  --gold-bright:    #f5d78e;
+  --gold:           #cba56c;
+  --gold-light:     #dcbb7e;
+  --gold-bright:    #dcbb7e;
   --gold-muted:     #bfa45c;
-  --gold-dim:       rgba(230, 199, 122, 0.12);
+  --gold-dim:       rgba(203, 165, 108, 0.12);
   --gold-gradient:  linear-gradient(135deg, #f5d78e 0%, #e6b85c 50%, #c9972f 100%);
   --white:          #f7e8c3;
 
@@ -21,12 +21,12 @@
   --text-muted:     rgba(255, 255, 255, 0.55);
 
   /* Borders & shadows */
-  --border:         rgba(230, 199, 122, 0.22);
+  --border:         rgba(203, 165, 108, 0.22);
   --border-soft:    rgba(255, 255, 255, 0.08);
   --shadow-sm:      0 4px 12px rgba(0, 0, 0, 0.22);
   --shadow-md:      0 8px 24px rgba(0, 0, 0, 0.32), 0 4px 10px rgba(0, 0, 0, 0.2);
   --shadow-lg:      0 12px 32px rgba(0, 0, 0, 0.42), 0 8px 16px rgba(0, 0, 0, 0.28);
-  --shadow-gold:    0 6px 24px rgba(230, 184, 92, 0.28);
+  --shadow-gold:    0 6px 24px rgba(203, 165, 108, 0.28);
 
   /* Shape */
   --radius:         14px;
