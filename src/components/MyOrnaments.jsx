@@ -672,17 +672,32 @@ export default function MyOrnaments() {
       <div className="myo-archive-hero">
         <div className="myo-archive-hero-overlay" aria-hidden="true" />
         <div className="myo-archive-emblem">
-          <svg className="myo-archive-emblem-ring" width="96" height="96" viewBox="0 0 96 96" fill="none">
-            <path d="M48,4 L48.7,7.3 L52,8 L48.7,8.7 L48,12 L47.3,8.7 L44,8 L47.3,7.3 Z" fill="#c9a84c" opacity="0.9"/>
-            <path d="M88,48 L88.7,51.3 L92,52 L88.7,52.7 L88,56 L87.3,52.7 L84,52 L87.3,51.3 Z" fill="#c9a84c" opacity="0.9"/>
-            <path d="M48,84 L48.7,87.3 L52,88 L48.7,88.7 L48,92 L47.3,88.7 L44,88 L47.3,87.3 Z" fill="#c9a84c" opacity="0.9"/>
-            <path d="M4,48 L4.7,51.3 L8,52 L4.7,52.7 L4,56 L3.3,52.7 L0,52 L3.3,51.3 Z" fill="#c9a84c" opacity="0.9"/>
+          {/* Outer ring with 4 sparkle stars */}
+          <svg className="myo-archive-emblem-ring" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="60" cy="60" r="54" stroke="#c9a84c" strokeWidth="1.2" opacity="0.75"/>
+            {/* Top */}
+            <path d="M60,2 L61.2,6.2 L65.4,7.4 L61.2,8.6 L60,12.8 L58.8,8.6 L54.6,7.4 L58.8,6.2 Z" fill="#c9a84c"/>
+            {/* Right */}
+            <path d="M118,60 L113.8,61.2 L112.6,65.4 L111.4,61.2 L107.2,60 L111.4,58.8 L112.6,54.6 L113.8,58.8 Z" fill="#c9a84c"/>
+            {/* Bottom */}
+            <path d="M60,118 L61.2,113.8 L65.4,112.6 L61.2,111.4 L60,107.2 L58.8,111.4 L54.6,112.6 L58.8,113.8 Z" fill="#c9a84c"/>
+            {/* Left */}
+            <path d="M2,60 L6.2,61.2 L7.4,65.4 L8.6,61.2 L12.8,60 L8.6,58.8 L7.4,54.6 L6.2,58.8 Z" fill="#c9a84c"/>
           </svg>
-          <svg width="38" height="44" viewBox="0 0 38 44" fill="none" stroke="#e6c77a" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="15" y="0" width="8" height="8" rx="2.5" fill="none"/>
-            <path d="M19 8 C19 8 23 8 23 4.5"/>
-            <circle cx="19" cy="29" r="14"/>
-            <path d="M19,22 L19.6,24.4 L22,25 L19.6,25.6 L19,28 L18.4,25.6 L16,25 L18.4,24.4 Z" strokeWidth="0.8"/>
+          {/* Bauble with large sparkle */}
+          <svg width="58" height="64" viewBox="0 0 58 64" fill="none" stroke="#e6c77a" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+            {/* Cap */}
+            <rect x="23" y="0" width="12" height="10" rx="3.5" fill="none"/>
+            {/* Hook */}
+            <path d="M29 10 C29 10 34 10 34 5.5"/>
+            {/* Ball */}
+            <circle cx="29" cy="40" r="22"/>
+            {/* Large 4-pointed sparkle */}
+            <path d="M29,26 L31,32 L37,34 L31,36 L29,42 L27,36 L21,34 L27,32 Z" strokeWidth="1.1"/>
+            {/* Small sparkle top-left */}
+            <path d="M18,26 L18.5,27.7 L20.2,28.2 L18.5,28.7 L18,30.4 L17.5,28.7 L15.8,28.2 L17.5,27.7 Z" strokeWidth="0.7"/>
+            {/* Small sparkle top-right */}
+            <path d="M40,28 L40.4,29.3 L41.7,29.7 L40.4,30.1 L40,31.4 L39.6,30.1 L38.3,29.7 L39.6,29.3 Z" strokeWidth="0.7"/>
           </svg>
         </div>
         <h1 className="myo-archive-headline">Your Collection<br/>Starts Here</h1>
