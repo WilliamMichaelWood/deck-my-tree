@@ -163,11 +163,13 @@ function EmptyIllustration() {
 }
 
 // ─── OrnamentCard ─────────────────────────────────────────────
-function OrnamentCard({ ornament, onDelete, onEdit }) {
-  const color = ornament.colorHex || ornament.color || '#c9a84c'
-  const shape = ornament.shape || 'ball'
+function OrnamentCard({ ornament, onEdit }) {
+  const color  = ornament.colorHex || ornament.color || '#c9a84c'
+  const shape  = ornament.shape || 'ball'
+  const isSaved = ornament.source === 'saved'
 
-  const handleShopSimilar = () => {
+  const handleShop = (e) => {
+    e.stopPropagation()
     const q = buildSearchQuery(ornament)
     for (const key of RETAILER_ORDER) {
       if (ornament.retailers?.[key]?.price && RETAILER_SEARCH[key]) {
@@ -179,7 +181,7 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
   }
 
   return (
-    <div className="myo-card">
+    <div className="myo-card" onClick={() => onEdit(ornament)}>
       <div className="myo-card-media">
         {ornament.photo
           ? <img src={ornament.photo} alt={ornament.name} className="myo-card-photo" />
@@ -192,29 +194,30 @@ function OrnamentCard({ ornament, onDelete, onEdit }) {
             </div>
           )
         }
-        <div className="myo-card-actions-overlay">
-          <button className="myo-btn-edit" onClick={() => onEdit(ornament)} title="Edit">✎</button>
-          <button className="myo-btn-delete" onClick={() => onDelete(ornament.id)} title="Remove">✕</button>
-        </div>
-      </div>
+        {/* Dark gradient overlay for text legibility */}
+        <div className="myo-card-vignette" />
 
-      <div className="myo-card-body">
-        <h3 className="myo-card-name">{ornament.name}</h3>
-        {(() => {
-          const typeDisplay = ornament.type === 'Topper' ? 'TOPPER' : getTypeDisplay(ornament)
-          return (typeDisplay || ornament.material) ? (
-            <div className="myo-card-tags">
-              {typeDisplay && (
-                <span className={`myo-tag${ornament.type === 'Topper' ? ' myo-tag-topper' : ' myo-tag-type'}`}>
-                  {typeDisplay.toUpperCase()}
-                </span>
-              )}
-              {ornament.material && <span className="myo-tag">{ornament.material}</span>}
-            </div>
-          ) : null
-        })()}
-        {ornament.notes && <p className="myo-card-notes">{ornament.notes}</p>}
-        <button className="myo-shop-btn" onClick={handleShopSimilar}>Shop Similar</button>
+        {/* Source badge */}
+        <span className={`myo-card-badge${isSaved ? ' myo-card-badge--saved' : ''}`}>
+          {isSaved ? 'Saved' : 'Owned'}
+        </span>
+
+        {/* Three-dot menu */}
+        <button
+          className="myo-card-menu-btn"
+          onClick={(e) => { e.stopPropagation(); onEdit(ornament) }}
+          aria-label="Edit ornament"
+        >
+          ···
+        </button>
+
+        {/* Name + optional shop action overlaid at bottom */}
+        <div className="myo-card-footer">
+          <span className="myo-card-name">{ornament.name}</span>
+          {isSaved && (
+            <button className="myo-card-shop-link" onClick={handleShop}>Shop</button>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -409,7 +412,7 @@ function AddModal({ onClose, onSave }) {
           >
             {analyzing
               ? <><span className="spin">✦</span> Analyzing photo…</>
-              : 'Add to Collection'}
+              : 'Add Ornament'}
           </button>
         </div>
       </div>
@@ -418,7 +421,7 @@ function AddModal({ onClose, onSave }) {
 }
 
 // ─── EditModal ────────────────────────────────────────────────
-function EditModal({ ornament, onSave, onClose }) {
+function EditModal({ ornament, onSave, onClose, onDelete }) {
   const [name,       setName]       = useState(ornament?.name      || '')
   const [notes,      setNotes]      = useState(ornament?.notes     || '')
   const [rating,     setRating]     = useState(ornament?.rating    || 0)
@@ -506,6 +509,9 @@ function EditModal({ ornament, onSave, onClose }) {
           </div>
         </div>
         <div className="myo-edit-modal-footer">
+          {onDelete && (
+            <button className="btn-danger" onClick={() => { onDelete(ornament.id); onClose() }}>Remove</button>
+          )}
           <button className="btn-secondary" onClick={onClose}>Cancel</button>
           <button className="btn-primary" onClick={save}>Save Changes</button>
         </div>
@@ -612,6 +618,7 @@ export default function MyOrnaments() {
   const [filterDrawerOpen,  setFilterDrawer] = useState(false)
   const [editingOrnament,   setEditing]     = useState(null)
   const [addModalOpen,      setAddModal]    = useState(false)
+  const [activeTab,         setActiveTab]   = useState('owned')
 
   useEffect(() => { persist(ornaments) }, [ornaments])
 
@@ -665,23 +672,21 @@ export default function MyOrnaments() {
   const handleSaveEdit = (updated) =>
     setOrnaments(prev => prev.map(o => o.id === updated.id ? updated : o))
 
+  // Tab filtering: owned = source 'owned' or missing; saved = source 'saved'
+  const tabFiltered = filteredOrnaments.filter(o =>
+    activeTab === 'saved' ? o.source === 'saved' : (o.source === 'owned' || !o.source)
+  )
+  const isEmpty = tabFiltered.length === 0
+
   return (
     <div className="ornaments-page myo-root">
 
-      {/* ── Hero — full-bleed, centered ── */}
+      {/* ── Hero — compact ── */}
       <section className="ornaments-hero">
         <div className="ornaments-hero-overlay" />
         <div className="ornaments-hero-content">
-          <div className="ornaments-hero-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <circle cx="12" cy="13" r="7"/>
-              <path d="M12 6V3M10 4h4"/>
-              <circle cx="10" cy="11" r="0.5" fill="currentColor"/>
-              <circle cx="14" cy="14" r="0.5" fill="currentColor"/>
-            </svg>
-          </div>
-          <h1 className="ornaments-hero-title">Your Collection Starts Here</h1>
-          <p className="ornaments-hero-subtitle">Save ornaments that inspire your perfect tree.</p>
+          <h1 className="ornaments-hero-title">Your Ornament Vault</h1>
+          <p className="ornaments-hero-subtitle">Save ornaments you own or love. Your stylist will design around what inspires you.</p>
           <button className="ornaments-add-btn" onClick={() => setAddModal(true)}>
             <span className="ornaments-add-icon">+</span>
             Add Ornament
@@ -689,35 +694,50 @@ export default function MyOrnaments() {
         </div>
       </section>
 
-      {/* ── Saved decor grid — only when populated ── */}
-      {ornaments.length > 0 && (
-        <>
-          <div className="myo-collection-header">
-            <span className="myo-count">
-              {filteredOrnaments.length} saved piece{filteredOrnaments.length !== 1 ? 's' : ''}
-            </span>
-            <button className="myo-filter-btn" onClick={() => setFilterDrawer(true)}>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                <line x1="4" y1="6" x2="20" y2="6"/>
-                <line x1="8" y1="12" x2="16" y2="12"/>
-                <line x1="11" y1="18" x2="13" y2="18"/>
-              </svg>
-              Filter &amp; Sort
-            </button>
-          </div>
-          <div className="myo-grid">
-            {filteredOrnaments.map(o => (
-              <OrnamentCard key={o.id} ornament={o} onDelete={handleDelete} onEdit={setEditing} />
-            ))}
-          </div>
-        </>
-      )}
+      {/* ── Owned / Saved segmented control ── */}
+      <div className="myo-seg-wrap">
+        <div className="myo-seg">
+          <button
+            className={`myo-seg-btn${activeTab === 'owned' ? ' active' : ''}`}
+            onClick={() => setActiveTab('owned')}
+          >Owned</button>
+          <button
+            className={`myo-seg-btn${activeTab === 'saved' ? ' active' : ''}`}
+            onClick={() => setActiveTab('saved')}
+          >Saved</button>
+        </div>
+        {!isEmpty && (
+          <button className="myo-filter-btn" onClick={() => setFilterDrawer(true)}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <line x1="4" y1="6" x2="20" y2="6"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+              <line x1="11" y1="18" x2="13" y2="18"/>
+            </svg>
+            Filter &amp; Sort
+          </button>
+        )}
+      </div>
 
-      {/* ── Floating add button ── */}
-      {ornaments.length > 0 && (
-        <button className="myo-fab" onClick={() => setAddModal(true)} aria-label="Add ornament">
-          +
-        </button>
+      {/* ── Empty state ── */}
+      {isEmpty ? (
+        <div className="myo-empty">
+          <svg width="44" height="56" viewBox="0 0 44 56" fill="none" aria-hidden="true">
+            <rect x="17" y="1" width="10" height="9" rx="3" stroke="#c9a84c" strokeWidth="1.4"/>
+            <circle cx="22" cy="36" r="18" stroke="#c9a84c" strokeWidth="1.4"/>
+            <ellipse cx="15" cy="28" rx="5" ry="3.5" stroke="rgba(201,168,76,0.35)" strokeWidth="1" transform="rotate(-25 15 28)"/>
+          </svg>
+          <p className="myo-empty-title">Your vault is empty</p>
+          <p className="myo-empty-sub">Add your first ornament or save one from a look.</p>
+          <button className="ornaments-add-btn myo-empty-btn" onClick={() => setAddModal(true)}>
+            Add Your First Ornament
+          </button>
+        </div>
+      ) : (
+        <div className="myo-grid">
+          {tabFiltered.map(o => (
+            <OrnamentCard key={o.id} ornament={o} onEdit={setEditing} />
+          ))}
+        </div>
       )}
 
       {/* ── Modals / drawers ── */}
@@ -730,6 +750,7 @@ export default function MyOrnaments() {
           ornament={editingOrnament}
           onSave={handleSaveEdit}
           onClose={() => setEditing(null)}
+          onDelete={handleDelete}
         />
       )}
 
