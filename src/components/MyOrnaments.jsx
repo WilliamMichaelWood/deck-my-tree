@@ -668,43 +668,33 @@ export default function MyOrnaments() {
   return (
     <div className="tab-content myo-root">
 
-      {/* ── Empty state (0 ornaments) ── */}
+      {/* ── Hero — always visible ── */}
+      <div className="myo-archive-hero">
+        <div className="myo-archive-hero-overlay" aria-hidden="true" />
+        <div className="myo-archive-emblem">
+          <svg className="myo-archive-emblem-ring" width="96" height="96" viewBox="0 0 96 96" fill="none">
+            <path d="M48,4 L48.7,7.3 L52,8 L48.7,8.7 L48,12 L47.3,8.7 L44,8 L47.3,7.3 Z" fill="#c9a84c" opacity="0.9"/>
+            <path d="M88,48 L88.7,51.3 L92,52 L88.7,52.7 L88,56 L87.3,52.7 L84,52 L87.3,51.3 Z" fill="#c9a84c" opacity="0.9"/>
+            <path d="M48,84 L48.7,87.3 L52,88 L48.7,88.7 L48,92 L47.3,88.7 L44,88 L47.3,87.3 Z" fill="#c9a84c" opacity="0.9"/>
+            <path d="M4,48 L4.7,51.3 L8,52 L4.7,52.7 L4,56 L3.3,52.7 L0,52 L3.3,51.3 Z" fill="#c9a84c" opacity="0.9"/>
+          </svg>
+          <svg width="38" height="44" viewBox="0 0 38 44" fill="none" stroke="#e6c77a" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="15" y="0" width="8" height="8" rx="2.5" fill="none"/>
+            <path d="M19 8 C19 8 23 8 23 4.5"/>
+            <circle cx="19" cy="29" r="14"/>
+            <path d="M19,22 L19.6,24.4 L22,25 L19.6,25.6 L19,28 L18.4,25.6 L16,25 L18.4,24.4 Z" strokeWidth="0.8"/>
+          </svg>
+        </div>
+        <h1 className="myo-archive-headline">Your Collection<br/>Starts Here</h1>
+        <p className="myo-archive-sub">Save ornaments, ribbon, florals, and styles that inspire your perfect tree.</p>
+        <button className="myo-archive-cta" onClick={() => setAddModal(true)}>+ Add Ornament</button>
+      </div>
+
+      {/* ── Empty state body ── */}
       {ornaments.length === 0 && (
-        <div className="myo-archive">
-
-          {/* Hero */}
-          <div className="myo-archive-hero">
-            <div className="myo-archive-hero-overlay" aria-hidden="true" />
-            <div className="myo-archive-emblem">
-              <svg className="myo-archive-emblem-ring" width="96" height="96" viewBox="0 0 96 96" fill="none">
-                <path d="M48,4 L48.7,7.3 L52,8 L48.7,8.7 L48,12 L47.3,8.7 L44,8 L47.3,7.3 Z" fill="#c9a84c" opacity="0.9"/>
-                <path d="M88,48 L88.7,51.3 L92,52 L88.7,52.7 L88,56 L87.3,52.7 L84,52 L87.3,51.3 Z" fill="#c9a84c" opacity="0.9"/>
-                <path d="M48,84 L48.7,87.3 L52,88 L48.7,88.7 L48,92 L47.3,88.7 L44,88 L47.3,87.3 Z" fill="#c9a84c" opacity="0.9"/>
-                <path d="M4,48 L4.7,51.3 L8,52 L4.7,52.7 L4,56 L3.3,52.7 L0,52 L3.3,51.3 Z" fill="#c9a84c" opacity="0.9"/>
-              </svg>
-              <svg width="38" height="44" viewBox="0 0 38 44" fill="none" stroke="#e6c77a" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="15" y="0" width="8" height="8" rx="2.5" fill="none"/>
-                <path d="M19 8 C19 8 23 8 23 4.5"/>
-                <circle cx="19" cy="29" r="14"/>
-                <path d="M19,22 L19.6,24.4 L22,25 L19.6,25.6 L19,28 L18.4,25.6 L16,25 L18.4,24.4 Z" strokeWidth="0.8"/>
-              </svg>
-            </div>
-            <h1 className="myo-archive-headline">Start with a few<br/>favorite ornaments.</h1>
-            <p className="myo-archive-sub">Add ornaments, ribbon, picks, or toppers so your stylist can shape your holiday look.</p>
-            <button className="myo-archive-cta" onClick={() => setAddModal(true)}>Add Your First Ornament</button>
-          </div>
-
-          {/* Quiet value card */}
-          <div className="myo-archive-value">
-            <div className="myo-archive-value-icon">
-              <img src="/icon-tree.jpg" alt="" className="myo-archive-value-icon-img"/>
-            </div>
-            <div className="myo-archive-value-body">
-              <p className="myo-archive-value-title">Curated From Your Collection</p>
-              <p className="myo-archive-value-text">Styled using your saved ornaments.</p>
-            </div>
-          </div>
-
+        <div className="myo-empty-body">
+          <p className="myo-empty-label">No ornaments saved yet.</p>
+          <p className="myo-empty-hint">Start building your holiday decor library.</p>
         </div>
       )}
 
@@ -731,59 +721,37 @@ export default function MyOrnaments() {
             ))}
           </div>
 
-          {/* ── Style directions ── */}
-          <div className="myo-style-directions">
-            <div className="myo-style-directions-header">
-              <div className="myo-style-directions-divider">
-                <span className="myo-archive-divider-line" />
-                <svg width="12" height="12" viewBox="0 0 20 20" fill="#c9a84c" opacity="0.75">
-                  <path d="M10,1 L11.6,8.4 L19,10 L11.6,11.6 L10,19 L8.4,11.6 L1,10 L8.4,8.4 Z"/>
-                </svg>
-                <span className="myo-archive-divider-line" />
-              </div>
-              <p className="myo-style-directions-label">YOUR STYLE DIRECTIONS</p>
-              <p className="myo-style-directions-hint">
-                {ornaments.length >= 6
-                  ? 'Suggested looks based on your saved decor.'
-                  : 'Add a few more pieces to reveal stronger style directions.'}
-              </p>
-            </div>
-
-            <div className={`myo-archive-scroll${ornaments.length < 6 ? ' myo-style-locked' : ''}`}>
-              {[
-                { name: 'Classic Elegance',  mood: 'Timeless · Refined',   cls: 'myo-archive-card-photo--champagne' },
-                { name: 'Warm Woodland',      mood: 'Cozy · Organic',       cls: 'myo-archive-card-photo--woodland'  },
-                { name: 'Champagne Glow',     mood: 'Luminous · Glam',      cls: 'myo-archive-card-photo--silver'   },
-              ].map(({ name, mood, cls }) => (
-                <div className={`myo-archive-card${ornaments.length < 6 ? ' myo-archive-card--locked' : ''}`} key={name}>
-                  <div className={`myo-archive-card-photo ${cls}`}>
-                    {ornaments.length < 6 && (
-                      <div className="myo-card-lock-overlay">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(201,168,76,0.6)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                  <div className="myo-archive-card-body">
-                    <p className="myo-archive-card-name">{name}</p>
-                    <p className="myo-archive-card-mood">{mood}</p>
-                  </div>
+          {/* Style directions — only when 6+ ornaments */}
+          {ornaments.length >= 6 && (
+            <div className="myo-style-directions">
+              <div className="myo-style-directions-header">
+                <div className="myo-style-directions-divider">
+                  <span className="myo-archive-divider-line" />
+                  <svg width="12" height="12" viewBox="0 0 20 20" fill="#c9a84c" opacity="0.75">
+                    <path d="M10,1 L11.6,8.4 L19,10 L11.6,11.6 L10,19 L8.4,11.6 L1,10 L8.4,8.4 Z"/>
+                  </svg>
+                  <span className="myo-archive-divider-line" />
                 </div>
-              ))}
+                <p className="myo-style-directions-label">YOUR STYLE DIRECTIONS</p>
+                <p className="myo-style-directions-hint">Suggested looks based on your saved decor.</p>
+              </div>
+              <div className="myo-archive-scroll">
+                {[
+                  { name: 'Classic Elegance', mood: 'Timeless · Refined', cls: 'myo-archive-card-photo--champagne' },
+                  { name: 'Warm Woodland',    mood: 'Cozy · Organic',     cls: 'myo-archive-card-photo--woodland'  },
+                  { name: 'Champagne Glow',   mood: 'Luminous · Glam',    cls: 'myo-archive-card-photo--silver'   },
+                ].map(({ name, mood, cls }) => (
+                  <div className="myo-archive-card" key={name}>
+                    <div className={`myo-archive-card-photo ${cls}`} />
+                    <div className="myo-archive-card-body">
+                      <p className="myo-archive-card-name">{name}</p>
+                      <p className="myo-archive-card-mood">{mood}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-
-          {/* Quiet value card */}
-          <div className="myo-archive-value myo-archive-value--below-grid">
-            <div className="myo-archive-value-icon">
-              <img src="/icon-tree.jpg" alt="" className="myo-archive-value-icon-img"/>
-            </div>
-            <div className="myo-archive-value-body">
-              <p className="myo-archive-value-title">Curated From Your Collection</p>
-              <p className="myo-archive-value-text">Styled using your saved ornaments.</p>
-            </div>
-          </div>
+          )}
         </>
       )}
 

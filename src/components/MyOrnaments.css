@@ -1,41 +1,54 @@
-/* ── MyOrnaments — redesigned ── */
+/* ── MyOrnaments ── */
 
 .myo-root {
   position: relative;
   min-height: 60vh;
+  background: linear-gradient(180deg, #050e1a 0%, #07111e 100%);
 }
 
-/* ── Archive empty state ── */
-.myo-archive {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  padding: 0 0 120px;
-}
-
-/* Hero — full bleed photo */
+/* Hero — full bleed photo, always visible */
 .myo-archive-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 38px 24px 36px;
+  padding: 30px 24px 30px;
   position: relative;
   overflow: hidden;
   /* placeholder gradient — replace with: background-image: url('/hero-ornaments.jpg'); */
   background:
-    linear-gradient(180deg, rgba(5,10,20,0.45) 0%, rgba(5,10,20,0.72) 60%, rgba(5,10,20,0.96) 100%),
+    linear-gradient(180deg, rgba(4,8,18,0.5) 0%, rgba(4,8,18,0.75) 65%, rgba(4,8,18,0.97) 100%),
     radial-gradient(ellipse 120% 80% at 40% 40%, #3a2a0a 0%, #0f1a0a 40%, #080c18 100%);
   background-size: cover;
   background-position: center;
+  margin-bottom: 0;
 }
 
 .myo-archive-hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(5,10,20,0.3) 0%, rgba(5,10,20,0.55) 55%, rgba(5,10,20,0.92) 100%);
+  background: linear-gradient(180deg, rgba(4,8,18,0.2) 0%, rgba(4,8,18,0.5) 55%, rgba(4,8,18,0.95) 100%);
   pointer-events: none;
   z-index: 0;
+}
+
+/* Empty body — below hero when no ornaments */
+.myo-empty-body {
+  padding: 28px 24px 100px;
+  text-align: center;
+}
+.myo-empty-label {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1rem;
+  color: rgba(248, 240, 223, 0.55);
+  margin: 0 0 6px;
+  font-weight: 400;
+}
+.myo-empty-hint {
+  font-size: 0.8rem;
+  color: rgba(248, 240, 223, 0.3);
+  margin: 0;
+  line-height: 1.5;
 }
 
 /* Emblem with orbiting sparkles */
@@ -266,58 +279,6 @@
   flex-shrink: 0;
 }
 
-/* Quiet value card */
-.myo-archive-value {
-  margin: 0 16px;
-  background: rgba(8, 14, 26, 0.7);
-  border: 1px solid rgba(201, 168, 76, 0.15);
-  border-radius: 16px;
-  padding: 11px 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.myo-archive-value--below-grid {
-  margin-top: 16px;
-  margin-bottom: 100px;
-}
-
-.myo-archive-value-icon {
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-.myo-archive-value-icon-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.myo-archive-value-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.myo-archive-value-title {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #e6c77a;
-  margin: 0 0 2px;
-}
-
-.myo-archive-value-text {
-  font-size: 0.75rem;
-  color: rgba(248, 240, 223, 0.42);
-  margin: 0;
-  line-height: 1.4;
-}
-
 /* Style directions section */
 .myo-style-directions {
   padding: 0 16px;
@@ -376,13 +337,12 @@
 }
 
 @media (max-width: 600px) {
-  .myo-archive-hero         { padding: 8px 20px 12px; }
-  .myo-archive-emblem       { width: 58px; height: 58px; margin-bottom: 8px; }
-  .myo-archive-headline     { font-size: 27px; margin: 0 0 5px; }
-  .myo-archive-sub          { font-size: 12px; max-width: 270px; margin: 0 auto 14px; }
-  .myo-archive-cta          { min-height: 44px; font-size: 0.92rem; }
-  .myo-archive-divider-wrap { padding: 6px 20px 5px; }
-  .myo-archive-collections  { padding: 0 12px; margin-bottom: 8px; }
+  .myo-archive-hero      { padding: 8px 20px 20px; }
+  .myo-archive-emblem    { width: 58px; height: 58px; margin-bottom: 8px; }
+  .myo-archive-headline  { font-size: 27px; margin: 0 0 5px; }
+  .myo-archive-sub       { font-size: 12px; max-width: 270px; margin: 0 auto 14px; }
+  .myo-archive-cta       { min-height: 46px; font-size: 0.92rem; }
+  .myo-empty-body        { padding: 20px 20px 100px; }
   .myo-archive-scroll {
     grid-template-columns: repeat(3, minmax(110px, 1fr));
     overflow-x: auto;
@@ -392,18 +352,11 @@
     scrollbar-width: none;
   }
   .myo-archive-scroll::-webkit-scrollbar { display: none; }
-  .myo-archive-card-photo   { height: 86px; }
-  .myo-archive-card-body    { padding: 7px 9px 8px; gap: 2px; }
-  .myo-archive-card-name    { font-size: 11px; }
-  .myo-archive-card-mood    { font-size: 9px; }
-  .myo-archive-card-count   { margin-top: 1px; }
-  .myo-archive-card-count span { font-size: 10px; }
-  .myo-archive-value        { margin: 0 12px; padding: 9px 12px; gap: 10px; }
-  .myo-archive-value-icon   { width: 36px; height: 36px; }
-  .myo-archive-value-title  { font-size: 0.82rem; }
-  .myo-archive-value-text   { font-size: 0.7rem; }
-  .myo-style-directions     { padding: 0 12px; }
-  .myo-archive-value--below-grid { margin: 12px 12px 100px; }
+  .myo-archive-card-photo { height: 86px; }
+  .myo-archive-card-body  { padding: 7px 9px 8px; gap: 2px; }
+  .myo-archive-card-name  { font-size: 11px; }
+  .myo-archive-card-mood  { font-size: 9px; }
+  .myo-style-directions   { padding: 0 12px; }
 }
 
 /* ── Collection header ── */
@@ -412,6 +365,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 16px;
+  padding: 16px 16px 0;
 }
 
 .myo-count {
@@ -445,7 +399,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-  padding-bottom: 90px; /* room for FAB */
+  padding: 0 16px 90px; /* room for FAB */
 }
 
 /* ── Card ── */
