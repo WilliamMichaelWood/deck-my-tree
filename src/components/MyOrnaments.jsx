@@ -671,47 +671,61 @@ export default function MyOrnaments() {
       {/* ── Hero — always visible ── */}
       <div className="myo-archive-hero">
         <div className="myo-archive-hero-overlay" aria-hidden="true" />
-        <div className="myo-archive-emblem">
-          {/* Outer ring with 4 sparkle stars */}
-          <svg className="myo-archive-emblem-ring" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="60" cy="60" r="54" stroke="#c9a84c" strokeWidth="1.2" opacity="0.75"/>
-            {/* Top */}
-            <path d="M60,2 L61.2,6.2 L65.4,7.4 L61.2,8.6 L60,12.8 L58.8,8.6 L54.6,7.4 L58.8,6.2 Z" fill="#c9a84c"/>
-            {/* Right */}
-            <path d="M118,60 L113.8,61.2 L112.6,65.4 L111.4,61.2 L107.2,60 L111.4,58.8 L112.6,54.6 L113.8,58.8 Z" fill="#c9a84c"/>
-            {/* Bottom */}
-            <path d="M60,118 L61.2,113.8 L65.4,112.6 L61.2,111.4 L60,107.2 L58.8,111.4 L54.6,112.6 L58.8,113.8 Z" fill="#c9a84c"/>
-            {/* Left */}
-            <path d="M2,60 L6.2,61.2 L7.4,65.4 L8.6,61.2 L12.8,60 L8.6,58.8 L7.4,54.6 L6.2,58.8 Z" fill="#c9a84c"/>
-          </svg>
-          {/* Bauble with large sparkle */}
-          <svg width="58" height="64" viewBox="0 0 58 64" fill="none" stroke="#e6c77a" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-            {/* Cap */}
-            <rect x="23" y="0" width="12" height="10" rx="3.5" fill="none"/>
-            {/* Hook */}
-            <path d="M29 10 C29 10 34 10 34 5.5"/>
-            {/* Ball */}
-            <circle cx="29" cy="40" r="22"/>
-            {/* Large 4-pointed sparkle */}
-            <path d="M29,26 L31,32 L37,34 L31,36 L29,42 L27,36 L21,34 L27,32 Z" strokeWidth="1.1"/>
-            {/* Small sparkle top-left */}
-            <path d="M18,26 L18.5,27.7 L20.2,28.2 L18.5,28.7 L18,30.4 L17.5,28.7 L15.8,28.2 L17.5,27.7 Z" strokeWidth="0.7"/>
-            {/* Small sparkle top-right */}
-            <path d="M40,28 L40.4,29.3 L41.7,29.7 L40.4,30.1 L40,31.4 L39.6,30.1 L38.3,29.7 L39.6,29.3 Z" strokeWidth="0.7"/>
-          </svg>
+        <div className="myo-archive-content">
+          <div className="myo-archive-emblem">
+            {/* Outer ring with 4 sparkle stars */}
+            <svg className="myo-archive-emblem-ring" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="60" cy="60" r="54" stroke="#c9a84c" strokeWidth="1.2" opacity="0.75"/>
+              <path d="M60,2 L61.2,6.2 L65.4,7.4 L61.2,8.6 L60,12.8 L58.8,8.6 L54.6,7.4 L58.8,6.2 Z" fill="#c9a84c"/>
+              <path d="M118,60 L113.8,61.2 L112.6,65.4 L111.4,61.2 L107.2,60 L111.4,58.8 L112.6,54.6 L113.8,58.8 Z" fill="#c9a84c"/>
+              <path d="M60,118 L61.2,113.8 L65.4,112.6 L61.2,111.4 L60,107.2 L58.8,111.4 L54.6,112.6 L58.8,113.8 Z" fill="#c9a84c"/>
+              <path d="M2,60 L6.2,61.2 L7.4,65.4 L8.6,61.2 L12.8,60 L8.6,58.8 L7.4,54.6 L6.2,58.8 Z" fill="#c9a84c"/>
+            </svg>
+            {/* Bauble with large sparkle */}
+            <svg width="58" height="64" viewBox="0 0 58 64" fill="none" stroke="#e6c77a" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="23" y="0" width="12" height="10" rx="3.5" fill="none"/>
+              <path d="M29 10 C29 10 34 10 34 5.5"/>
+              <circle cx="29" cy="40" r="22"/>
+              <path d="M29,26 L31,32 L37,34 L31,36 L29,42 L27,36 L21,34 L27,32 Z" strokeWidth="1.1"/>
+              <path d="M18,26 L18.5,27.7 L20.2,28.2 L18.5,28.7 L18,30.4 L17.5,28.7 L15.8,28.2 L17.5,27.7 Z" strokeWidth="0.7"/>
+              <path d="M40,28 L40.4,29.3 L41.7,29.7 L40.4,30.1 L40,31.4 L39.6,30.1 L38.3,29.7 L39.6,29.3 Z" strokeWidth="0.7"/>
+            </svg>
+          </div>
+          <h1 className="myo-archive-headline">Your Collection<br/>Starts Here</h1>
+          <p className="myo-archive-sub">Save ornaments, colors, and styles that inspire your perfect tree.</p>
+          <button className="myo-archive-cta" onClick={() => setAddModal(true)}>+ Add Ornament</button>
         </div>
-        <h1 className="myo-archive-headline">Your Collection<br/>Starts Here</h1>
-        <p className="myo-archive-sub">Save ornaments, colors, and styles that inspire your perfect tree.</p>
-        <button className="myo-archive-cta" onClick={() => setAddModal(true)}>+ Add Ornament</button>
       </div>
 
-      {/* ── Empty state body ── */}
-      {ornaments.length === 0 && (
-        <div className="myo-empty-body">
-          <p className="myo-empty-label">No ornaments saved yet.</p>
-          <p className="myo-empty-hint">Start building your holiday decor library.</p>
+      {/* ── Collections section — always visible ── */}
+      <div className="myo-archive-divider-wrap">
+        <div className="myo-archive-divider">
+          <span className="myo-archive-divider-line" />
+          <svg width="12" height="12" viewBox="0 0 20 20" fill="#c9a84c" opacity="0.75">
+            <path d="M10,1 L11.6,8.4 L19,10 L11.6,11.6 L10,19 L8.4,11.6 L1,10 L8.4,8.4 Z"/>
+          </svg>
+          <span className="myo-archive-divider-line" />
         </div>
-      )}
+        <p className="myo-archive-collections-label">YOUR COLLECTIONS</p>
+      </div>
+
+      <div className="myo-archive-collections">
+        <div className="myo-archive-scroll">
+          {[
+            { name: 'Classic Elegance', mood: 'Timeless · Refined', cls: 'myo-archive-card-photo--champagne' },
+            { name: 'Warm Woodland',    mood: 'Cozy · Organic',     cls: 'myo-archive-card-photo--woodland'  },
+            { name: 'Champagne Glow',   mood: 'Luminous · Glam',    cls: 'myo-archive-card-photo--silver'   },
+          ].map(({ name, mood, cls }) => (
+            <div className="myo-archive-card" key={name}>
+              <div className={`myo-archive-card-photo ${cls}`} />
+              <div className="myo-archive-card-body">
+                <p className="myo-archive-card-name">{name}</p>
+                <p className="myo-archive-card-mood">{mood}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* ── Saved decor grid (1+ ornaments) ── */}
       {ornaments.length > 0 && (
@@ -735,38 +749,6 @@ export default function MyOrnaments() {
               <OrnamentCard key={o.id} ornament={o} onDelete={handleDelete} onEdit={setEditing} />
             ))}
           </div>
-
-          {/* Style directions — only when 6+ ornaments */}
-          {ornaments.length >= 6 && (
-            <div className="myo-style-directions">
-              <div className="myo-style-directions-header">
-                <div className="myo-style-directions-divider">
-                  <span className="myo-archive-divider-line" />
-                  <svg width="12" height="12" viewBox="0 0 20 20" fill="#c9a84c" opacity="0.75">
-                    <path d="M10,1 L11.6,8.4 L19,10 L11.6,11.6 L10,19 L8.4,11.6 L1,10 L8.4,8.4 Z"/>
-                  </svg>
-                  <span className="myo-archive-divider-line" />
-                </div>
-                <p className="myo-style-directions-label">YOUR STYLE DIRECTIONS</p>
-                <p className="myo-style-directions-hint">Suggested looks based on your saved decor.</p>
-              </div>
-              <div className="myo-archive-scroll">
-                {[
-                  { name: 'Classic Elegance', mood: 'Timeless · Refined', cls: 'myo-archive-card-photo--champagne' },
-                  { name: 'Warm Woodland',    mood: 'Cozy · Organic',     cls: 'myo-archive-card-photo--woodland'  },
-                  { name: 'Champagne Glow',   mood: 'Luminous · Glam',    cls: 'myo-archive-card-photo--silver'   },
-                ].map(({ name, mood, cls }) => (
-                  <div className="myo-archive-card" key={name}>
-                    <div className={`myo-archive-card-photo ${cls}`} />
-                    <div className="myo-archive-card-body">
-                      <p className="myo-archive-card-name">{name}</p>
-                      <p className="myo-archive-card-mood">{mood}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </>
       )}
 
