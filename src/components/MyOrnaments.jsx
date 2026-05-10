@@ -681,10 +681,18 @@ export default function MyOrnaments() {
   return (
     <div className="ornaments-page myo-root">
 
-      {/* ── Hero — compact ── */}
+      {/* ── Hero ── */}
       <section className="ornaments-hero">
         <div className="ornaments-hero-overlay" />
         <div className="ornaments-hero-content">
+          <div className="ornaments-hero-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5.5V3M10.5 4h3"/>
+              <circle cx="12" cy="13" r="7.5"/>
+              <circle cx="10" cy="11.5" r="0.6" fill="currentColor" stroke="none"/>
+              <circle cx="14" cy="14.5" r="0.6" fill="currentColor" stroke="none"/>
+            </svg>
+          </div>
           <h1 className="ornaments-hero-title">Your Ornament Vault</h1>
           <p className="ornaments-hero-subtitle">Save ornaments you own or love. Your stylist will design around what inspires you.</p>
           <button className="ornaments-add-btn" onClick={() => setAddModal(true)}>
@@ -721,14 +729,26 @@ export default function MyOrnaments() {
       {/* ── Empty state ── */}
       {isEmpty ? (
         <div className="myo-empty">
-          <svg width="44" height="56" viewBox="0 0 44 56" fill="none" aria-hidden="true">
-            <rect x="17" y="1" width="10" height="9" rx="3" stroke="#c9a84c" strokeWidth="1.4"/>
-            <circle cx="22" cy="36" r="18" stroke="#c9a84c" strokeWidth="1.4"/>
-            <ellipse cx="15" cy="28" rx="5" ry="3.5" stroke="rgba(201,168,76,0.35)" strokeWidth="1" transform="rotate(-25 15 28)"/>
+          {/* Open box with sparkles */}
+          <svg width="120" height="106" viewBox="0 0 120 106" fill="none" aria-hidden="true">
+            {/* Sparkle stars */}
+            <path d="M60,4 L61.8,9.8 L67.6,11.6 L61.8,13.4 L60,19.2 L58.2,13.4 L52.4,11.6 L58.2,9.8 Z" fill="#c9a84c"/>
+            <path d="M34,9 L35.2,12.6 L38.8,13.8 L35.2,15 L34,18.6 L32.8,15 L29.2,13.8 L32.8,12.6 Z" fill="#c9a84c"/>
+            <path d="M86,9 L87.2,12.6 L90.8,13.8 L87.2,15 L86,18.6 L84.8,15 L81.2,13.8 L84.8,12.6 Z" fill="#c9a84c"/>
+            <path d="M18,22 L18.8,24.7 L21.5,25.5 L18.8,26.3 L18,29 L17.2,26.3 L14.5,25.5 L17.2,24.7 Z" fill="#c9a84c"/>
+            <path d="M102,18 L102.7,20.4 L105.1,21.1 L102.7,21.8 L102,24.2 L101.3,21.8 L98.9,21.1 L101.3,20.4 Z" fill="#c9a84c"/>
+            {/* Box body */}
+            <rect x="16" y="58" width="88" height="44" rx="2" stroke="#c9a84c" strokeWidth="1.5"/>
+            {/* Left flap (open, angled upper-left) */}
+            <path d="M16,58 L3,36 L56,33 L60,58" stroke="#c9a84c" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
+            {/* Right flap (open, angled upper-right) */}
+            <path d="M104,58 L117,36 L64,33 L60,58" stroke="#c9a84c" strokeWidth="1.5" strokeLinejoin="round" fill="none"/>
+            {/* Center seam between flaps */}
+            <line x1="60" y1="33" x2="60" y2="58" stroke="#c9a84c" strokeWidth="1.5"/>
           </svg>
           <p className="myo-empty-title">Your vault is empty</p>
-          <p className="myo-empty-sub">Add your first ornament or save one from a look.</p>
-          <button className="ornaments-add-btn myo-empty-btn" onClick={() => setAddModal(true)}>
+          <p className="myo-empty-sub">Add your first ornament<br/>or save one from a look.</p>
+          <button className="myo-empty-outline-btn" onClick={() => setAddModal(true)}>
             Add Your First Ornament
           </button>
         </div>
