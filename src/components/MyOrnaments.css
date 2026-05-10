@@ -77,7 +77,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--gold);
+  background: var(--gold-gradient);
   color: var(--navy);
   border: 1px solid #a8843a;
   border-radius: 50px;
