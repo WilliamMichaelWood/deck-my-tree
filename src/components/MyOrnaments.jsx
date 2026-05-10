@@ -748,9 +748,6 @@ export default function MyOrnaments() {
           </svg>
           <p className="myo-empty-title">Your vault is empty</p>
           <p className="myo-empty-sub">Add your first ornament<br/>or save one from a look.</p>
-          <button className="myo-empty-outline-btn" onClick={() => setAddModal(true)}>
-            Add Your First Ornament
-          </button>
         </div>
       ) : (
         <div className="myo-grid">
