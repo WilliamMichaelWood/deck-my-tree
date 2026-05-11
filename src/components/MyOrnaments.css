@@ -453,7 +453,7 @@
   padding: 4px 16px 100px;
 }
 
-/* ── Card — image-first, luxe ── */
+/* ── Card — base ── */
 .myo-card {
   position: relative;
   border-radius: 14px;
@@ -470,47 +470,104 @@
   border-color: rgba(201, 168, 76, 0.4);
 }
 
-/* ── Card media — 4:5 ratio ── */
-.myo-card-media {
-  position: relative;
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  background: #0a1525;
+/* ── Saved card — no gold border, two-section layout ── */
+.myo-card--saved {
+  border: none;
+}
+.myo-card--saved:hover {
+  border-color: transparent;
 }
 
-.myo-card-photo {
-  position: absolute;
-  inset: 0;
+/* Full-bleed square image area (top of Saved card) */
+.myo-saved-img-area {
+  aspect-ratio: 1 / 1;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: brightness(0.95) contrast(1.04) saturate(0.92);
-}
-
-/* Library image for Saved cards — cream product window on navy card */
-.myo-card-library-wrap {
-  position:      absolute;
-  inset:         0;
-  display:       flex;
-  align-items:   center;
+  overflow: hidden;
+  background: #f0e8d8;
+  display: flex;
+  align-items: center;
   justify-content: center;
 }
 
-.myo-card-library-wrap-inner {
-  background:    #f4ead8;
-  border-radius: 12px;
-  padding:       12px;
-  aspect-ratio:  1 / 1;
-  width:         80%;
-  overflow:      hidden;
-  box-shadow:    0 4px 12px rgba(0,0,0,0.30);
+.myo-saved-svg-area {
+  background: #0a1525;
 }
 
-.myo-card-library-img {
-  width:         100%;
-  height:        100%;
-  object-fit:    contain;
-  display:       block;
+.myo-saved-img {
+  width:        100%;
+  height:       100%;
+  object-fit:   cover;
+  display:      block;
+}
+
+/* Navy text strip (bottom of Saved card) */
+.myo-saved-info {
+  background:     #060d18;
+  padding:        10px 10px 11px;
+  display:        flex;
+  flex-direction: column;
+  gap:            7px;
+}
+
+.myo-saved-name {
+  font-family:   'Lora', 'Playfair Display', Georgia, serif;
+  font-size:     13px;
+  font-weight:   600;
+  color:         rgba(248, 240, 223, 0.95);
+  line-height:   1.3;
+  margin:        0;
+  overflow:      hidden;
+  display:       -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.myo-saved-actions {
+  display:     flex;
+  align-items: center;
+  gap:         6px;
+}
+
+.myo-saved-price {
+  font-size:   11px;
+  font-weight: 600;
+  color:       #e6c77a;
+  flex-shrink: 0;
+}
+
+.myo-saved-buy-btn {
+  flex:            1;
+  font-size:       10px;
+  font-weight:     700;
+  letter-spacing:  0.04em;
+  color:           #050e1a;
+  background:      linear-gradient(135deg, #e8c96a 0%, #c9a84c 100%);
+  border:          none;
+  border-radius:   6px;
+  padding:         5px 8px;
+  cursor:          pointer;
+  white-space:     nowrap;
+  transition:      opacity 0.15s;
+}
+.myo-saved-buy-btn:hover {
+  opacity: 0.88;
+}
+
+/* ── Owned card media — 4:5 ratio, overlay layout ── */
+.myo-card-media {
+  position:     relative;
+  aspect-ratio: 4 / 5;
+  overflow:     hidden;
+  background:   #0a1525;
+}
+
+.myo-card-photo {
+  position:   absolute;
+  inset:      0;
+  width:      100%;
+  height:     100%;
+  object-fit: cover;
+  filter:     brightness(0.95) contrast(1.04) saturate(0.92);
 }
 
 .myo-card-svg-bg {

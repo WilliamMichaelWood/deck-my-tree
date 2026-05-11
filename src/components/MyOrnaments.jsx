@@ -164,7 +164,7 @@ function EmptyIllustration() {
 }
 
 // ─── SavedOrnamentImage ───────────────────────────────────────
-// Renders a library image for Saved cards, with SVG fallback.
+// Full-bleed image area for Saved cards, with SVG fallback.
 function SavedOrnamentImage({ shape, color, style, svgColor }) {
   const [useSvg, setUseSvg] = useState(false)
   const libraryPath = findOrnamentImage({ shape, color, style })
@@ -172,8 +172,8 @@ function SavedOrnamentImage({ shape, color, style, svgColor }) {
   if (useSvg || !libraryPath) {
     return (
       <div
-        className="myo-card-svg-bg"
-        style={{ background: `radial-gradient(circle at 40% 35%, ${svgColor}44 0%, ${svgColor}18 60%, transparent 100%)` }}
+        className="myo-saved-img-area myo-saved-svg-area"
+        style={{ background: `radial-gradient(circle at 40% 35%, ${svgColor}44 0%, ${svgColor}18 60%, #0a1525 100%)` }}
       >
         <OrnamentSVG shape={shape} color={svgColor} />
       </div>
@@ -181,24 +181,22 @@ function SavedOrnamentImage({ shape, color, style, svgColor }) {
   }
 
   return (
-    <div className="myo-card-library-wrap">
-      <div className="myo-card-library-wrap-inner">
-        <img
-          src={libraryPath}
-          alt=""
-          className="myo-card-library-img"
-          loading="lazy"
-          onError={() => setUseSvg(true)}
-        />
-      </div>
+    <div className="myo-saved-img-area">
+      <img
+        src={libraryPath}
+        alt=""
+        className="myo-saved-img"
+        loading="lazy"
+        onError={() => setUseSvg(true)}
+      />
     </div>
   )
 }
 
 // ─── OrnamentCard ─────────────────────────────────────────────
 function OrnamentCard({ ornament, onEdit }) {
-  const color  = ornament.colorHex || ornament.color || '#c9a84c'
-  const shape  = ornament.shape || 'ball'
+  const color   = ornament.colorHex || ornament.color || '#c9a84c'
+  const shape   = ornament.shape || 'ball'
   const isSaved = ornament.source === 'saved'
 
   const handleShop = (e) => {
@@ -213,36 +211,31 @@ function OrnamentCard({ ornament, onEdit }) {
     window.open(RETAILER_SEARCH.amazon(q), '_blank')
   }
 
-  return (
-    <div className="myo-card" onClick={() => onEdit(ornament)}>
-      <div className="myo-card-media">
+  // ── Saved card — image-first with text strip below ──
+  if (isSaved) {
+    const bestPrice = (() => {
+      for (const key of RETAILER_ORDER) {
+        const p = ornament.retailers?.[key]?.price
+        if (p) return p
+      }
+      return null
+    })()
+
+    return (
+      <div className="myo-card myo-card--saved" onClick={() => onEdit(ornament)}>
         {ornament.photo
-          ? <img src={ornament.photo} alt={ornament.name} className="myo-card-photo" />
-          : isSaved
-            ? <SavedOrnamentImage
-                shape={shape}
-                color={color}
-                style={ornament.style}
-                svgColor={color}
-              />
-            : (
-              <div
-                className="myo-card-svg-bg"
-                style={{ background: `radial-gradient(circle at 40% 35%, ${color}44 0%, ${color}18 60%, transparent 100%)` }}
-              >
-                <OrnamentSVG shape={shape} color={color} />
-              </div>
-            )
+          ? <div className="myo-saved-img-area">
+              <img src={ornament.photo} alt={ornament.name} className="myo-saved-img" />
+            </div>
+          : <SavedOrnamentImage shape={shape} color={color} style={ornament.style} svgColor={color} />
         }
-        {/* Dark gradient overlay for text legibility */}
-        <div className="myo-card-vignette" />
-
-        {/* Source badge */}
-        <span className={`myo-card-badge${isSaved ? ' myo-card-badge--saved' : ''}`}>
-          {isSaved ? 'Saved' : 'Owned'}
-        </span>
-
-        {/* Three-dot menu */}
+        <div className="myo-saved-info">
+          <p className="myo-saved-name">{ornament.name}</p>
+          <div className="myo-saved-actions">
+            {bestPrice && <span className="myo-saved-price">{bestPrice}</span>}
+            <button className="myo-saved-buy-btn" onClick={handleShop}>Deck it. Buy it.</button>
+          </div>
+        </div>
         <button
           className="myo-card-menu-btn"
           onClick={(e) => { e.stopPropagation(); onEdit(ornament) }}
@@ -250,13 +243,36 @@ function OrnamentCard({ ornament, onEdit }) {
         >
           ···
         </button>
+      </div>
+    )
+  }
 
-        {/* Name + optional shop action overlaid at bottom */}
+  // ── Owned card — overlay layout ──
+  return (
+    <div className="myo-card" onClick={() => onEdit(ornament)}>
+      <div className="myo-card-media">
+        {ornament.photo
+          ? <img src={ornament.photo} alt={ornament.name} className="myo-card-photo" />
+          : (
+            <div
+              className="myo-card-svg-bg"
+              style={{ background: `radial-gradient(circle at 40% 35%, ${color}44 0%, ${color}18 60%, transparent 100%)` }}
+            >
+              <OrnamentSVG shape={shape} color={color} />
+            </div>
+          )
+        }
+        <div className="myo-card-vignette" />
+        <span className="myo-card-badge">Owned</span>
+        <button
+          className="myo-card-menu-btn"
+          onClick={(e) => { e.stopPropagation(); onEdit(ornament) }}
+          aria-label="Edit ornament"
+        >
+          ···
+        </button>
         <div className="myo-card-footer">
           <span className="myo-card-name">{ornament.name}</span>
-          {isSaved && (
-            <button className="myo-card-shop-link" onClick={handleShop}>Shop</button>
-          )}
         </div>
       </div>
     </div>
