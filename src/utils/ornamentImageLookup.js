@@ -9,7 +9,7 @@
  * color can be a name ('gold', 'burgundy') or a hex string ('#e8b942').
  * Hex strings are mapped to the closest named color before matching.
  */
-import ornamentLibrary from '../data/ornamentLibrary.json' with { type: 'json' }
+import ornamentLibrary from '../data/ornamentLibrary.json'
 
 // ─── Color families ──────────────────────────────────────────────────────────
 // Used for family-level fallback when exact color match fails.

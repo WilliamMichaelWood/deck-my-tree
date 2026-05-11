@@ -5,6 +5,8 @@
 
 // Node doesn't resolve src/ aliases, so we reach into the built module directly.
 // We replicate the manifest import and logic inline-free by loading via relative path.
+// Note: run via `npm run test:ornaments` which uses --experimental-json-modules,
+// or Node 22+ which handles bare JSON imports in ESM.
 import { findOrnamentImage, getColorFamily } from '../src/utils/ornamentImageLookup.js'
 
 const tests = [

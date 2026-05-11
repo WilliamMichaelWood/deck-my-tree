@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "build:ornaments": "node scripts/build-ornament-manifest.js"
+    "build:ornaments": "node scripts/build-ornament-manifest.js",
+    "optimize:ornaments": "node scripts/optimize-ornaments.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
