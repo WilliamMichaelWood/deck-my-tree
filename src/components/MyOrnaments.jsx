@@ -181,13 +181,17 @@ function SavedOrnamentImage({ shape, color, style, svgColor }) {
   }
 
   return (
-    <img
-      src={libraryPath}
-      alt=""
-      className="myo-card-library-img"
-      loading="lazy"
-      onError={() => setUseSvg(true)}
-    />
+    <div className="myo-card-library-wrap">
+      <div className="myo-card-library-wrap-inner">
+        <img
+          src={libraryPath}
+          alt=""
+          className="myo-card-library-img"
+          loading="lazy"
+          onError={() => setUseSvg(true)}
+        />
+      </div>
+    </div>
   )
 }
 

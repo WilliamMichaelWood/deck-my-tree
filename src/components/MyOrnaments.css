@@ -487,16 +487,30 @@
   filter: brightness(0.95) contrast(1.04) saturate(0.92);
 }
 
-/* Library image for Saved cards — cream bg images on dark navy card */
-.myo-card-library-img {
+/* Library image for Saved cards — cream product window on navy card */
+.myo-card-library-wrap {
   position:      absolute;
   inset:         0;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+}
+
+.myo-card-library-wrap-inner {
+  background:    #f4ead8;
+  border-radius: 12px;
+  padding:       12px;
+  aspect-ratio:  1 / 1;
+  width:         80%;
+  overflow:      hidden;
+  box-shadow:    0 4px 12px rgba(0,0,0,0.30);
+}
+
+.myo-card-library-img {
   width:         100%;
   height:        100%;
   object-fit:    contain;
-  /* multiply blend removes the cream/white background against the dark card */
-  mix-blend-mode: multiply;
-  filter:        drop-shadow(0 4px 12px rgba(0,0,0,0.30));
+  display:       block;
 }
 
 .myo-card-svg-bg {
