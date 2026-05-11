@@ -1,0 +1,667 @@
+[
+  {
+    "filename": "ball_black_glitter.png",
+    "path": "/ornaments/library/ball_black_glitter.png",
+    "shape": "ball",
+    "color": "black",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_black_glossy.png",
+    "path": "/ornaments/library/ball_black_glossy.png",
+    "shape": "ball",
+    "color": "black",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_black_matte.png",
+    "path": "/ornaments/library/ball_black_matte.png",
+    "shape": "ball",
+    "color": "black",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_black_ribbed.png",
+    "path": "/ornaments/library/ball_black_ribbed.png",
+    "shape": "ball",
+    "color": "black",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_black_velvet.png",
+    "path": "/ornaments/library/ball_black_velvet.png",
+    "shape": "ball",
+    "color": "black",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_blue_glitter.png",
+    "path": "/ornaments/library/ball_blue_glitter.png",
+    "shape": "ball",
+    "color": "blue",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_blue_glossy.png",
+    "path": "/ornaments/library/ball_blue_glossy.png",
+    "shape": "ball",
+    "color": "blue",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_blue_matte.png",
+    "path": "/ornaments/library/ball_blue_matte.png",
+    "shape": "ball",
+    "color": "blue",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_blue_ribbed.png",
+    "path": "/ornaments/library/ball_blue_ribbed.png",
+    "shape": "ball",
+    "color": "blue",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_blue_velvet.png",
+    "path": "/ornaments/library/ball_blue_velvet.png",
+    "shape": "ball",
+    "color": "blue",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_bronze_glitter.png",
+    "path": "/ornaments/library/ball_bronze_glitter.png",
+    "shape": "ball",
+    "color": "bronze",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_bronze_glossy.png",
+    "path": "/ornaments/library/ball_bronze_glossy.png",
+    "shape": "ball",
+    "color": "bronze",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_bronze_matte.png",
+    "path": "/ornaments/library/ball_bronze_matte.png",
+    "shape": "ball",
+    "color": "bronze",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_bronze_ribbed.png",
+    "path": "/ornaments/library/ball_bronze_ribbed.png",
+    "shape": "ball",
+    "color": "bronze",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_bronze_velvet.png",
+    "path": "/ornaments/library/ball_bronze_velvet.png",
+    "shape": "ball",
+    "color": "bronze",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_burgundy_glitter.png",
+    "path": "/ornaments/library/ball_burgundy_glitter.png",
+    "shape": "ball",
+    "color": "burgundy",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_burgundy_glossy.png",
+    "path": "/ornaments/library/ball_burgundy_glossy.png",
+    "shape": "ball",
+    "color": "burgundy",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_burgundy_matte.png",
+    "path": "/ornaments/library/ball_burgundy_matte.png",
+    "shape": "ball",
+    "color": "burgundy",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_burgundy_ribbed.png",
+    "path": "/ornaments/library/ball_burgundy_ribbed.png",
+    "shape": "ball",
+    "color": "burgundy",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_burgundy_velvet.png",
+    "path": "/ornaments/library/ball_burgundy_velvet.png",
+    "shape": "ball",
+    "color": "burgundy",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_champagne_glitter.png",
+    "path": "/ornaments/library/ball_champagne_glitter.png",
+    "shape": "ball",
+    "color": "champagne",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_champagne_glossy.png",
+    "path": "/ornaments/library/ball_champagne_glossy.png",
+    "shape": "ball",
+    "color": "champagne",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_champagne_matte.png",
+    "path": "/ornaments/library/ball_champagne_matte.png",
+    "shape": "ball",
+    "color": "champagne",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_champagne_ribbed.png",
+    "path": "/ornaments/library/ball_champagne_ribbed.png",
+    "shape": "ball",
+    "color": "champagne",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_champagne_velvet.png",
+    "path": "/ornaments/library/ball_champagne_velvet.png",
+    "shape": "ball",
+    "color": "champagne",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_copper_glitter.png",
+    "path": "/ornaments/library/ball_copper_glitter.png",
+    "shape": "ball",
+    "color": "copper",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_copper_glossy.png",
+    "path": "/ornaments/library/ball_copper_glossy.png",
+    "shape": "ball",
+    "color": "copper",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_copper_matte.png",
+    "path": "/ornaments/library/ball_copper_matte.png",
+    "shape": "ball",
+    "color": "copper",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_copper_ribbed.png",
+    "path": "/ornaments/library/ball_copper_ribbed.png",
+    "shape": "ball",
+    "color": "copper",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_copper_velvet.png",
+    "path": "/ornaments/library/ball_copper_velvet.png",
+    "shape": "ball",
+    "color": "copper",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_cream_glitter.png",
+    "path": "/ornaments/library/ball_cream_glitter.png",
+    "shape": "ball",
+    "color": "cream",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_cream_glossy.png",
+    "path": "/ornaments/library/ball_cream_glossy.png",
+    "shape": "ball",
+    "color": "cream",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_cream_matte.png",
+    "path": "/ornaments/library/ball_cream_matte.png",
+    "shape": "ball",
+    "color": "cream",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_cream_ribbed.png",
+    "path": "/ornaments/library/ball_cream_ribbed.png",
+    "shape": "ball",
+    "color": "cream",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_cream_velvet.png",
+    "path": "/ornaments/library/ball_cream_velvet.png",
+    "shape": "ball",
+    "color": "cream",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_emerald_glitter.png",
+    "path": "/ornaments/library/ball_emerald_glitter.png",
+    "shape": "ball",
+    "color": "emerald",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_emerald_glossy.png",
+    "path": "/ornaments/library/ball_emerald_glossy.png",
+    "shape": "ball",
+    "color": "emerald",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_emerald_matte.png",
+    "path": "/ornaments/library/ball_emerald_matte.png",
+    "shape": "ball",
+    "color": "emerald",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_emerald_ribbed.png",
+    "path": "/ornaments/library/ball_emerald_ribbed.png",
+    "shape": "ball",
+    "color": "emerald",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_emerald_velvet.png",
+    "path": "/ornaments/library/ball_emerald_velvet.png",
+    "shape": "ball",
+    "color": "emerald",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_forest_glitter.png",
+    "path": "/ornaments/library/ball_forest_glitter.png",
+    "shape": "ball",
+    "color": "forest",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_forest_glossy.png",
+    "path": "/ornaments/library/ball_forest_glossy.png",
+    "shape": "ball",
+    "color": "forest",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_forest_matte.png",
+    "path": "/ornaments/library/ball_forest_matte.png",
+    "shape": "ball",
+    "color": "forest",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_forest_ribbed.png",
+    "path": "/ornaments/library/ball_forest_ribbed.png",
+    "shape": "ball",
+    "color": "forest",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_forest_velvet.png",
+    "path": "/ornaments/library/ball_forest_velvet.png",
+    "shape": "ball",
+    "color": "forest",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_gold_glitter.png",
+    "path": "/ornaments/library/ball_gold_glitter.png",
+    "shape": "ball",
+    "color": "gold",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_gold_glossy.png",
+    "path": "/ornaments/library/ball_gold_glossy.png",
+    "shape": "ball",
+    "color": "gold",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_gold_matte.png",
+    "path": "/ornaments/library/ball_gold_matte.png",
+    "shape": "ball",
+    "color": "gold",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_gold_ribbed.png",
+    "path": "/ornaments/library/ball_gold_ribbed.png",
+    "shape": "ball",
+    "color": "gold",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_gold_velvet.png",
+    "path": "/ornaments/library/ball_gold_velvet.png",
+    "shape": "ball",
+    "color": "gold",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_green_glitter.png",
+    "path": "/ornaments/library/ball_green_glitter.png",
+    "shape": "ball",
+    "color": "green",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_green_glossy.png",
+    "path": "/ornaments/library/ball_green_glossy.png",
+    "shape": "ball",
+    "color": "green",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_green_matte.png",
+    "path": "/ornaments/library/ball_green_matte.png",
+    "shape": "ball",
+    "color": "green",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_green_ribbed.png",
+    "path": "/ornaments/library/ball_green_ribbed.png",
+    "shape": "ball",
+    "color": "green",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_green_velvet.png",
+    "path": "/ornaments/library/ball_green_velvet.png",
+    "shape": "ball",
+    "color": "green",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_lilac_glitter.png",
+    "path": "/ornaments/library/ball_lilac_glitter.png",
+    "shape": "ball",
+    "color": "lilac",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_lilac_glossy.png",
+    "path": "/ornaments/library/ball_lilac_glossy.png",
+    "shape": "ball",
+    "color": "lilac",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_lilac_matte.png",
+    "path": "/ornaments/library/ball_lilac_matte.png",
+    "shape": "ball",
+    "color": "lilac",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_lilac_ribbed.png",
+    "path": "/ornaments/library/ball_lilac_ribbed.png",
+    "shape": "ball",
+    "color": "lilac",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_lilac_velvet.png",
+    "path": "/ornaments/library/ball_lilac_velvet.png",
+    "shape": "ball",
+    "color": "lilac",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_navy_glitter.png",
+    "path": "/ornaments/library/ball_navy_glitter.png",
+    "shape": "ball",
+    "color": "navy",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_navy_glossy.png",
+    "path": "/ornaments/library/ball_navy_glossy.png",
+    "shape": "ball",
+    "color": "navy",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_navy_matte.png",
+    "path": "/ornaments/library/ball_navy_matte.png",
+    "shape": "ball",
+    "color": "navy",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_navy_ribbed.png",
+    "path": "/ornaments/library/ball_navy_ribbed.png",
+    "shape": "ball",
+    "color": "navy",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_navy_velvet.png",
+    "path": "/ornaments/library/ball_navy_velvet.png",
+    "shape": "ball",
+    "color": "navy",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_pink_glitter.png",
+    "path": "/ornaments/library/ball_pink_glitter.png",
+    "shape": "ball",
+    "color": "pink",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_pink_glossy.png",
+    "path": "/ornaments/library/ball_pink_glossy.png",
+    "shape": "ball",
+    "color": "pink",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_pink_matte.png",
+    "path": "/ornaments/library/ball_pink_matte.png",
+    "shape": "ball",
+    "color": "pink",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_pink_ribbed.png",
+    "path": "/ornaments/library/ball_pink_ribbed.png",
+    "shape": "ball",
+    "color": "pink",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_pink_velvet.png",
+    "path": "/ornaments/library/ball_pink_velvet.png",
+    "shape": "ball",
+    "color": "pink",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_purple_glitter.png",
+    "path": "/ornaments/library/ball_purple_glitter.png",
+    "shape": "ball",
+    "color": "purple",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_purple_glossy.png",
+    "path": "/ornaments/library/ball_purple_glossy.png",
+    "shape": "ball",
+    "color": "purple",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_purple_matte.png",
+    "path": "/ornaments/library/ball_purple_matte.png",
+    "shape": "ball",
+    "color": "purple",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_purple_ribbed.png",
+    "path": "/ornaments/library/ball_purple_ribbed.png",
+    "shape": "ball",
+    "color": "purple",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_purple_velvet.png",
+    "path": "/ornaments/library/ball_purple_velvet.png",
+    "shape": "ball",
+    "color": "purple",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_red_glitter.png",
+    "path": "/ornaments/library/ball_red_glitter.png",
+    "shape": "ball",
+    "color": "red",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_red_glossy.png",
+    "path": "/ornaments/library/ball_red_glossy.png",
+    "shape": "ball",
+    "color": "red",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_red_matte.png",
+    "path": "/ornaments/library/ball_red_matte.png",
+    "shape": "ball",
+    "color": "red",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_red_ribbed.png",
+    "path": "/ornaments/library/ball_red_ribbed.png",
+    "shape": "ball",
+    "color": "red",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_red_velvet.png",
+    "path": "/ornaments/library/ball_red_velvet.png",
+    "shape": "ball",
+    "color": "red",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_rose_gold_glitter.png",
+    "path": "/ornaments/library/ball_rose_gold_glitter.png",
+    "shape": "ball",
+    "color": "rose_gold",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_rose_gold_glossy.png",
+    "path": "/ornaments/library/ball_rose_gold_glossy.png",
+    "shape": "ball",
+    "color": "rose_gold",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_rose_gold_matte.png",
+    "path": "/ornaments/library/ball_rose_gold_matte.png",
+    "shape": "ball",
+    "color": "rose_gold",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_rose_gold_ribbed.png",
+    "path": "/ornaments/library/ball_rose_gold_ribbed.png",
+    "shape": "ball",
+    "color": "rose_gold",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_rose_gold_velvet.png",
+    "path": "/ornaments/library/ball_rose_gold_velvet.png",
+    "shape": "ball",
+    "color": "rose_gold",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_silver_glitter.png",
+    "path": "/ornaments/library/ball_silver_glitter.png",
+    "shape": "ball",
+    "color": "silver",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_silver_glossy.png",
+    "path": "/ornaments/library/ball_silver_glossy.png",
+    "shape": "ball",
+    "color": "silver",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_silver_matte.png",
+    "path": "/ornaments/library/ball_silver_matte.png",
+    "shape": "ball",
+    "color": "silver",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_silver_ribbed.png",
+    "path": "/ornaments/library/ball_silver_ribbed.png",
+    "shape": "ball",
+    "color": "silver",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_silver_velvet.png",
+    "path": "/ornaments/library/ball_silver_velvet.png",
+    "shape": "ball",
+    "color": "silver",
+    "style": "velvet"
+  },
+  {
+    "filename": "ball_white_glitter.png",
+    "path": "/ornaments/library/ball_white_glitter.png",
+    "shape": "ball",
+    "color": "white",
+    "style": "glitter"
+  },
+  {
+    "filename": "ball_white_glossy.png",
+    "path": "/ornaments/library/ball_white_glossy.png",
+    "shape": "ball",
+    "color": "white",
+    "style": "glossy"
+  },
+  {
+    "filename": "ball_white_matte.png",
+    "path": "/ornaments/library/ball_white_matte.png",
+    "shape": "ball",
+    "color": "white",
+    "style": "matte"
+  },
+  {
+    "filename": "ball_white_ribbed.png",
+    "path": "/ornaments/library/ball_white_ribbed.png",
+    "shape": "ball",
+    "color": "white",
+    "style": "ribbed"
+  },
+  {
+    "filename": "ball_white_velvet.png",
+    "path": "/ornaments/library/ball_white_velvet.png",
+    "shape": "ball",
+    "color": "white",
+    "style": "velvet"
+  }
+]

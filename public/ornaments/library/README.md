@@ -1,0 +1,1 @@
+AI-generated ornament library. Files named [shape][color][style].png. Used by My Ornaments Saved cards and Tree visualization. To be replaced with retailer product images when affiliate APIs are available.

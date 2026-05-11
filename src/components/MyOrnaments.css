@@ -487,6 +487,18 @@
   filter: brightness(0.95) contrast(1.04) saturate(0.92);
 }
 
+/* Library image for Saved cards — cream bg images on dark navy card */
+.myo-card-library-img {
+  position:      absolute;
+  inset:         0;
+  width:         100%;
+  height:        100%;
+  object-fit:    contain;
+  /* multiply blend removes the cream/white background against the dark card */
+  mix-blend-mode: multiply;
+  filter:        drop-shadow(0 4px 12px rgba(0,0,0,0.30));
+}
+
 .myo-card-svg-bg {
   position: absolute;
   inset: 0;

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { streamChat } from '../lib/stream'
+import { findOrnamentImage } from '../utils/ornamentImageLookup'
 import './MyOrnaments.css'
 
 // ─── Constants ────────────────────────────────────────────────
@@ -162,6 +163,34 @@ function EmptyIllustration() {
   )
 }
 
+// ─── SavedOrnamentImage ───────────────────────────────────────
+// Renders a library image for Saved cards, with SVG fallback.
+function SavedOrnamentImage({ shape, color, style, svgColor }) {
+  const [useSvg, setUseSvg] = useState(false)
+  const libraryPath = findOrnamentImage({ shape, color, style })
+
+  if (useSvg || !libraryPath) {
+    return (
+      <div
+        className="myo-card-svg-bg"
+        style={{ background: `radial-gradient(circle at 40% 35%, ${svgColor}44 0%, ${svgColor}18 60%, transparent 100%)` }}
+      >
+        <OrnamentSVG shape={shape} color={svgColor} />
+      </div>
+    )
+  }
+
+  return (
+    <img
+      src={libraryPath}
+      alt=""
+      className="myo-card-library-img"
+      loading="lazy"
+      onError={() => setUseSvg(true)}
+    />
+  )
+}
+
 // ─── OrnamentCard ─────────────────────────────────────────────
 function OrnamentCard({ ornament, onEdit }) {
   const color  = ornament.colorHex || ornament.color || '#c9a84c'
@@ -185,14 +214,21 @@ function OrnamentCard({ ornament, onEdit }) {
       <div className="myo-card-media">
         {ornament.photo
           ? <img src={ornament.photo} alt={ornament.name} className="myo-card-photo" />
-          : (
-            <div
-              className="myo-card-svg-bg"
-              style={{ background: `radial-gradient(circle at 40% 35%, ${color}44 0%, ${color}18 60%, transparent 100%)` }}
-            >
-              <OrnamentSVG shape={shape} color={color} />
-            </div>
-          )
+          : isSaved
+            ? <SavedOrnamentImage
+                shape={shape}
+                color={color}
+                style={ornament.style}
+                svgColor={color}
+              />
+            : (
+              <div
+                className="myo-card-svg-bg"
+                style={{ background: `radial-gradient(circle at 40% 35%, ${color}44 0%, ${color}18 60%, transparent 100%)` }}
+              >
+                <OrnamentSVG shape={shape} color={color} />
+              </div>
+            )
         }
         {/* Dark gradient overlay for text legibility */}
         <div className="myo-card-vignette" />
