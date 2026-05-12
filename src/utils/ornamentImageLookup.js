@@ -92,6 +92,44 @@ const HEX_TO_NAME = {
   '#6a0dad': 'purple',
 }
 
+// Maps internal color keys to human-readable display names
+const FRIENDLY_COLOR_NAMES = {
+  gold:      'Antique Gold',
+  champagne: 'Champagne Gold',
+  bronze:    'Bronze',
+  copper:    'Copper',
+  rose_gold: 'Rose Gold',
+  silver:    'Silver',
+  white:     'Champagne Ivory',
+  pearl:     'Pearl',
+  red:       'Crimson Red',
+  burgundy:  'Burgundy',
+  crimson:   'Crimson',
+  cranberry: 'Cranberry',
+  green:     'Green',
+  emerald:   'Emerald Green',
+  forest:    'Forest Green',
+  sage:      'Sage',
+  navy:      'Navy Blue',
+  blue:      'Deep Blue',
+  teal:      'Teal',
+  black:     'Matte Black',
+  charcoal:  'Charcoal',
+  pink:      'Blush Pink',
+  lilac:     'Lilac',
+  purple:    'Deep Purple',
+}
+
+/**
+ * Convert a hex color string to a friendly display name for the UI.
+ * Returns e.g. "Forest Green", "Champagne Gold", "Burgundy".
+ */
+export function hexToFriendlyName(hex) {
+  if (!hex || !String(hex).startsWith('#')) return hex || ''
+  const key = hexToColorName(hex)
+  return FRIENDLY_COLOR_NAMES[key] || key
+}
+
 /**
  * Convert a hex color string to the closest library color name.
  * Falls back to hue-range bucketing for unmapped values.

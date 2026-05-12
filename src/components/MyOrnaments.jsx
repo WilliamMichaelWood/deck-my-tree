@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { streamChat } from '../lib/stream'
-import { findOrnamentImage } from '../utils/ornamentImageLookup'
+import { findOrnamentImage, hexToFriendlyName } from '../utils/ornamentImageLookup'
 import './MyOrnaments.css'
 
 // ─── Constants ────────────────────────────────────────────────
@@ -520,7 +520,27 @@ function EditModal({ ornament, onSave, onClose, onDelete }) {
     return match?.label || 'Ball'
   })())
   const [customType, setCustomType] = useState(ornament?.customType || '')
-  const [colorDesc,  setColorDesc]  = useState(ornament?.colorDesc || ornament?.color || '')
+
+  // Resolve initial color display: prefer colorDesc, fall back to friendly hex name
+  const rawColor = ornament?.colorDesc || ornament?.color || ''
+  const initialColorDesc = rawColor.startsWith('#') ? hexToFriendlyName(rawColor) : rawColor
+  const [colorDesc,  setColorDesc]  = useState(initialColorDesc)
+
+  // Bug 1: Body scroll lock (iOS Safari requires position:fixed trick)
+  useEffect(() => {
+    const scrollY = window.scrollY
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = '100%'
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      document.body.style.overflow = ''
+      window.scrollTo(0, scrollY)
+    }
+  }, [])
 
   const toggleTag = (tag) => setTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
 
