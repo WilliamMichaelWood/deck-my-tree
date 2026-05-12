@@ -683,6 +683,114 @@
   background: rgba(201, 168, 76, 0.15);
 }
 
+/* ── Retailer Picker Sheet ── */
+.myo-picker-sheet {
+  position:      fixed;
+  top:           50%;
+  left:          50%;
+  transform:     translate(-50%, -50%);
+  background:    var(--navy-card);
+  border:        1px solid var(--border);
+  border-radius: 16px;
+  width:         92%;
+  max-width:     380px;
+  z-index:       1002;
+  box-shadow:    0 20px 60px rgba(0, 0, 0, 0.5);
+  overflow:      hidden;
+}
+
+.myo-picker-header {
+  padding:       20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  text-align:    center;
+}
+
+.myo-picker-title {
+  margin:      0 0 4px;
+  font-family: 'Lora', 'Playfair Display', Georgia, serif;
+  font-size:   17px;
+  font-weight: 600;
+  color:       var(--gold);
+}
+
+.myo-picker-subtitle {
+  margin:       0;
+  font-size:    13px;
+  color:        rgba(247, 232, 195, 0.75);
+  white-space:  nowrap;
+  overflow:     hidden;
+  text-overflow: ellipsis;
+}
+
+.myo-picker-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.myo-picker-row {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  min-height:      60px;
+  padding:         0 20px;
+  background:      transparent;
+  border:          none;
+  border-bottom:   1px solid var(--border);
+  cursor:          pointer;
+  transition:      background 0.15s;
+  width:           100%;
+  text-align:      left;
+}
+.myo-picker-row:last-child {
+  border-bottom: none;
+}
+.myo-picker-row:active,
+.myo-picker-row:hover {
+  background: rgba(232, 185, 66, 0.08);
+}
+
+.myo-picker-retailer {
+  font-size:   16px;
+  font-weight: 500;
+  color:       var(--white);
+}
+
+.myo-picker-price-wrap {
+  display:     flex;
+  align-items: center;
+  gap:         4px;
+}
+
+.myo-picker-price {
+  font-size:   15px;
+  font-weight: 600;
+  color:       var(--gold);
+}
+
+.myo-picker-chevron {
+  color:      var(--gold);
+  flex-shrink: 0;
+}
+
+.myo-picker-cancel {
+  display:     block;
+  width:       100%;
+  padding:     16px;
+  background:  transparent;
+  border:      none;
+  border-top:  2px solid var(--border);
+  font-size:   15px;
+  font-weight: 500;
+  color:       rgba(247, 232, 195, 0.7);
+  cursor:      pointer;
+  text-align:  center;
+  transition:  background 0.15s, color 0.15s;
+}
+.myo-picker-cancel:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color:      var(--white);
+}
+
 /* FAB removed — Add button lives in hero */
 
 /* ── Modal backdrop ── */

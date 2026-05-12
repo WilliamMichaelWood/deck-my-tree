@@ -194,32 +194,14 @@ function SavedOrnamentImage({ shape, color, style, name, svgColor }) {
 }
 
 // ─── OrnamentCard ─────────────────────────────────────────────
-function OrnamentCard({ ornament, onEdit }) {
+function OrnamentCard({ ornament, onEdit, onShop }) {
   const color   = ornament.colorHex || ornament.color || '#c9a84c'
   const shape   = ornament.shape || 'ball'
   const isSaved = ornament.source === 'saved'
 
-  const handleShop = (e) => {
-    e.stopPropagation()
-    const q = buildSearchQuery(ornament)
-    for (const key of RETAILER_ORDER) {
-      if (ornament.retailers?.[key]?.price && RETAILER_SEARCH[key]) {
-        window.open(RETAILER_SEARCH[key](q), '_blank')
-        return
-      }
-    }
-    window.open(RETAILER_SEARCH.amazon(q), '_blank')
-  }
-
   // ── Saved card — image-first with text strip below ──
   if (isSaved) {
-    const bestPrice = (() => {
-      for (const key of RETAILER_ORDER) {
-        const p = ornament.retailers?.[key]?.price
-        if (p) return p
-      }
-      return null
-    })()
+    const hasRetailers = RETAILER_ORDER.some(key => ornament.retailers?.[key]?.price)
 
     return (
       <div className="myo-card myo-card--saved" onClick={() => onEdit(ornament)}>
@@ -232,8 +214,14 @@ function OrnamentCard({ ornament, onEdit }) {
         <div className="myo-saved-info">
           <p className="myo-saved-name">{ornament.name}</p>
           <div className="myo-saved-actions">
-            {bestPrice && <span className="myo-saved-price">{bestPrice}</span>}
-            <button className="myo-saved-buy-btn" onClick={handleShop}>Deck it. Buy it.</button>
+            {hasRetailers && (
+              <button
+                className="myo-saved-buy-btn"
+                onClick={(e) => { e.stopPropagation(); onShop(ornament) }}
+              >
+                Deck it. Buy it.
+              </button>
+            )}
           </div>
         </div>
         <button
@@ -276,6 +264,50 @@ function OrnamentCard({ ornament, onEdit }) {
         </div>
       </div>
     </div>
+  )
+}
+
+// ─── RetailerPickerSheet ──────────────────────────────────────
+const RETAILER_LABELS = { walmart: 'Walmart', amazon: 'Amazon', etsy: 'Etsy' }
+
+function RetailerPickerSheet({ ornament, onClose }) {
+  if (!ornament) return null
+
+  const q = buildSearchQuery(ornament)
+  const rows = RETAILER_ORDER
+    .filter(key => ornament.retailers?.[key]?.price)
+    .map(key => ({ key, label: RETAILER_LABELS[key], price: ornament.retailers[key].price }))
+
+  const handlePick = (key) => {
+    window.open(RETAILER_SEARCH[key](q), '_blank')
+    onClose()
+  }
+
+  return (
+    <>
+      <div className="myo-backdrop" onClick={onClose} />
+      <div className="myo-picker-sheet" role="dialog" aria-modal="true">
+        <div className="myo-picker-header">
+          <p className="myo-picker-title">Shop this ornament</p>
+          <p className="myo-picker-subtitle">{ornament.name}</p>
+        </div>
+        <div className="myo-picker-rows">
+          {rows.map(({ key, label, price }) => (
+            <button key={key} className="myo-picker-row" onClick={() => handlePick(key)}>
+              <span className="myo-picker-retailer">{label}</span>
+              <span className="myo-picker-price-wrap">
+                <span className="myo-picker-price">{price}</span>
+                <svg className="myo-picker-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </span>
+            </button>
+          ))}
+        </div>
+        <button className="myo-picker-cancel" onClick={onClose}>Cancel</button>
+      </div>
+    </>
   )
 }
 
@@ -673,6 +705,7 @@ export default function MyOrnaments() {
   const [sortBy,            setSortBy]      = useState('recent')
   const [filterDrawerOpen,  setFilterDrawer] = useState(false)
   const [editingOrnament,   setEditing]     = useState(null)
+  const [pickerOrnament,    setPicker]      = useState(null)
   const [addModalOpen,      setAddModal]    = useState(false)
   const [activeTab,         setActiveTab]   = useState('owned')
 
@@ -808,12 +841,14 @@ export default function MyOrnaments() {
       ) : (
         <div className="myo-grid">
           {tabFiltered.map(o => (
-            <OrnamentCard key={o.id} ornament={o} onEdit={setEditing} />
+            <OrnamentCard key={o.id} ornament={o} onEdit={setEditing} onShop={setPicker} />
           ))}
         </div>
       )}
 
       {/* ── Modals / drawers ── */}
+      <RetailerPickerSheet ornament={pickerOrnament} onClose={() => setPicker(null)} />
+
       {addModalOpen && (
         <AddModal onClose={() => setAddModal(false)} onSave={handleAdd} />
       )}
