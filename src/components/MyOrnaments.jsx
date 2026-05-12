@@ -165,9 +165,9 @@ function EmptyIllustration() {
 
 // ─── SavedOrnamentImage ───────────────────────────────────────
 // Full-bleed image area for Saved cards, with SVG fallback.
-function SavedOrnamentImage({ shape, color, style, svgColor }) {
+function SavedOrnamentImage({ shape, color, style, name, svgColor }) {
   const [useSvg, setUseSvg] = useState(false)
-  const libraryPath = findOrnamentImage({ shape, color, style })
+  const libraryPath = findOrnamentImage({ shape, color, style, name })
 
   if (useSvg || !libraryPath) {
     return (
@@ -227,7 +227,7 @@ function OrnamentCard({ ornament, onEdit }) {
           ? <div className="myo-saved-img-area">
               <img src={ornament.photo} alt={ornament.name} className="myo-saved-img" />
             </div>
-          : <SavedOrnamentImage shape={shape} color={color} style={ornament.style} svgColor={color} />
+          : <SavedOrnamentImage shape={shape} color={color} style={ornament.style} name={ornament.name} svgColor={color} />
         }
         <div className="myo-saved-info">
           <p className="myo-saved-name">{ornament.name}</p>

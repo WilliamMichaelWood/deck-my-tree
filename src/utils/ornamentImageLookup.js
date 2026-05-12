@@ -171,28 +171,67 @@ function familyColors(colorName) {
   return family === 'unknown' ? [] : COLOR_FAMILIES[family]
 }
 
+// ─── Style keyword parsing ────────────────────────────────────────────────────
+
+const STYLE_KEYWORDS = [
+  'mercury',
+  'velvet',
+  'matte',
+  'glitter',
+  'ribbed',
+  'glossy',
+  'floral',
+  'quilted',
+  'etched',
+]
+
+/**
+ * Parse a style keyword from an ornament name string.
+ * Returns the first matching keyword found, or null if none match.
+ */
+export function parseStyleFromName(name) {
+  if (!name) return null
+  const lower = String(name).toLowerCase()
+  for (const kw of STYLE_KEYWORDS) {
+    if (lower.includes(kw)) return kw
+  }
+  return null
+}
+
 // ─── Main lookup ─────────────────────────────────────────────────────────────
 
 /**
  * Find the best-matching ornament image path.
  *
- * @param {{ shape?: string, color?: string, style?: string }} query
+ * @param {{ shape?: string, color?: string, style?: string, name?: string }} query
  * @returns {string | null} path string (e.g. '/ornaments/library/ball_gold_ribbed.png') or null
  */
-export function findOrnamentImage({ shape, color, style } = {}) {
+export function findOrnamentImage({ shape, color, style, name } = {}) {
   const s  = String(shape || 'ball').toLowerCase().trim()
   const c  = normalizeColor(color)
-  const st = String(style || '').toLowerCase().trim()
+
+  // Resolve style: use explicit field first, then parse from name, then empty
+  const rawStyle = style || parseStyleFromName(name) || ''
+  const st = String(rawStyle).toLowerCase().trim()
 
   // Pre-filter to this shape only
   const byShape = ornamentLibrary.filter(e => e.shape === s)
   if (byShape.length === 0) return null
 
-  // 1. Exact match
-  const exact = byShape.find(e => e.color === c && e.style === st)
-  if (exact) return exact.path
+  // 1. Exact: shape + color + style (only attempted if we have a style)
+  if (st) {
+    const exact = byShape.find(e => e.color === c && e.style === st)
+    if (exact) return exact.path
 
-  // 2. Shape + color, any style (alphabetical = first in sorted manifest)
+    // 1b. Same shape + style, color-family match
+    const family = familyColors(c)
+    if (family.length > 0) {
+      const familyStyleMatch = byShape.find(e => family.includes(e.color) && e.style === st)
+      if (familyStyleMatch) return familyStyleMatch.path
+    }
+  }
+
+  // 2. Shape + exact color, any style (alphabetical = first in sorted manifest)
   const sameColor = byShape.filter(e => e.color === c)
   if (sameColor.length > 0) return sameColor[0].path
 

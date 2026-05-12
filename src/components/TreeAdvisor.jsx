@@ -3,6 +3,7 @@ import { streamChat } from '../lib/stream'
 import MarkdownContent from './MarkdownContent'
 import CurationModal from './CurationModal'
 import SparkleIcon from './icons/SparkleIcon'
+import { parseStyleFromName } from '../utils/ornamentImageLookup'
 
 const BASE_ANALYSIS_PROMPT = `You are a professional Christmas tree decorator. Every response must apply the four mandatory rules below — these are non-negotiable constraints, not suggestions. Violation of any rule is an error.
 
@@ -846,6 +847,7 @@ function saveToMyOrnaments(o) {
     name:      o.name,
     color:     o.color,
     shape:     o.shape,
+    style:     o.style || parseStyleFromName(o.name) || '',
     type:      o.type || null,
     retailers: {
       walmart: { price: o.walmart?.price || '' },
