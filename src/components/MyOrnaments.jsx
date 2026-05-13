@@ -319,6 +319,22 @@ function AddModal({ onClose, onSave }) {
   const [analyzeErr, setAnalyzeErr] = useState('')
   const photoInputRef = useRef(null)
 
+  // iOS-Safari-safe body scroll lock
+  useEffect(() => {
+    const scrollY = window.scrollY
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = '100%'
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      document.body.style.overflow = ''
+      window.scrollTo(0, scrollY)
+    }
+  }, [])
+
   const handlePhotoSelect = useCallback(async (file) => {
     if (!file?.type.startsWith('image/')) return
     setAnalyzeErr('')
@@ -492,11 +508,14 @@ function AddModal({ onClose, onSave }) {
             />
           </div>
 
+        </div>
+        <div className="myo-add-modal-footer">
+          <button className="btn-secondary" onClick={onClose}>Cancel</button>
           <button
-            className="btn-primary btn-full"
+            className="btn-primary"
             onClick={handleSave}
             disabled={!form.name.trim() || analyzing}
-            style={{ marginTop: 8 }}
+            style={{ flex: 1 }}
           >
             {analyzing
               ? <><span className="spin">✦</span> Analyzing photo…</>
