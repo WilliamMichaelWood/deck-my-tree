@@ -1,10 +1,9 @@
 /* ── MyOrnaments ── */
 
 .myo-root {
-  position:   relative;
-  min-height: 100vh;
-  min-height: 100dvh;
-  background: linear-gradient(180deg, #050e1a 0%, #020408 100%);
+  position: relative;
+  min-height: 60vh;
+  background: linear-gradient(180deg, #050e1a 0%, #07111e 100%);
 }
 
 /* Hero — compact, full-bleed, escapes tab-content padding */
