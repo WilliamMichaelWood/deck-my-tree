@@ -318,14 +318,18 @@ function AddModal({ onClose, onSave }) {
   const [analyzing,  setAnalyzing]  = useState(false)
   const [analyzeErr, setAnalyzeErr] = useState('')
   const photoInputRef = useRef(null)
+  const scrollRef     = useRef(null)
 
-  // iOS-Safari-safe body scroll lock
+  // iOS-Safari-safe body scroll lock + reset scroll to top on open
   useEffect(() => {
     const scrollY = window.scrollY
     document.body.style.position = 'fixed'
     document.body.style.top = `-${scrollY}px`
     document.body.style.width = '100%'
     document.body.style.overflow = 'hidden'
+    // Reset modal scroll position to top (prevents browser from scrolling
+    // focused/selected chip into view on open)
+    if (scrollRef.current) scrollRef.current.scrollTop = 0
     return () => {
       document.body.style.position = ''
       document.body.style.top = ''
@@ -400,7 +404,7 @@ function AddModal({ onClose, onSave }) {
       <div className="myo-backdrop" onClick={onClose} />
       <div className="myo-add-modal">
         <div className="myo-drag-handle" />
-        <div className="myo-add-modal-scroll">
+        <div className="myo-add-modal-scroll" ref={scrollRef}>
 
           {/* Photo capture */}
           <div
