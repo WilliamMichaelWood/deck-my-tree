@@ -806,8 +806,8 @@
   left:          0;
   right:         0;
   bottom:        calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
-  max-height:    calc(100dvh - var(--nav-h) - 20px);
-  max-height:    calc(100vh  - var(--nav-h) - 20px);
+  max-height:    calc(100vh  - var(--nav-h) - env(safe-area-inset-bottom, 0px) - 20px);
+  max-height:    calc(100dvh - var(--nav-h) - env(safe-area-inset-bottom, 0px) - 20px);
   background:    #162840;
   border-top:    2px solid #c9a84c;
   border-radius: 20px 20px 0 0;
@@ -850,7 +850,7 @@
 /* ── Photo tap area ── */
 .myo-photo-tap {
   border-radius: 12px;
-  overflow: hidden;
+  overflow: visible;
   margin-bottom: 20px;
   cursor: pointer;
 }
@@ -1076,8 +1076,8 @@
   border-radius: 16px;
   width:         92%;
   max-width:     480px;
-  max-height:    calc(100dvh - 160px);
-  max-height:    calc(100vh - 160px);
+  max-height:    calc(100vh  - var(--nav-h) - env(safe-area-inset-bottom, 0px) - 20px);
+  max-height:    calc(100dvh - var(--nav-h) - env(safe-area-inset-bottom, 0px) - 20px);
   overflow:      hidden;
   display:       flex;
   flex-direction: column;
