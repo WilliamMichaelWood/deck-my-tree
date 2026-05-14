@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { streamChat } from '../lib/stream'
 import { findOrnamentImage, hexToFriendlyName } from '../utils/ornamentImageLookup'
 import './MyOrnaments.css'
@@ -399,11 +400,11 @@ function AddModal({ onClose, onSave }) {
     })
   }
 
-  return (
-    <div className="myo-add-modal-overlay" onClick={onClose}>
-      <div className="myo-add-modal" onClick={(e) => e.stopPropagation()}>
+  return createPortal(
+    <div className="add-ornament-overlay" onClick={onClose}>
+      <div className="add-ornament-modal" onClick={(e) => e.stopPropagation()}>
         <div className="myo-drag-handle" />
-        <div className="myo-add-modal-scroll" ref={scrollRef}>
+        <div className="add-ornament-modal-body" ref={scrollRef}>
 
           {/* Photo capture */}
           <div
@@ -512,7 +513,7 @@ function AddModal({ onClose, onSave }) {
           </div>
 
         </div>
-        <div className="myo-add-modal-footer">
+        <div className="add-ornament-modal-actions">
           <button className="btn-secondary" onClick={onClose}>Cancel</button>
           <button
             className="btn-primary"
@@ -526,7 +527,8 @@ function AddModal({ onClose, onSave }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
