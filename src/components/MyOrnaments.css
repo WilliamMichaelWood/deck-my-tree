@@ -800,23 +800,35 @@
   z-index:         1000;
 }
 
-/* ── Add modal (slide-up) ── */
+/* ── Add modal — full-viewport overlay ── */
+.myo-add-modal-overlay {
+  position:        fixed;
+  inset:           0;
+  width:           100vw;
+  height:          100vh;
+  height:          100dvh;
+  z-index:         9999;
+  display:         flex;
+  align-items:     flex-end;
+  justify-content: center;
+  background:      rgba(4, 8, 18, 0.72);
+  backdrop-filter: blur(4px);
+}
+
 .myo-add-modal {
-  position:      fixed;
-  left:          0;
-  right:         0;
-  bottom:        calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
-  max-height:    calc(100vh  - var(--nav-h) - env(safe-area-inset-bottom, 0px) - 20px);
-  max-height:    calc(100dvh - var(--nav-h) - env(safe-area-inset-bottom, 0px) - 20px);
-  max-height:    calc(100lvh - var(--nav-h) - env(safe-area-inset-bottom, 0px) - 20px);
-  background:    #162840;
-  border-top:    2px solid #c9a84c;
-  border-radius: 20px 20px 0 0;
-  z-index:       1001;
-  display:       flex;
-  flex-direction: column;
-  overflow:      hidden;
-  animation:     myo-slide-up 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  position:        relative;
+  width:           min(100%, 430px);
+  max-height:      calc(100vh  - env(safe-area-inset-top, 0px) - 12px);
+  max-height:      calc(100dvh - env(safe-area-inset-top, 0px) - 12px);
+  max-height:      calc(100lvh - env(safe-area-inset-top, 0px) - 12px);
+  background:      #102033;
+  border:          1px solid rgba(232, 185, 66, 0.35);
+  border-top:      2px solid rgba(232, 185, 66, 0.55);
+  border-radius:   24px 24px 0 0;
+  display:         flex;
+  flex-direction:  column;
+  overflow:        hidden;
+  animation:       myo-slide-up 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
 
 @keyframes myo-slide-up {
@@ -825,12 +837,12 @@
 }
 
 .myo-drag-handle {
-  width:       36px;
-  height:      4px;
+  width:        36px;
+  height:       4px;
   border-radius: 2px;
-  background:  rgba(201, 168, 76, 0.3);
-  margin:      12px auto 4px;
-  flex-shrink: 0;
+  background:   rgba(201, 168, 76, 0.3);
+  margin:       12px auto 4px;
+  flex-shrink:  0;
 }
 
 .myo-add-modal-scroll {
@@ -845,8 +857,9 @@
   flex-shrink: 0;
   display:     flex;
   gap:         10px;
-  padding:     14px 20px;
+  padding:     14px 20px calc(14px + env(safe-area-inset-bottom, 0px));
   border-top:  1px solid rgba(201, 168, 76, 0.2);
+  background:  #102033;
 }
 
 /* ── Photo tap area ── */

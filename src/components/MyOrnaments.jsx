@@ -400,9 +400,8 @@ function AddModal({ onClose, onSave }) {
   }
 
   return (
-    <>
-      <div className="myo-backdrop" onClick={onClose} />
-      <div className="myo-add-modal">
+    <div className="myo-add-modal-overlay" onClick={onClose}>
+      <div className="myo-add-modal" onClick={(e) => e.stopPropagation()}>
         <div className="myo-drag-handle" />
         <div className="myo-add-modal-scroll" ref={scrollRef}>
 
@@ -527,7 +526,7 @@ function AddModal({ onClose, onSave }) {
           </button>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
