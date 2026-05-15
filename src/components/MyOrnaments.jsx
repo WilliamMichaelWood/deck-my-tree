@@ -661,6 +661,21 @@ function FilterDrawer({ isOpen, onClose, onFilter, onSort }) {
   const [searchTerm,      setSearchTerm]      = useState('')
   const [sortBy,          setSortBy]          = useState('recent')
 
+  // iOS scroll lock
+  useEffect(() => {
+    if (!isOpen) return
+    const y = window.scrollY
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${y}px`
+    document.body.style.width = '100%'
+    return () => {
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.width = ''
+      window.scrollTo(0, y)
+    }
+  }, [isOpen])
+
   const toggle = (list, setList, val) =>
     setList(list.includes(val) ? list.filter(x => x !== val) : [...list, val])
 
