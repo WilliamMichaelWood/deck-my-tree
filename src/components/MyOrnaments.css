@@ -1233,7 +1233,7 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(4px);
-  z-index: 999;
+  z-index: 1000;
 }
 .myo-drawer {
   position: fixed;
@@ -1250,12 +1250,12 @@
   max-height: 82lvh;
   display: flex;
   flex-direction: column;
-  z-index: 1000;
-  transform: translateY(100%);
-  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  z-index: 1001;
+  animation: myo-drawer-up 0.32s cubic-bezier(0.32, 0.72, 0, 1) forwards;
 }
-.myo-drawer.open {
-  transform: translateY(0);
+@keyframes myo-drawer-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
 }
 .myo-drawer-header {
   display: flex;

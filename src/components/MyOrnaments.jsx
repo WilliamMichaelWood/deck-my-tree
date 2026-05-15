@@ -690,10 +690,12 @@ function FilterDrawer({ isOpen, onClose, onFilter, onSort }) {
     onFilter({}); onSort('recent')
   }
 
-  return (
+  if (!isOpen) return null
+
+  return createPortal(
     <>
-      {isOpen && <div className="myo-overlay" onClick={onClose} />}
-      <div className={`myo-drawer${isOpen ? ' open' : ''}`}>
+      <div className="myo-overlay" onClick={onClose} />
+      <div className="myo-drawer myo-drawer--open">
         <div className="myo-drawer-header">
           <h3>Filter &amp; Sort</h3>
           <button className="myo-btn-close" onClick={onClose}>✕</button>
@@ -752,7 +754,8 @@ function FilterDrawer({ isOpen, onClose, onFilter, onSort }) {
           <button className="btn-primary" style={{ flex: 1 }} onClick={apply}>Apply</button>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   )
 }
 
