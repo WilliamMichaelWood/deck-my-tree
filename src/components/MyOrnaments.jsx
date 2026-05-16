@@ -251,8 +251,6 @@ function OrnamentCard({ ornament, onEdit, onShop }) {
             </div>
           )
         }
-        <div className="myo-card-vignette" />
-        <span className="myo-card-badge">Owned</span>
         <button
           className="myo-card-menu-btn"
           onClick={(e) => { e.stopPropagation(); onEdit(ornament) }}

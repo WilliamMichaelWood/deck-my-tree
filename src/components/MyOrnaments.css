@@ -555,8 +555,9 @@
 .myo-card-media {
   position:     relative;
   aspect-ratio: 4 / 5;
+  width:        100%;
   overflow:     hidden;
-  background:   #0a1525;
+  background:   transparent;
 }
 
 .myo-card-photo {
@@ -566,27 +567,17 @@
   height:     100%;
   object-fit: cover;
   filter:     none;
+  mix-blend-mode: normal;
+  opacity:    1;
 }
 
 .myo-card-svg-bg {
-  position: absolute;
-  inset: 0;
-  display: flex;
+  position:   absolute;
+  inset:      0;
+  background: #0a1525;
+  display:    flex;
   align-items: center;
   justify-content: center;
-}
-
-/* Vignette overlay for text legibility */
-.myo-card-vignette {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(5, 14, 26, 0) 55%,
-    rgba(5, 14, 26, 0.65) 80%,
-    rgba(5, 14, 26, 0.88) 100%
-  );
-  pointer-events: none;
 }
 
 /* Source badge — top left */
@@ -636,18 +627,26 @@
   opacity: 1;
 }
 
-/* Name + shop action overlaid at bottom */
+/* Name strip overlaid at bottom — gradient behind text only */
 .myo-card-footer {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 10px 10px 11px;
+  padding: 28px 10px 11px;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 6px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(5, 14, 26, 0.72) 60%,
+    rgba(5, 14, 26, 0.92) 100%
+  );
+  pointer-events: none;
 }
+.myo-card-footer > * { pointer-events: auto; }
 
 .myo-card-name {
   font-family: 'Playfair Display', Georgia, serif;
