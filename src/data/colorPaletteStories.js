@@ -56,4 +56,16 @@ export const colorPaletteStories = {
     defaultRatios: [0.55, 0.30, 0.15],
     description: 'Bold, modern, glamorous — matte black, gold, champagne',
   },
+
+  'Red & Gold': {
+    colors: ['#8B1A1A', '#CBA56C', '#F7E8C3'],
+    defaultRatios: [0.55, 0.32, 0.13],
+    description: 'Rich, warm, opulent — deep crimson, honey gold, parchment cream',
+  },
+
+  'Silver & White': {
+    colors: ['#C0C0C0', '#F5F5F5', '#E8E8E8'],
+    defaultRatios: [0.50, 0.35, 0.15],
+    description: 'Clean, wintry, luminous — silver, crisp white, soft light gray',
+  },
 }

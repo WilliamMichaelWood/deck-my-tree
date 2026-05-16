@@ -36,6 +36,8 @@ const PALETTES = [
   { id: 'natural',       label: 'Natural & Earthy',        preview: ['#795548', '#8bc34a', '#d4a843'] },
   { id: 'rainbow',       label: 'Rainbow & Bright',        preview: ['#e74c3c', '#f39c12', '#27ae60'] },
   { id: 'blackgold',     label: 'Black & Gold',            preview: ['#1a1a1a', '#d4a843', '#8b7536'] },
+  { id: 'redgold',       label: 'Red & Gold',              preview: ['#8b1a1a', '#cba56c', '#f7e8c3'] },
+  { id: 'silverwhite',   label: 'Silver & White',          preview: ['#c0c0c0', '#f5f5f5', '#e8e8e8'] },
 ]
 
 const BUDGETS = ['Under $50', '$50–$150', '$150–$300', '$300–$500', '$500+']
@@ -455,6 +457,19 @@ export default function SleighTheLook() {
   const diyRef     = useRef(null)
   const canGenerate = style && palette && budget && size
 
+  const handleScrollToDIY = (paletteLabel) => {
+    setPalette(paletteLabel)
+    reset()
+    setHighlightPrefill(true)
+    setTimeout(() => setHighlightPrefill(false), 1500)
+    setTimeout(() => {
+      if (diyRef.current) {
+        const y = diyRef.current.getBoundingClientRect().top + window.pageYOffset - 80
+        window.scrollTo({ top: y, behavior: 'smooth' })
+      }
+    }, 100)
+  }
+
   const handleGoToDIY = () => {
     setGildedModalOpen(false)
     setStyle('Elegant')
@@ -536,14 +551,10 @@ export default function SleighTheLook() {
       <div className="sleigh-hero">
         <div className="sleigh-hero-bg" />
         <div className="sleigh-hero-glow" />
-        <div className="sleigh-hero-tree sleigh-hero-tree-left" />
-        <div className="sleigh-hero-tree sleigh-hero-tree-right" />
-        <span className="sleigh-sparkle sleigh-sparkle-1">✦</span>
-        <span className="sleigh-sparkle sleigh-sparkle-2">✦</span>
-        <span className="sleigh-sparkle sleigh-sparkle-3">✦</span>
         <div className="sleigh-hero-content">
+          <span className="sleigh-hero-sparkle"><SparkleIcon size={24} color="#cba56c" /></span>
           <h1 className="sleigh-hero-title">Sleigh the Look</h1>
-          <p className="sleigh-hero-subtitle">Curated collections and custom designs — your perfect holiday tree awaits.</p>
+          <p className="sleigh-hero-subtitle">Curated trees, styled to perfection. Tap a look and bring it home.</p>
         </div>
       </div>
 
@@ -551,27 +562,21 @@ export default function SleighTheLook() {
       <div className="sleigh-collections">
         <div className="sleigh-collections-header">
           <div className="sleigh-collections-title-block">
-            <span className="sleigh-collections-icon">✦</span>
+            <SparkleIcon size={16} color="#cba56c" />
             <h2 className="sleigh-collections-title">Curated Collections</h2>
           </div>
           <p className="sleigh-collections-subtitle">Designer-styled trees, ready to shop</p>
         </div>
-        <div className="sleigh-filter-bar">
-          <button className="sleigh-filter-btn">
-            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-              <line x1="1" y1="3" x2="13" y2="3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="3" y1="7" x2="11" y2="7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              <line x1="5" y1="11" x2="9" y2="11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            Filter &amp; Sort
-          </button>
-        </div>
         <div className="sleigh-cards-wrap">
           <div className="sleigh-cards-grid">
-            {curatedCollections.map(col => {
-              const isLive = col.status === 'live'
+            {curatedCollections.slice(0, 3).map(col => {
+              const handleClick =
+                col.id === 'gilded-ever-after'     ? () => setGildedModalOpen(true) :
+                col.id === 'crimson-enchantment'   ? () => handleScrollToDIY('Red & Gold') :
+                col.id === 'silver-snow'           ? () => handleScrollToDIY('Silver & White') :
+                undefined
               return (
-                <div key={col.id} className="sleigh-card">
+                <div key={col.id} className="sleigh-card" onClick={handleClick}>
                   {col.badge && <span className="sleigh-card-badge">{col.badge}</span>}
                   <div className="sleigh-card-image">
                     <img src={col.heroImage} alt={col.name} draggable={false} />
@@ -579,12 +584,8 @@ export default function SleighTheLook() {
                   <div className="sleigh-card-content">
                     <p className="sleigh-card-name">{col.name}</p>
                     <p className="sleigh-card-description">{col.tagline}</p>
-                    <button
-                      className="sleigh-card-btn"
-                      onClick={isLive ? () => setGildedModalOpen(true) : undefined}
-                      disabled={!isLive}
-                    >
-                      {isLive ? 'View the Look ›' : 'Coming Soon'}
+                    <button className="sleigh-card-btn" onClick={handleClick}>
+                      View the Look ›
                     </button>
                   </div>
                 </div>
@@ -598,12 +599,7 @@ export default function SleighTheLook() {
       {/* ---- DESIGN YOUR OWN CTA BANNER ---- */}
       <div className="sleigh-design-cta" ref={diyRef}>
         <div className="sleigh-design-icon">
-          <svg width="24" height="24" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M14 3 L15.2 12.8 L25 14 L15.2 15.2 L14 25 L12.8 15.2 L3 14 L12.8 12.8 Z" fill="#e6c77a" opacity="0.9"/>
-            <circle cx="22" cy="6" r="1.2" fill="#e6c77a" opacity="0.5"/>
-            <circle cx="6" cy="22" r="1.2" fill="#e6c77a" opacity="0.5"/>
-            <circle cx="22" cy="22" r="0.9" fill="#e6c77a" opacity="0.35"/>
-          </svg>
+          <img src="/design-your-own-tree.png" alt="Design your own tree" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
         <div className="sleigh-design-content">
           <h3 className="sleigh-design-title">Design Your Own Tree</h3>

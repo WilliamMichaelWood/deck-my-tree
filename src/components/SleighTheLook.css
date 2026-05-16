@@ -40,67 +40,12 @@
   pointer-events: none;
 }
 
-/* Background trees */
-.sleigh-hero-tree {
-  position: absolute;
-  bottom: 0;
-  width: 450px;
-  height: 500px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center bottom;
-  opacity: 0.3;
-  filter: blur(2px);
-  z-index: 2;
-  pointer-events: none;
-}
-
-.sleigh-hero-tree-left {
-  left: -80px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300"><defs><radialGradient id="g1"><stop offset="0%25" style="stop-color:%23f5d78e;stop-opacity:0.8"/><stop offset="100%25" style="stop-color:%23c9972f;stop-opacity:0.3"/></radialGradient></defs><path d="M100 20 L55 110 L145 110 L45 175 L115 175 L25 270 L100 205 L175 270 L115 175 L185 175 L145 110 L225 110 Z" fill="url(%23g1)" opacity="0.9"/></svg>');
-}
-
-.sleigh-hero-tree-right {
-  right: -80px;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300"><defs><radialGradient id="g2"><stop offset="0%25" style="stop-color:%23f5d78e;stop-opacity:0.8"/><stop offset="100%25" style="stop-color:%23c9972f;stop-opacity:0.3"/></radialGradient></defs><path d="M100 20 L55 110 L145 110 L45 175 L115 175 L25 270 L100 205 L175 270 L115 175 L185 175 L145 110 L225 110 Z" fill="url(%23g2)" opacity="0.9"/></svg>');
-}
-
-/* Sparkles */
-.sleigh-sparkle {
-  position: absolute;
-  color: #e6c77a;
-  font-size: 28px;
-  z-index: 3;
-  pointer-events: none;
-  font-weight: 300;
-}
-
-.sleigh-sparkle-1 {
-  top: 15%;
-  left: 12%;
-  opacity: 0.75;
-  animation: sleigh-float 5s ease-in-out infinite;
-}
-
-.sleigh-sparkle-2 {
-  top: 35%;
-  right: 15%;
-  font-size: 22px;
-  opacity: 0.68;
-  animation: sleigh-float 6s ease-in-out infinite 0.5s;
-}
-
-.sleigh-sparkle-3 {
-  bottom: 25%;
-  left: 15%;
-  font-size: 20px;
-  opacity: 0.6;
-  animation: sleigh-float 5.5s ease-in-out infinite 1s;
-}
-
-@keyframes sleigh-float {
-  0%, 100% { opacity: 0.5; transform: translateY(0px); }
-  50%       { opacity: 0.85; transform: translateY(-10px); }
+/* Above-title sparkle accent */
+.sleigh-hero-sparkle {
+  display: block;
+  line-height: 0;
+  margin-bottom: 16px;
+  opacity: 0.9;
 }
 
 /* Hero content */
@@ -112,18 +57,20 @@
 }
 
 .sleigh-hero-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Lora', Georgia, serif;
   font-size: 72px;
   font-weight: 400;
-  color: #f4e4b8;
+  color: #f7e8c3;
   margin: 0 0 18px 0;
   letter-spacing: 1px;
   line-height: 1.1;
 }
 
 .sleigh-hero-subtitle {
+  font-family: 'Mulish', sans-serif;
   font-size: 18px;
-  color: rgba(255, 255, 255, 0.76);
+  font-weight: 300;
+  color: rgba(247, 232, 195, 0.72);
   margin: 0;
   line-height: 1.7;
   letter-spacing: 0.3px;
@@ -148,15 +95,16 @@
 }
 
 .sleigh-collections-icon {
-  color: #e6c77a;
-  font-size: 18px;
+  color: #cba56c;
+  display: flex;
+  align-items: center;
 }
 
 .sleigh-collections-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Lora', Georgia, serif;
   font-size: 1.3rem;
-  font-weight: 700;
-  color: #e6c77a;
+  font-weight: 600;
+  color: #cba56c;
   margin: 0;
   letter-spacing: 0.3px;
 }
@@ -167,35 +115,7 @@
   margin: 0;
 }
 
-.sleigh-filter-bar {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 18px;
-  margin-top: -28px;
-}
-
-.sleigh-filter-btn {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 14px;
-  border: 1px solid rgba(230, 199, 122, 0.32);
-  color: rgba(255, 255, 255, 0.75);
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.sleigh-filter-btn:hover {
-  background: rgba(230, 199, 122, 0.08);
-  border-color: rgba(230, 199, 122, 0.6);
-  color: #e6c77a;
-}
-
-/* Cards — horizontal scroll on mobile, grid on wide */
+/* Cards — horizontal scroll on mobile, 3-col grid on tablet+ */
 .sleigh-cards-wrap {
   position: relative;
   margin-right: -24px;
@@ -229,18 +149,18 @@
   border-radius: 18px;
   overflow: hidden;
   background: #07111e;
-  border: 1.5px solid rgba(201, 162, 76, 0.75);
+  border: 1.5px solid rgba(203, 165, 108, 0.65);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 12px rgba(201, 162, 76, 0.08);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 12px rgba(203, 165, 108, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
 .sleigh-card:hover {
-  border-color: #c9a24c;
+  border-color: #cba56c;
   transform: translateY(-4px);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.6), 0 0 18px rgba(201, 162, 76, 0.15);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.6), 0 0 18px rgba(203, 165, 108, 0.18);
 }
 
 .sleigh-card-badge {
@@ -284,10 +204,10 @@
 }
 
 .sleigh-card-name {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Lora', Georgia, serif;
   font-size: 1rem;
-  font-weight: 700;
-  color: #f4e4b8;
+  font-weight: 600;
+  color: #f7e8c3;
   margin: 0;
   line-height: 1.25;
 }
@@ -304,62 +224,62 @@
   width: 100%;
   margin-top: 4px;
   padding: 10px 14px;
-  background: linear-gradient(135deg, #f5d78e 0%, #c9972f 100%);
-  color: #1a1208;
+  background: #cba56c;
+  color: #0d1a2a;
   border: none;
   border-radius: 10px;
+  font-family: 'Mulish', sans-serif;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.18s ease, transform 0.18s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  box-shadow: 0 3px 10px rgba(203, 165, 108, 0.22);
 }
 
-.sleigh-card-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #f9e4a0 0%, #d4a33a 100%);
+.sleigh-card-btn:hover {
+  background: #b8926a;
   transform: translateY(-1px);
 }
-
-.sleigh-card-btn:disabled { opacity: 0.35; cursor: default; }
 
 /* -------- DESIGN YOUR OWN CTA BANNER -------- */
 .sleigh-design-cta {
   margin: 20px 24px 0;
   padding: 22px 24px;
-  border: 1px solid rgba(230, 199, 122, 0.28);
+  border: 1px solid rgba(203, 165, 108, 0.45);
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(10px);
+  background: #07111e;
   display: flex;
   align-items: center;
   gap: 20px;
   position: relative;
   z-index: 5;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
 }
 
 .sleigh-design-icon {
-  width: 52px;
-  height: 52px;
+  width: 88px;
+  height: 88px;
   flex-shrink: 0;
   border-radius: 50%;
-  border: 1px solid rgba(230, 199, 122, 0.35);
-  background: rgba(230, 199, 122, 0.07);
+  border: 1px solid rgba(203, 165, 108, 0.45);
+  background: rgba(203, 165, 108, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .sleigh-design-content { flex: 1; min-width: 0; }
 
 .sleigh-design-title {
-  font-family: 'Playfair Display', serif;
+  font-family: 'Lora', Georgia, serif;
   font-size: 1.1rem;
-  font-weight: 700;
-  color: #e6c77a;
+  font-weight: 600;
+  color: #cba56c;
   margin: 0 0 3px;
   letter-spacing: 0.3px;
 }
@@ -373,25 +293,26 @@
 
 .sleigh-design-btn {
   padding: 12px 20px;
-  background: linear-gradient(135deg, #f5d78e 0%, #e6b85c 50%, #c9972f 100%);
-  color: #1a1a1a;
+  background: #cba56c;
+  color: #0d1a2a;
   border: none;
   border-radius: 12px;
+  font-family: 'Mulish', sans-serif;
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.18s ease, transform 0.18s ease;
   display: flex;
   align-items: center;
   gap: 6px;
   white-space: nowrap;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(230, 184, 92, 0.25), inset 0 1px 0 rgba(255,255,255,0.3);
+  box-shadow: 0 4px 14px rgba(203, 165, 108, 0.28);
 }
 
 .sleigh-design-btn:hover {
+  background: #b8926a;
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(230, 184, 92, 0.35), inset 0 1px 0 rgba(255,255,255,0.4);
 }
 
 /* -------- DYO FORM (below banner) -------- */
@@ -400,6 +321,18 @@
 }
 
 /* -------- RESPONSIVE -------- */
+@media (min-width: 640px) {
+  .sleigh-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    overflow-x: visible;
+    padding-right: 0;
+  }
+  .sleigh-cards-wrap { margin-right: 0; }
+  .sleigh-cards-fade { display: none; }
+  .sleigh-card { flex: unset; width: unset; }
+}
+
 @media (max-width: 768px) {
   .sleigh-hero { padding: 60px 16px 80px; min-height: 380px; }
   .sleigh-hero-title { font-size: 48px; }
