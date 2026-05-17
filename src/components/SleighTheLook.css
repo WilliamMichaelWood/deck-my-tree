@@ -5,10 +5,10 @@
 /* -------- HERO SECTION -------- */
 .sleigh-hero {
   position: relative;
-  padding: 64px 24px 64px;
+  padding: 43px 24px 43px;
   text-align: center;
   overflow: hidden;
-  min-height: 460px;
+  min-height: 308px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -277,13 +277,13 @@
 /* -------- DESIGN YOUR OWN CTA BANNER -------- */
 .sleigh-design-cta {
   margin: 20px 24px 0;
-  padding: 22px 24px;
+  padding: 14px 16px;
   border: 1px solid rgba(203, 165, 108, 0.45);
   border-radius: 18px;
   background: #07111e;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
   position: relative;
   z-index: 5;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
@@ -306,28 +306,29 @@
 
 .sleigh-design-title {
   font-family: 'Lora', Georgia, serif;
-  font-size: 1.1rem;
+  font-size: 1.0rem;
   font-weight: 600;
   color: #cba56c;
-  margin: 0 0 3px;
+  margin: 0 0 2px;
   letter-spacing: 0.3px;
 }
 
 .sleigh-design-subtitle {
-  font-size: 0.8rem;
+  font-size: 0.81rem;
   color: rgba(255, 255, 255, 0.6);
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .sleigh-design-btn {
-  padding: 14px 22px;
+  padding: 10px 18px;
+  height: 40px;
   background: var(--gold-gradient);
   color: #1a1a1a;
   border: none;
   border-radius: 14px;
   font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.04em;
   cursor: pointer;
@@ -350,6 +351,20 @@
   box-shadow: 0 3px 8px rgba(230, 184, 92, 0.2), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
+/* -------- SWIPE HINT -------- */
+.sleigh-cards-hint {
+  font-family: 'Mulish', sans-serif;
+  font-size: 12px;
+  color: rgba(247, 232, 195, 0.5);
+  text-align: center;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+@media (min-width: 640px) {
+  .sleigh-cards-hint { display: none; }
+}
+
 /* -------- DYO FORM (below banner) -------- */
 .sleigh-dyo-form-wrap {
   padding: 0 24px;
@@ -369,7 +384,7 @@
 }
 
 @media (max-width: 768px) {
-  .sleigh-hero { padding: 48px 16px 48px; min-height: 340px; }
+  .sleigh-hero { padding: 32px 16px 32px; min-height: 228px; }
   .sleigh-hero-title { font-size: 40px; }
   .sleigh-hero-subtitle { font-size: 16px; }
   .sleigh-collections { padding: 36px 16px 24px; }
@@ -379,9 +394,7 @@
 }
 
 @media (max-width: 480px) {
-  .sleigh-hero { padding: 40px 12px 40px; min-height: 320px; }
+  .sleigh-hero { padding: 27px 12px 27px; min-height: 215px; }
   .sleigh-hero-title { font-size: 36px; letter-spacing: 0.6px; }
-  .sleigh-design-cta { flex-direction: column; align-items: flex-start; }
-  .sleigh-design-btn { width: 100%; justify-content: center; }
   .sleigh-design-icon { display: none; }
 }

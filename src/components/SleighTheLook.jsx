@@ -606,6 +606,7 @@ export default function SleighTheLook() {
           </div>
           <div className="sleigh-cards-fade" aria-hidden="true" />
         </div>
+        <p className="sleigh-cards-hint">Swipe to explore more looks →</p>
       </div>
 
       {/* ---- DESIGN YOUR OWN CTA BANNER ---- */}
