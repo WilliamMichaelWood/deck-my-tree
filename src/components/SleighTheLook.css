@@ -223,26 +223,32 @@
 .sleigh-card-btn {
   width: 100%;
   margin-top: 4px;
-  padding: 10px 14px;
-  background: #cba56c;
-  color: #0d1a2a;
+  padding: 11px 14px;
+  background: var(--gold-gradient);
+  color: #1a1a1a;
   border: none;
-  border-radius: 10px;
-  font-family: 'Mulish', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 700;
+  border-radius: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
   cursor: pointer;
-  transition: background 0.18s ease, transform 0.18s ease;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  box-shadow: 0 3px 10px rgba(203, 165, 108, 0.22);
+  box-shadow: 0 6px 18px rgba(230, 184, 92, 0.25), inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
 .sleigh-card-btn:hover {
-  background: #b8926a;
   transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(230, 184, 92, 0.35), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+.sleigh-card-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(230, 184, 92, 0.2), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
 /* -------- DESIGN YOUR OWN CTA BANNER -------- */
@@ -292,27 +298,33 @@
 }
 
 .sleigh-design-btn {
-  padding: 12px 20px;
-  background: #cba56c;
-  color: #0d1a2a;
+  padding: 14px 22px;
+  background: var(--gold-gradient);
+  color: #1a1a1a;
   border: none;
-  border-radius: 12px;
-  font-family: 'Mulish', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 700;
+  border-radius: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   cursor: pointer;
-  transition: background 0.18s ease, transform 0.18s ease;
-  display: flex;
+  transition: all 0.2s ease;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   white-space: nowrap;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(203, 165, 108, 0.28);
+  box-shadow: 0 6px 18px rgba(230, 184, 92, 0.25), inset 0 1px 0 rgba(255,255,255,0.3);
 }
 
 .sleigh-design-btn:hover {
-  background: #b8926a;
   transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(230, 184, 92, 0.35), inset 0 1px 0 rgba(255,255,255,0.4);
+}
+
+.sleigh-design-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 8px rgba(230, 184, 92, 0.2), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
 /* -------- DYO FORM (below banner) -------- */
