@@ -101,7 +101,7 @@
 
 /* -------- CURATED COLLECTIONS -------- */
 .sleigh-collections {
-  padding: 48px 24px 32px;
+  padding: 16px 24px 32px;
   position: relative;
   z-index: 5;
 }
@@ -150,6 +150,7 @@
   gap: 10px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   padding-right: 36px;
   scrollbar-width: none;
   margin-bottom: 0;
@@ -167,8 +168,9 @@
 
 .sleigh-card {
   position: relative;
-  flex: 0 0 140px;
-  width: 140px;
+  flex: 0 0 160px;
+  width: 160px;
+  scroll-snap-align: start;
   border-radius: 14px;
   overflow: hidden;
   background: #07111e;
@@ -202,7 +204,7 @@
 
 .sleigh-card-image {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  height: 130px;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
@@ -219,20 +221,20 @@
 .sleigh-card:hover .sleigh-card-image img { transform: scale(1.05); }
 
 .sleigh-card-content {
-  padding: 10px 10px 11px;
+  padding: 16px 10px 16px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   flex: 1;
 }
 
 .sleigh-card-name {
   font-family: 'Lora', Georgia, serif;
-  font-size: 0.78rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #f7e8c3;
   margin: 0;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
 .sleigh-card-description {
@@ -388,7 +390,7 @@
   .sleigh-hero { padding: 32px 16px 32px; min-height: 228px; }
   .sleigh-hero-title { font-size: 40px; }
   .sleigh-hero-subtitle { font-size: 16px; }
-  .sleigh-collections { padding: 36px 16px 24px; }
+  .sleigh-collections { padding: 16px 16px 24px; }
   .sleigh-cards-wrap { margin-right: -16px; }
   .sleigh-design-cta { margin: 20px 16px 0; }
   .sleigh-dyo-form-wrap { padding: 0 16px; }
