@@ -550,7 +550,19 @@ export default function SleighTheLook() {
       {/* ---- HERO ---- */}
       <div className="sleigh-hero">
         <div className="sleigh-hero-bg" />
+        <img
+          src="/hero-bg.jpg"
+          aria-hidden="true"
+          className="sleigh-hero-photo"
+          alt=""
+        />
         <div className="sleigh-hero-glow" />
+        <img
+          src="/sparkle-arc.svg"
+          aria-hidden="true"
+          className="sleigh-hero-sparkle-arc"
+          alt=""
+        />
         <div className="sleigh-hero-content">
           <span className="sleigh-hero-sparkle"><SparkleIcon size={24} color="#cba56c" /></span>
           <h1 className="sleigh-hero-title">Sleigh the Look</h1>
