@@ -8,7 +8,7 @@
   padding: 43px 24px 43px;
   text-align: center;
   overflow: hidden;
-  min-height: 246px;
+  min-height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -101,7 +101,7 @@
 
 /* -------- CURATED COLLECTIONS -------- */
 .sleigh-collections {
-  padding: 8px 24px 16px;
+  padding: 8px 24px 24px;
   position: relative;
   z-index: 5;
 }
@@ -138,39 +138,23 @@
   margin: 0;
 }
 
-/* Cards — horizontal scroll on mobile, 3-col grid on tablet+ */
+/* Cards — 3-col grid */
 .sleigh-cards-wrap {
   position: relative;
-  margin-right: -24px;
 }
 
 .sleigh-cards-grid {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  padding-right: 36px;
-  scrollbar-width: none;
-  margin-bottom: 0;
 }
 
 .sleigh-cards-grid::-webkit-scrollbar { display: none; }
 
-.sleigh-cards-fade {
-  position: absolute;
-  top: 0; right: 0;
-  width: 60px; height: 100%;
-  pointer-events: none;
-  background: linear-gradient(to right, transparent, rgba(5, 12, 25, 0.92));
-}
+.sleigh-cards-fade { display: none; }
 
 .sleigh-card {
   position: relative;
-  flex: 0 0 160px;
-  width: 160px;
-  scroll-snap-align: start;
   border-radius: 14px;
   overflow: hidden;
   background: #07111e;
@@ -204,7 +188,7 @@
 
 .sleigh-card-image {
   width: 100%;
-  height: 110px;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
@@ -214,7 +198,6 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center top;
   transition: transform 0.4s ease;
   display: block;
 }
@@ -356,16 +339,7 @@
 
 /* -------- SWIPE HINT -------- */
 .sleigh-cards-hint {
-  font-family: 'Mulish', sans-serif;
-  font-size: 12px;
-  color: rgba(247, 232, 195, 0.5);
-  text-align: center;
-  margin: 8px 0 0;
-  padding: 0;
-}
-
-@media (min-width: 640px) {
-  .sleigh-cards-hint { display: none; }
+  display: none;
 }
 
 /* -------- DYO FORM (below banner) -------- */
@@ -374,31 +348,19 @@
 }
 
 /* -------- RESPONSIVE -------- */
-@media (min-width: 640px) {
-  .sleigh-cards-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    overflow-x: visible;
-    padding-right: 0;
-  }
-  .sleigh-cards-wrap { margin-right: 0; }
-  .sleigh-cards-fade { display: none; }
-  .sleigh-card { flex: unset; width: unset; }
-}
 
 @media (max-width: 768px) {
-  .sleigh-hero { padding: 32px 16px 32px; min-height: 182px; }
+  .sleigh-hero { padding: 32px 16px 32px; min-height: 280px; }
   .sleigh-hero-title { font-size: 40px; }
   .sleigh-hero-subtitle { font-size: 16px; }
-  .sleigh-collections { padding: 8px 16px 16px; }
+  .sleigh-collections { padding: 8px 16px 24px; }
   .sleigh-cards-wrap { margin-right: -16px; }
   .sleigh-design-cta { margin: 20px 16px 0; }
   .sleigh-dyo-form-wrap { padding: 0 16px; }
 }
 
 @media (max-width: 480px) {
-  .sleigh-hero { padding: 27px 12px 27px; min-height: 172px; }
+  .sleigh-hero { padding: 27px 12px 27px; min-height: 260px; }
   .sleigh-hero-title { font-size: 36px; letter-spacing: 0.6px; }
   .sleigh-design-icon { display: none; }
 }

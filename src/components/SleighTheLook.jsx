@@ -595,6 +595,7 @@ export default function SleighTheLook() {
                   </div>
                   <div className="sleigh-card-content">
                     <p className="sleigh-card-name">{col.name}</p>
+                    <p className="sleigh-card-description">{col.tagline}</p>
                     <button className="sleigh-card-btn" onClick={handleClick}>
                       View the Look ›
                     </button>
