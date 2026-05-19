@@ -566,12 +566,18 @@ export default function SleighTheLook() {
         <div className="sleigh-hero-content">
           <span className="sleigh-hero-sparkle"><SparkleIcon size={24} color="#cba56c" /></span>
           <h1 className="sleigh-hero-title">Sleigh the Look</h1>
-          <p className="sleigh-hero-subtitle">Curated trees, styled to perfection. Tap a look and bring it home.</p>
+          <p className="sleigh-hero-subtitle">Curated trees, styled to perfection.</p>
         </div>
       </div>
 
       {/* ---- CURATED COLLECTIONS ---- */}
       <div className="sleigh-collections">
+        <div className="sleigh-collections-header">
+          <div className="sleigh-collections-title-block">
+            <SparkleIcon size={16} color="#cba56c" />
+            <h2 className="sleigh-collections-title">Curated Collections</h2>
+          </div>
+        </div>
         <div className="sleigh-cards-wrap">
           <div className="sleigh-cards-grid">
             {curatedCollections.slice(0, 3).map(col => {
