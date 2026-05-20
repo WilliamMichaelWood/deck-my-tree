@@ -212,20 +212,21 @@
   flex-direction: column;
   gap: 6px;
   flex: 1;
+  background: #f7e8c3;
 }
 
 .sleigh-card-name {
   font-family: 'Lora', Georgia, serif;
   font-size: 15px;
   font-weight: 600;
-  color: #f7e8c3;
+  color: #1a1a2e;
   margin: 0;
   line-height: 1.2;
 }
 
 .sleigh-card-description {
   font-size: 0.62rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: #3a3a4a;
   margin: 0;
   line-height: 1.35;
   flex: 1;
