@@ -104,6 +104,8 @@
   padding: 16px 24px 24px;
   position: relative;
   z-index: 5;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .sleigh-collections-header {
@@ -360,7 +362,7 @@
 }
 
 @media (max-width: 480px) {
-  .sleigh-hero { padding: 27px 12px 27px; min-height: 200px; }
+  .sleigh-hero { padding: 27px 12px 27px; min-height: 0; }
   .sleigh-hero-title { font-size: 36px; letter-spacing: 0.6px; }
   .sleigh-design-icon { display: none; }
 }
