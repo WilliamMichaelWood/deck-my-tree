@@ -15,7 +15,7 @@ export const curatedCollections = [
     id:               'gilded-ever-after',
     name:             'Gilded Ever After',
     tagline:          'Champagne, gold, and pearl — timeless luxe',
-    heroImage:        '/trees/tree-xlarge.jpg',
+    heroImage:        '/trees/gilded-ever-after.jpg',
     badge:            'NEW',
     status:           'live',
   },
