@@ -53,12 +53,9 @@
 .sleigh-hero-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    circle at center,
-    rgba(230, 199, 122, 0.08) 0%,
-    rgba(230, 199, 122, 0.03) 40%,
-    transparent 100%
-  );
+  background:
+    radial-gradient(ellipse 85% 70% at 50% 60%, rgba(5, 14, 26, 0.62) 0%, transparent 100%),
+    radial-gradient(circle at center, rgba(230, 199, 122, 0.06) 0%, transparent 60%);
   z-index: 3;
   pointer-events: none;
 }
@@ -87,6 +84,7 @@
   margin: 0 0 10px 0;
   letter-spacing: 1px;
   line-height: 1.1;
+  text-shadow: 0 2px 24px rgba(5, 14, 26, 0.9), 0 0 48px rgba(5, 14, 26, 0.7);
 }
 
 .sleigh-hero-subtitle {
@@ -97,6 +95,7 @@
   margin: 0;
   line-height: 1.7;
   letter-spacing: 0.3px;
+  text-shadow: 0 1px 12px rgba(5, 14, 26, 0.95);
 }
 
 /* -------- CURATED COLLECTIONS -------- */
