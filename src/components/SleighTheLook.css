@@ -278,23 +278,19 @@
 }
 
 .sleigh-design-icon {
-  width: 88px;
-  height: 88px;
+  width: 72px;
+  height: 72px;
   flex-shrink: 0;
-  border-radius: 50%;
-  border: 1px solid rgba(203, 165, 108, 0.45);
-  background: rgba(203, 165, 108, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
 }
 
 .sleigh-design-content { flex: 1; min-width: 0; }
 
 .sleigh-design-title {
   font-family: 'Lora', Georgia, serif;
-  font-size: 1.0rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #cba56c;
   margin: 0 0 2px;
@@ -303,7 +299,7 @@
 
 .sleigh-design-subtitle {
   font-size: 0.81rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(247, 232, 195, 0.6);
   margin: 0;
   line-height: 1.35;
 }
@@ -364,5 +360,4 @@
 @media (max-width: 480px) {
   .sleigh-hero { padding: 27px 12px 27px; min-height: 0; }
   .sleigh-hero-title { font-size: 36px; letter-spacing: 0.6px; }
-  .sleigh-design-icon { display: none; }
 }

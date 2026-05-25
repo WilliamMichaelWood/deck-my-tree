@@ -610,7 +610,7 @@ export default function SleighTheLook() {
       {/* ---- DESIGN YOUR OWN CTA BANNER ---- */}
       <div className="sleigh-design-cta" ref={diyRef}>
         <div className="sleigh-design-icon">
-          <img src="/design-your-own-tree.png" alt="Design your own tree" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          <img src="/design-your-own-tree.png" alt="" aria-hidden="true" style={{ width: '72px', height: '72px', objectFit: 'contain' }} />
         </div>
         <div className="sleigh-design-content">
           <h3 className="sleigh-design-title">Design Your Own Tree</h3>
