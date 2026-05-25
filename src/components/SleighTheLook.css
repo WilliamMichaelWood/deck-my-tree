@@ -5,10 +5,11 @@
 /* -------- HERO SECTION -------- */
 .sleigh-hero {
   position: relative;
-  padding: 43px 24px 43px;
+  padding: 28px 24px 20px;
   text-align: center;
   overflow: hidden;
-  min-height: 240px;
+  min-height: 300px;
+  max-height: 340px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,7 +41,7 @@
 
 .sleigh-hero-sparkle-arc {
   position: absolute;
-  top: 0;
+  top: 18px;
   left: 0;
   width: 100%;
   height: 50%;
@@ -48,6 +49,7 @@
   object-position: top center;
   pointer-events: none;
   z-index: 4;
+  transform: scale(0.9);
 }
 
 .sleigh-hero-glow {
@@ -72,18 +74,18 @@
 .sleigh-hero-content {
   position: relative;
   z-index: 5;
-  max-width: 320px;
+  max-width: 52%;
   margin: 0 auto;
 }
 
 .sleigh-hero-title {
   font-family: 'Lora', Georgia, serif;
-  font-size: 42px;
+  font-size: clamp(2.8rem, 7vw, 4.8rem);
   font-weight: 400;
   color: #f7e8c3;
   margin: 0 0 10px 0;
   letter-spacing: 1px;
-  line-height: 1.1;
+  line-height: 0.95;
   text-shadow: 0 2px 24px rgba(5, 14, 26, 0.9), 0 0 48px rgba(5, 14, 26, 0.7);
 }
 
@@ -92,15 +94,16 @@
   font-size: 18px;
   font-weight: 300;
   color: rgba(247, 232, 195, 0.72);
-  margin: 0;
-  line-height: 1.7;
+  margin: 10px auto 0;
+  max-width: 420px;
+  line-height: 1.35;
   letter-spacing: 0.3px;
   text-shadow: 0 1px 12px rgba(5, 14, 26, 0.95);
 }
 
 /* -------- CURATED COLLECTIONS -------- */
 .sleigh-collections {
-  padding: 16px 24px 24px;
+  padding: 14px 24px 24px;
   position: relative;
   z-index: 5;
   -webkit-transform: translateZ(0);
@@ -348,7 +351,7 @@
 /* -------- RESPONSIVE -------- */
 
 @media (max-width: 768px) {
-  .sleigh-hero { padding: 32px 16px 32px; min-height: 220px; }
+  .sleigh-hero { padding: 28px 16px 20px; min-height: 300px; }
   .sleigh-hero-title { font-size: 40px; }
   .sleigh-hero-subtitle { font-size: 16px; }
   .sleigh-collections { padding: 16px 16px 24px; }
@@ -358,6 +361,6 @@
 }
 
 @media (max-width: 480px) {
-  .sleigh-hero { padding: 27px 12px 27px; min-height: 0; }
+  .sleigh-hero { padding: 28px 12px 20px; min-height: 300px; }
   .sleigh-hero-title { font-size: 36px; letter-spacing: 0.6px; }
 }
