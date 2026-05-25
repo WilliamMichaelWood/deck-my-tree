@@ -31,7 +31,7 @@ export const curatedCollections = [
     id:               'silver-snow',
     name:             'Silver & Snow',
     tagline:          'Crimson, silver, and white — wintery sparkle',
-    heroImage:        '/trees/tree-medium.jpg',
+    heroImage:        '/trees/silver-and-snow.jpg',
     badge:            null,
     status:           'coming-soon',
   },
