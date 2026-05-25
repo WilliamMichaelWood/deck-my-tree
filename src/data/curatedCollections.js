@@ -23,7 +23,7 @@ export const curatedCollections = [
     id:               'crimson-enchantment',
     name:             'Crimson Enchantment',
     tagline:          'Deep red, gold, and cream — classic warmth',
-    heroImage:        '/trees/tree-large.jpg',
+    heroImage:        '/trees/crimson-enchantment.jpg',
     badge:            null,
     status:           'coming-soon',
   },
