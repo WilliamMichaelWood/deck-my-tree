@@ -2137,3 +2137,8 @@ h3.shop-section-header {
   font-size: 0.7rem;
   color: rgba(248, 240, 223, 0.3);
 }
+
+@media (max-width: 767px) {
+  .tab-nav { height: 72px !important; max-height: 72px !important; }
+  .tab-icon svg { width: 22px !important; height: 22px !important; }
+}

@@ -359,3 +359,43 @@
 @media (max-width: 480px) {
   .sleigh-hero { padding: 32px 12px 28px; min-height: 180px; }
 }
+
+/* -------- MOBILE HERO HARD FIX -------- */
+@media (max-width: 767px) {
+  .sleigh-hero {
+    height: 315px;
+    min-height: 315px;
+    max-height: 315px;
+    overflow: hidden;
+  }
+
+  .sleigh-hero-content {
+    width: 100%;
+    max-width: none;
+    padding: 0 18px;
+    text-align: center;
+    position: relative;
+    z-index: 5;
+  }
+
+  .sleigh-hero-title {
+    font-size: clamp(3.05rem, 12vw, 3.85rem) !important;
+    line-height: 0.9 !important;
+    white-space: nowrap !important;
+    letter-spacing: -0.03em;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .sleigh-hero-subtitle {
+    font-size: 1rem !important;
+    line-height: 1.35 !important;
+    max-width: 330px;
+    margin: 14px auto 0;
+  }
+
+  .sleigh-hero-sparkle-arc {
+    top: 28px !important;
+    transform: scale(0.82) !important;
+  }
+}
