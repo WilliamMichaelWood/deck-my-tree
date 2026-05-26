@@ -557,12 +557,6 @@ export default function SleighTheLook() {
           alt=""
         />
         <div className="sleigh-hero-glow" />
-        <img
-          src="/sparkle-arc.svg"
-          aria-hidden="true"
-          className="sleigh-hero-sparkle-arc"
-          alt=""
-        />
         <div className="sleigh-hero-content">
           <span className="sleigh-hero-sparkle"><SparkleIcon size={24} color="#cba56c" /></span>
           <h1 className="sleigh-hero-title">Sleigh the Look</h1>
@@ -609,9 +603,6 @@ export default function SleighTheLook() {
 
       {/* ---- DESIGN YOUR OWN CTA BANNER ---- */}
       <div className="sleigh-design-cta" ref={diyRef}>
-        <div className="sleigh-design-icon">
-          <img src="/design-your-own-tree.png" alt="" aria-hidden="true" style={{ width: '72px', height: '72px', objectFit: 'contain' }} />
-        </div>
         <div className="sleigh-design-content">
           <h3 className="sleigh-design-title">Design Your Own Tree</h3>
           <p className="sleigh-design-subtitle">Tell us your style, we'll build your perfect look.</p>
