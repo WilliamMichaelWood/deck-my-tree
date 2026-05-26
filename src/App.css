@@ -188,11 +188,11 @@ a { text-decoration: none; color: inherit; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 8px 8px 8px;
+  gap: 5px;
+  padding: 10px 8px 12px;
   background: transparent;
   color: rgba(255, 255, 255, 0.55);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -204,7 +204,7 @@ a { text-decoration: none; color: inherit; }
   color: var(--gold);
   border-top-color: var(--gold);
 }
-.tab-icon { font-size: 1.0rem; line-height: 1; max-height: 22px; overflow: hidden; }
+.tab-icon { font-size: 1.2rem; line-height: 1; }
 .tab-label { display: block; }
 
 /* ─── Main Content ───────────────────────────────────────────── */
@@ -2136,9 +2136,4 @@ h3.shop-section-header {
 .footer-copy {
   font-size: 0.7rem;
   color: rgba(248, 240, 223, 0.3);
-}
-
-@media (max-width: 767px) {
-  .tab-nav { height: 72px !important; max-height: 72px !important; }
-  .tab-icon svg { width: 22px !important; height: 22px !important; }
 }
