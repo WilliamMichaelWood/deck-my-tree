@@ -5,10 +5,10 @@
 /* -------- HERO SECTION -------- */
 .sleigh-hero {
   position: relative;
-  padding: 38px 24px 34px;
+  padding: 32px 24px 28px;
   text-align: center;
   overflow: hidden;
-  min-height: 210px;
+  min-height: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,29 +72,29 @@
 .sleigh-hero-content {
   position: relative;
   z-index: 5;
-  max-width: 58%;
+  max-width: 320px;
   margin: 0 auto;
 }
 
 .sleigh-hero-title {
   font-family: 'Lora', Georgia, serif;
-  font-size: clamp(3rem, 8vw, 4.2rem);
+  font-size: 42px;
   font-weight: 400;
   color: #f7e8c3;
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
   letter-spacing: 1px;
-  line-height: 0.88;
+  line-height: 1.05;
   text-shadow: 0 2px 24px rgba(5, 14, 26, 0.9), 0 0 48px rgba(5, 14, 26, 0.7);
 }
 
 .sleigh-hero-subtitle {
   font-family: 'Mulish', sans-serif;
-  font-size: 0.95rem;
+  font-size: 15px;
   font-weight: 300;
   color: rgba(247, 232, 195, 0.72);
-  margin: 10px auto 0;
-  max-width: 320px;
-  line-height: 1.35;
+  margin: 8px auto 0;
+  max-width: 280px;
+  line-height: 1.4;
   letter-spacing: 0.3px;
   text-shadow: 0 1px 12px rgba(5, 14, 26, 0.95);
 }
@@ -349,7 +349,7 @@
 /* -------- RESPONSIVE -------- */
 
 @media (max-width: 768px) {
-  .sleigh-hero { padding: 38px 16px 34px; min-height: 210px; }
+  .sleigh-hero { padding: 32px 16px 28px; min-height: 180px; }
   .sleigh-collections { padding: 16px 16px 24px; }
   .sleigh-cards-wrap { margin-right: -16px; }
   .sleigh-design-cta { margin: 8px 16px 16px; }
@@ -357,5 +357,5 @@
 }
 
 @media (max-width: 480px) {
-  .sleigh-hero { padding: 38px 12px 34px; min-height: 210px; }
+  .sleigh-hero { padding: 32px 12px 28px; min-height: 180px; }
 }
