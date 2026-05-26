@@ -566,7 +566,7 @@ export default function SleighTheLook() {
         <div className="sleigh-hero-content">
           <span className="sleigh-hero-sparkle"><SparkleIcon size={24} color="#cba56c" /></span>
           <h1 className="sleigh-hero-title">Sleigh the Look</h1>
-          <p className="sleigh-hero-subtitle">Curated trees, styled to perfection. Tap a look and bring it home.</p>
+          <p className="sleigh-hero-subtitle">Curated trees, styled to perfection.</p>
         </div>
       </div>
 
